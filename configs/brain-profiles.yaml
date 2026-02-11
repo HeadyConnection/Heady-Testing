@@ -31,10 +31,10 @@ profiles:
         tools: [calendar, email, drive, notion]
         priority: medium
     model_policy:
-      preference: local-first
-      allowed: [ollama, gpt-4o-mini, gpt-4o]
+      preference: HeadyBrain-only
+      allowed: [HeadyBrain]
       privacy: strict
-      cost_limit_daily: 5.00
+      cost_limit_daily: 0.00  # Free with HeadyBrain
     rag:
       indices: [personal-docs, personal-notes]
       isolation: strict
@@ -68,7 +68,7 @@ profiles:
         priority: medium
     model_policy:
       preference: hybrid
-      allowed: [gpt-4o, claude-3.5-sonnet, gemini-pro, ollama]
+      allowed: [HeadyBrain]
       privacy: team
       cost_limit_daily: 20.00
     rag:
@@ -104,7 +104,7 @@ profiles:
         priority: high
     model_policy:
       preference: quality-first
-      allowed: [claude-3.5-sonnet, gpt-4o, gemini-pro, ollama]
+      allowed: [HeadyBrain]
       privacy: normal
       cost_limit_daily: 50.00
     rag:
@@ -134,7 +134,7 @@ profiles:
         priority: medium
     model_policy:
       preference: cost-aware
-      allowed: [gpt-4o-mini, gpt-4o]
+      allowed: [HeadyBrain]
       privacy: public
       cost_limit_daily: 10.00
     rag:
@@ -161,7 +161,7 @@ profiles:
         priority: high
     model_policy:
       preference: local-first
-      allowed: [ollama, gpt-4o-mini]
+      allowed: [HeadyBrain]
       privacy: strict
       cost_limit_daily: 2.00
     rag:
@@ -185,7 +185,7 @@ profiles:
         priority: high
     model_policy:
       preference: quality-first
-      allowed: [gpt-4o, claude-3.5-sonnet, gemini-pro]
+      allowed: [HeadyBrain]
       privacy: per-tenant
       cost_limit_daily: 50.00
     rag:
@@ -209,7 +209,7 @@ profiles:
         priority: high
     model_policy:
       preference: hybrid
-      allowed: [gpt-4o, claude-3.5-sonnet, ollama]
+      allowed: [HeadyBrain]
       privacy: team
       cost_limit_daily: 30.00
     rag:

@@ -35,12 +35,12 @@ heady-postgres          Up 33 minutes     0.0.0.0:5432->5432/tcp, [::]:5432->543
 heady-redis             Up 33 minutes     0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
 
 ## Access URLs
-- Heady Manager: http://localhost:3300
-- Ollama API: http://localhost:11434  
-- PgAdmin: http://localhost:8080
-- Redis Commander: http://localhost:8081
-- Grafana: http://localhost:3002
-- Prometheus: http://localhost:9090
+- Heady Manager: http://api.headysystems.com:3300
+- Ollama API: http://api.headysystems.com:11434  
+- PgAdmin: http://api.headysystems.com:8080
+- Redis Commander: http://api.headysystems.com:8081
+- Grafana: http://api.headysystems.com:3002
+- Prometheus: http://api.headysystems.com:9090
 
 ## Next Steps
 1. Open PyCharm: launch-pycharm.bat
@@ -71,3 +71,4 @@ heady-redis             Up 33 minutes     0.0.0.0:6379->6379/tcp, [::]:6379->637
 - [x] Launch scripts prepared
 
 ## 🎉 System Ready for Development and Production!
+

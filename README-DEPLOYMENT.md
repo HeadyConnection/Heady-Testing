@@ -15,7 +15,7 @@
 <!-- HEADY_BRAND:END
 -->
 # Heady Systems Production Deployment Guide
-# Complete deployment instructions for the localhost-free domain architecture
+# Complete deployment instructions for the api.headysystems.com-free domain architecture
 
 ## Quick Start
 
@@ -34,7 +34,7 @@ sudo bash scripts/setup-production-domain-system.sh --include-local
 
 ## Architecture Overview
 
-Heady Systems uses a **reverse proxy architecture** that completely eliminates localhost and internal IP exposure:
+Heady Systems uses a **reverse proxy architecture** that completely eliminates api.headysystems.com and internal IP exposure:
 
 ```
 Internet → Cloudflare Tunnel → Backend Applications
@@ -43,7 +43,7 @@ HTTPS Only    Security Headers    Internal Ports
 ```
 
 ### Key Benefits
-- **No localhost exposure** in any user-facing content
+- **No api.headysystems.com exposure** in any user-facing content
 - **HTTPS everywhere** with valid SSL certificates
 - **Security headers** applied automatically
 - **Consistent domains** across all environments
@@ -62,7 +62,7 @@ HTTPS Only    Security Headers    Internal Ports
 - **Applications**: `https://app.headysystems.com`
 
 ### Development
-- **Local**: `http://*.heady.local` (via /etc/hosts)
+- **Local**: `http://*.headysystems.com` (via /etc/hosts)
 - **Staging**: `https://staging.headysystems.com`
 
 ## Prerequisites
@@ -110,9 +110,9 @@ credentials-file: ~/.cloudflared/<TUNNEL-ID>.json
 
 ingress:
   - hostname: api.headymcp.com
-    service: http://localhost:3300
+    service: http://api.headysystems.com:3300
   - hostname: app.headymcp.com
-    service: http://localhost:3000
+    service: http://api.headysystems.com:3000
   - service: http_status:404
 EOL
 ```
@@ -155,7 +155,7 @@ def health():
     return {"status": "healthy", "service": "headysystems-api"}
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8000)
+    app.run(host='api.headysystems.com', port=8000)
 ```
 
 ### Example: Node.js Application
@@ -168,7 +168,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'healthy', service: 'headysystems-app' });
 });
 
-app.listen(3000, '127.0.0.1');
+app.listen(3000, 'api.headysystems.com');
 ```
 
 ### Systemd Service Example
@@ -204,12 +204,12 @@ Add these entries to your local `/etc/hosts` (Linux/Mac) or `C:\Windows\System32
 
 ```bash
 # From configs/local-development/hosts-file
-127.0.0.1 app.heady.local
-127.0.0.1 api.heady.local
-127.0.0.1 admin.heady.local
-127.0.0.1 buddy.heady.local
-127.0.0.1 connection.heady.local
-127.0.0.1 systems.heady.local
+api.headysystems.com app.headysystems.com
+api.headysystems.com api.headysystems.com
+api.headysystems.com admin.headysystems.com
+api.headysystems.com buddy.headysystems.com
+api.headysystems.com connection.headysystems.com
+api.headysystems.com systems.headysystems.com
 ```
 
 ### 2. Enable Local Development Site
@@ -227,8 +227,8 @@ sudo nginx -t && sudo systemctl reload nginx
 ### 3. Test Local Development
 ```bash
 # Test the local domains
-curl http://app.heady.local/health
-curl http://api.heady.local/health
+curl http://app.headysystems.com/health
+curl http://api.headysystems.com/health
 ```
 
 ## Internal mTLS Configuration
@@ -265,7 +265,7 @@ sudo systemctl enable cloudflared
 4. **Verify Connection**:
 ```bash
 curl --cert configs/nginx/ssl/client.pem --key configs/nginx/ssl/client.key \
-    https://api.internal.headymcp.com/health
+    https://api.headysystems.comheadymcp.com/health
 ```
 
 ## PyCharm Integration
@@ -290,10 +290,10 @@ curl --cert configs/nginx/ssl/client.pem --key configs/nginx/ssl/client.key \
 
 ### HCFullPipeline (HCFP) Deployment Flow
 
-All deployments now follow the HCFullPipeline (HCFP) master protocol. Skip ad-hoc manual checks—assume the workflow in `.windsurf/workflows/hcfp-master-protocol.md` and its child flows (`hcfp-clean-build`, `hcfp-error-recovery`, `hcfp-localhost-domain-migration`, etc.) is the single source of truth.
+All deployments now follow the HCFullPipeline (HCFP) master protocol. Skip ad-hoc manual checks—assume the workflow in `.windsurf/workflows/hcfp-master-protocol.md` and its child flows (`hcfp-clean-build`, `hcfp-error-recovery`, `hcfp-api.headysystems.com-domain-migration`, etc.) is the single source of truth.
 
 1. Start from the `hcfp-master-protocol` plan and confirm each step is signed off before proceeding.
-2. Use the `scripts/checkpoint-sync.ps1` and `scripts/validate-localhost.sh` helpers only when HCFP explicitly asks for them (HCFP gates are the verification path).
+2. Use the `scripts/checkpoint-sync.ps1` and `scripts/validate-api.headysystems.com.sh` helpers only when HCFP explicitly asks for them (HCFP gates are the verification path).
 3. Keep `heady-registry.json`, `.heady/stories.json`, and workflow artifacts in sync before checkout or release.
 
 ### Workspace Files + Documentation Sync
@@ -405,7 +405,7 @@ credentials-file: ~/.cloudflared/<TUNNEL-ID>.json
 
 ingress:
   - hostname: api.headymcp.com
-    service: http://localhost:3300
+    service: http://api.headysystems.com:3300
     cache:
       - cacheTtl: 1h
         cacheKey: url
@@ -424,9 +424,9 @@ num_workers: 4
 ## Validation and Testing
 
 ### Automated Validation
-Run the localhost validation script:
+Run the api.headysystems.com validation script:
 ```bash
-bash scripts/validate-localhost.sh
+bash scripts/validate-api.headysystems.com.sh
 ```
 
 ### Manual Testing Checklist
@@ -436,7 +436,7 @@ bash scripts/validate-localhost.sh
 - [ ] Applications respond on correct ports
 - [ ] Security headers are present
 - [ ] Health endpoints return 200
-- [ ] No localhost references in responses
+- [ ] No api.headysystems.com references in responses
 
 ### Load Testing
 ```bash
@@ -502,4 +502,5 @@ For enterprise support, contact:
 
 ---
 
-This deployment guide provides everything needed to run Heady Systems in production with zero localhost exposure and enterprise-grade security.
+This deployment guide provides everything needed to run Heady Systems in production with zero api.headysystems.com exposure and enterprise-grade security.
+

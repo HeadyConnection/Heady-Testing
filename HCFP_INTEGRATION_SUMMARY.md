@@ -19,7 +19,7 @@
 ## 🎯 Mission Accomplished
 
 Successfully integrated comprehensive HCFP (HCFullPipeline) system with:
-1. **Localhost-to-Domain Migration** - All services now discoverable via internal domains
+1. **api.headysystems.com-to-Domain Migration** - All services now discoverable via internal domains
 2. **Clean Build on Every Change** - With intelligent error classification and recovery
 3. **VS Code Extension** - Full IDE integration for Heady/Petty
 4. **PWA Desktop App** - Seamless desktop integration across browsers
@@ -29,41 +29,41 @@ Successfully integrated comprehensive HCFP (HCFullPipeline) system with:
 
 ## 📦 Deliverables
 
-### 1. Localhost-to-Domain Migration System
+### 1. api.headysystems.com-to-Domain Migration System
 
 **Files Created:**
-- `scripts/migrate-localhost-to-domains.js` - Automated migration script
-- `.windsurf/workflows/hcfp-localhost-domain-migration.md` - Step-by-step workflow
+- `scripts/migrate-api.headysystems.com-to-domains.js` - Automated migration script
+- `.windsurf/workflows/hcfp-api.headysystems.com-domain-migration.md` - Step-by-step workflow
 - `configs/domains/service-discovery.yaml` - Service domain mappings (already existed)
 
 **Service Mappings (14 total):**
 ```
-localhost:3300    → manager.dev.local.heady.internal:3300
-localhost:3000    → app-web.dev.local.heady.internal:3000
-localhost:3001    → tools-mcp.dev.local.heady.internal:3001
-localhost:5432    → db-postgres.dev.local.heady.internal:5432
-localhost:6379    → db-redis.dev.local.heady.internal:6379
-localhost:11434   → ai-ollama.dev.local.heady.internal:11434
-localhost:3301    → app-buddy.dev.local.heady.internal:3301
-localhost:3302    → bridge-browser.dev.local.heady.internal:3302
-localhost:3303    → io-voice.dev.local.heady.internal:3303
-localhost:3304    → svc-billing.dev.local.heady.internal:3304
-localhost:3305    → svc-telemetry.dev.local.heady.internal:3305
-localhost:8080    → admin-postgres.dev.local.heady.internal:8080
-localhost:8081    → admin-redis.dev.local.heady.internal:8081
-localhost:9090    → debug-manager.dev.local.heady.internal:9090
+api.headysystems.com:3300    → manager.dev.local.headysystems.com:3300
+api.headysystems.com:3000    → app-web.dev.local.headysystems.com:3000
+api.headysystems.com:3001    → tools-mcp.dev.local.headysystems.com:3001
+api.headysystems.com:5432    → db-postgres.dev.local.headysystems.com:5432
+api.headysystems.com:6379    → db-redis.dev.local.headysystems.com:6379
+api.headysystems.com:11434   → ai-ollama.dev.local.headysystems.com:11434
+api.headysystems.com:3301    → app-buddy.dev.local.headysystems.com:3301
+api.headysystems.com:3302    → bridge-browser.dev.local.headysystems.com:3302
+api.headysystems.com:3303    → io-voice.dev.local.headysystems.com:3303
+api.headysystems.com:3304    → svc-billing.dev.local.headysystems.com:3304
+api.headysystems.com:3305    → svc-telemetry.dev.local.headysystems.com:3305
+api.headysystems.com:8080    → admin-postgres.dev.local.headysystems.com:8080
+api.headysystems.com:8081    → admin-redis.dev.local.headysystems.com:8081
+api.headysystems.com:9090    → debug-manager.dev.local.headysystems.com:9090
 ```
 
 **Usage:**
 ```bash
 # Dry-run to preview changes
-node scripts/migrate-localhost-to-domains.js --dry-run
+node scripts/migrate-api.headysystems.com-to-domains.js --dry-run
 
 # Execute migration
-node scripts/migrate-localhost-to-domains.js
+node scripts/migrate-api.headysystems.com-to-domains.js
 
-# Verify no localhost references remain
-node scripts/migrate-localhost-to-domains.js --verify-only
+# Verify no api.headysystems.com references remain
+node scripts/migrate-api.headysystems.com-to-domains.js --verify-only
 ```
 
 ### 2. Clean Build with Error Recovery
@@ -122,7 +122,7 @@ Ctrl+Shift+D  → Generate Docs
 **Configuration:**
 ```json
 {
-  "heady.apiEndpoint": "http://manager.dev.local.heady.internal:3300",
+  "heady.apiEndpoint": "http://manager.dev.local.headysystems.com:3300",
   "heady.mode": "hybrid",
   "heady.inlineCompletions": true,
   "heady.voiceEnabled": false
@@ -165,7 +165,7 @@ Creates:
 - `HCFP_INTEGRATION_SUMMARY.md` - This file
 
 **Registry Updates:**
-- Added `hcfp-localhost-migration` component
+- Added `hcfp-api.headysystems.com-migration` component
 - Added `hcfp-error-recovery` component
 - Added `vscode-extension` component
 - Added `pwa-desktop-app` component
@@ -175,16 +175,16 @@ Creates:
 
 ## 🚀 Quick Start
 
-### 1. Migrate Localhost to Domains
+### 1. Migrate api.headysystems.com to Domains
 ```bash
 # Preview changes
-node scripts/migrate-localhost-to-domains.js --dry-run
+node scripts/migrate-api.headysystems.com-to-domains.js --dry-run
 
 # Execute
-node scripts/migrate-localhost-to-domains.js
+node scripts/migrate-api.headysystems.com-to-domains.js
 
 # Verify
-node scripts/migrate-localhost-to-domains.js --verify-only
+node scripts/migrate-api.headysystems.com-to-domains.js --verify-only
 ```
 
 ### 2. Setup PWA Desktop App
@@ -218,29 +218,29 @@ npm run clean-build
 ### Service Discovery
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  Internal Domain: *.dev.local.heady.internal             │
+│  Internal Domain: *.dev.local.headysystems.com             │
 ├──────────────────────────────────────────────────────────┤
 │  API Layer:                                              │
-│  ├─ manager.dev.local.heady.internal:3300               │
-│  ├─ tools-mcp.dev.local.heady.internal:3001             │
-│  └─ app-web.dev.local.heady.internal:3000               │
+│  ├─ manager.dev.local.headysystems.com:3300               │
+│  ├─ tools-mcp.dev.local.headysystems.com:3001             │
+│  └─ app-web.dev.local.headysystems.com:3000               │
 │                                                          │
 │  Data Layer:                                             │
-│  ├─ db-postgres.dev.local.heady.internal:5432           │
-│  ├─ db-redis.dev.local.heady.internal:6379              │
-│  └─ ai-ollama.dev.local.heady.internal:11434            │
+│  ├─ db-postgres.dev.local.headysystems.com:5432           │
+│  ├─ db-redis.dev.local.headysystems.com:6379              │
+│  └─ ai-ollama.dev.local.headysystems.com:11434            │
 │                                                          │
 │  Services:                                               │
-│  ├─ app-buddy.dev.local.heady.internal:3301             │
-│  ├─ bridge-browser.dev.local.heady.internal:3302        │
-│  ├─ io-voice.dev.local.heady.internal:3303              │
-│  ├─ svc-billing.dev.local.heady.internal:3304           │
-│  └─ svc-telemetry.dev.local.heady.internal:3305         │
+│  ├─ app-buddy.dev.local.headysystems.com:3301             │
+│  ├─ bridge-browser.dev.local.headysystems.com:3302        │
+│  ├─ io-voice.dev.local.headysystems.com:3303              │
+│  ├─ svc-billing.dev.local.headysystems.com:3304           │
+│  └─ svc-telemetry.dev.local.headysystems.com:3305         │
 │                                                          │
 │  Admin/Debug:                                            │
-│  ├─ admin-postgres.dev.local.heady.internal:8080        │
-│  ├─ admin-redis.dev.local.heady.internal:8081           │
-│  └─ debug-manager.dev.local.heady.internal:9090         │
+│  ├─ admin-postgres.dev.local.headysystems.com:8080        │
+│  ├─ admin-redis.dev.local.headysystems.com:8081           │
+│  └─ debug-manager.dev.local.headysystems.com:9090         │
 └──────────────────────────────────────────────────────────┘
 ```
 
@@ -264,7 +264,7 @@ Handle Based on Type
 
 ## 📋 Verification Checklist
 
-- [x] Localhost-to-domain migration script created
+- [x] api.headysystems.com-to-domain migration script created
 - [x] Migration workflow documented
 - [x] Service discovery config in place
 - [x] Clean build CI/CD pipeline configured
@@ -282,7 +282,7 @@ Handle Based on Type
 
 ### Service Discovery
 **File**: `configs/service-discovery.yaml`
-- Maps all localhost references to internal domains
+- Maps all api.headysystems.com references to internal domains
 - Defines security levels and network policies
 - Includes mTLS configuration
 - Referenced by all services
@@ -302,8 +302,8 @@ Handle Based on Type
 - Escalation procedures
 - Monitoring and alerts
 
-### Localhost Migration
-**File**: `.windsurf/workflows/hcfp-localhost-domain-migration.md`
+### api.headysystems.com Migration
+**File**: `.windsurf/workflows/hcfp-api.headysystems.com-domain-migration.md`
 - Step-by-step migration guide
 - Service domain mappings
 - Testing procedures
@@ -347,11 +347,11 @@ Handle Based on Type
 ### Core Guides
 - `docs/HCFP_INTEGRATION_GUIDE.md` - Complete integration guide
 - `.windsurf/workflows/hcfp-error-recovery.md` - Error handling
-- `.windsurf/workflows/hcfp-localhost-domain-migration.md` - Domain migration
+- `.windsurf/workflows/hcfp-api.headysystems.com-domain-migration.md` - Domain migration
 - `configs/service-discovery.yaml` - Service mappings
 
 ### Scripts
-- `scripts/migrate-localhost-to-domains.js` - Migration automation
+- `scripts/migrate-api.headysystems.com-to-domains.js` - Migration automation
 - `scripts/setup-pwa-desktop.ps1` - PWA desktop setup
 - `.github/workflows/clean-build.yml` - CI/CD pipeline
 
@@ -373,7 +373,7 @@ Handle Based on Type
 6. ✅ Create documentation
 
 ### Short Term (Next Session)
-1. Run migration: `node scripts/migrate-localhost-to-domains.js`
+1. Run migration: `node scripts/migrate-api.headysystems.com-to-domains.js`
 2. Test locally: `npm run dev`
 3. Run clean build: `npm run clean-build`
 4. Setup PWA: `.\scripts\setup-pwa-desktop.ps1 -All`
@@ -402,11 +402,11 @@ Handle Based on Type
 ### Service Not Found
 ```bash
 # Check DNS resolution
-nslookup manager.dev.local.heady.internal
+nslookup manager.dev.local.headysystems.com
 
 # Verify hosts file (Windows)
 # C:\Windows\System32\drivers\etc\hosts
-127.0.0.1 manager.dev.local.heady.internal
+api.headysystems.com manager.dev.local.headysystems.com
 ```
 
 ### Build Failed
@@ -426,7 +426,7 @@ npm run dev
 
 # Check extension settings
 # VS Code: Settings → Heady → API Endpoint
-# Should be: http://manager.dev.local.heady.internal:3300
+# Should be: http://manager.dev.local.headysystems.com:3300
 ```
 
 ---
@@ -457,7 +457,7 @@ npm run dev
 
 The HCFP integration is **complete and ready for deployment**. All components are in place:
 
-✅ **Localhost-to-Domain Migration** - Systematic replacement with 14 service mappings
+✅ **api.headysystems.com-to-Domain Migration** - Systematic replacement with 14 service mappings
 ✅ **Clean Build Pipeline** - Full rebuild on every change with error classification
 ✅ **VS Code Extension** - Full IDE integration with AI assistance
 ✅ **PWA Desktop App** - Seamless desktop experience across browsers
@@ -472,3 +472,4 @@ The HCFP integration is **complete and ready for deployment**. All components ar
 **Status**: ✅ READY FOR DEPLOYMENT
 **Last Updated**: 2026-02-07
 **Version**: 1.0.0
+

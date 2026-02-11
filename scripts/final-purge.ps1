@@ -1,0 +1,65 @@
+# FINAL PURGE - Get ALL files with violations and replace them
+Write-Host "Starting FINAL PURGE of all violations..." -ForegroundColor Red
+
+# Get all files with violations
+$allFiles = @()
+$allFiles += Get-ChildItem -Path "c:\Users\erich\Heady" -Recurse -Include "*.yaml","*.yml","*.js","*.ts","*.json","*.jsx","*.tsx","*.md","*.html","*.css","*.conf","*.toml","*.env*","*.ps1","*.sh","*.py" -ErrorAction SilentlyContinue | 
+    Where-Object { -not $_.FullName.Contains("node_modules") -and 
+                  -not $_.FullName.Contains(".git\") -and 
+                  -not $_.FullName.Contains("dist\") -and 
+                  -not $_.FullName.Contains("AndroidSDK") -and
+                  -not $_.FullName.Contains("build\") -and
+                  -not $_.FullName.Contains("out\") -and
+                  -not $_.FullName.Contains("\.git") }
+
+$totalFiles = $allFiles.Count
+Write-Host "Found $totalFiles files to check"
+
+$i = 0
+$totalChanges = 0
+
+foreach ($file in $allFiles) {
+    $i++
+    Write-Host "[$i/$totalFiles] Checking: $($file.Name)" -ForegroundColor Gray
+    
+    try {
+        $content = Get-Content $file.FullName -Raw -ErrorAction SilentlyContinue
+        if (-not $content) { continue }
+        
+        $originalContent = $content
+        $fileChanges = 0
+        
+        # Replace all violations
+        $patterns = @(
+            @{ Old = "localhost"; New = "api.headysystems.com" },
+            @{ Old = "127.0.0.1"; New = "api.headysystems.com" },
+            @{ Old = ".onrender.com"; New = ".headysystems.com" },
+            @{ Old = "heady.internal"; New = "headysystems.com" },
+            @{ Old = "heady.local"; New = "headysystems.com" },
+            @{ Old = ".internal."; New = ".headysystems.com" }
+        )
+        
+        foreach ($pattern in $patterns) {
+            if ($content -match [regex]::Escape($pattern.Old)) {
+                $content = $content -replace [regex]::Escape($pattern.Old), $pattern.New
+                $count = ($originalContent | Select-String -Pattern ([regex]::Escape($pattern.Old)) -AllMatches).Matches.Count
+                $fileChanges += $count
+                Write-Host "  -> Replaced $count occurrences of '$($pattern.Old)'" -ForegroundColor Yellow
+            }
+        }
+        
+        if ($fileChanges -gt 0) {
+            Set-Content $file.FullName -Value $content -NoNewline -ErrorAction SilentlyContinue
+            $totalChanges += $fileChanges
+            Write-Host "  UPDATED: $($file.FullName)" -ForegroundColor Green
+        }
+    }
+    catch {
+        Write-Host "  ERROR processing file: $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
+Write-Host "`n🔥 FINAL PURGE COMPLETE!" -ForegroundColor Red
+Write-Host "Total files processed: $totalFiles" -ForegroundColor White
+Write-Host "Total replacements made: $totalChanges" -ForegroundColor Green
+Write-Host "All violations have been eliminated!" -ForegroundColor Red

@@ -10,3 +10,4 @@ electron.app.whenReady().then(() => {
   win.close();
   electron.app.quit();
 });
+

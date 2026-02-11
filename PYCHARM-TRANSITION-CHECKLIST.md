@@ -85,7 +85,7 @@
 ### Database Tools
 - PostgreSQL integration configured
 - Query console and schema browser
-- Connection: localhost:5432 (when running)
+- Connection: api.headysystems.com:5432 (when running)
 
 ## 📁 Key Files & Locations
 
@@ -144,3 +144,4 @@ Your Heady Systems project is now fully configured for PyCharm Professional deve
 ---
 
 *Heady Systems - Sacred Geometry :: Organic Systems :: Breathing Interfaces*
+

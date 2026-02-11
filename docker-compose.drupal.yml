@@ -47,3 +47,4 @@ services:
 
 volumes:
   drupal-db-data:
+

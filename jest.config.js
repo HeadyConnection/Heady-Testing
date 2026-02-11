@@ -18,3 +18,4 @@ module.exports = {
     '\\.yaml$': 'jest-transform-yaml'
   }
 };
+

@@ -53,3 +53,4 @@ server.listen(PORT, () => {
     console.log(`🌐 Website: http://app.local:${PORT}`);
     console.log(`📊 Health: http://manager.local:${PORT}/api/health`);
 });
+

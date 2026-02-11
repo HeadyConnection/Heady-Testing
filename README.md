@@ -26,7 +26,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Visit http://localhost:3300 for the Sacred Geometry UI, or http://localhost:3300/admin for the Admin IDE.
+Visit http://api.headysystems.com:3300 for the Sacred Geometry UI, or http://api.headysystems.com:3300/admin for the Admin IDE.
 
 > Full onboarding guide: `docs/notion-quick-start.md`
 
@@ -185,3 +185,4 @@ Deployed via [Render.com](https://render.com) using `render.yaml`.
 ## License
 
 Proprietary - Heady Systems
+

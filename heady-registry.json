@@ -358,7 +358,7 @@
         "ideExtensionsExtra": ["eclipse", "windsurf", "emacs", "vim"],
         "mcpToolServers": ["github", "slack", "notion", "drive", "docker", "calendar", "filesystem", "terminal", "browser", "duckduckgo"]
       },
-      "mirrors": ["C:/Users/erich/CrossDevice/E's OnePlus Open/HeadyStack/distribution/"],
+      "mirrors": ["%USERPROFILE%/CrossDevice/E's OnePlus Open/HeadyStack/distribution/"],
       "ownership": "core",
       "status": "active",
       "criticality": "high",
@@ -958,7 +958,7 @@
         "ideExtensionsExtra": ["eclipse", "windsurf", "emacs", "vim"],
         "mcpToolServers": ["github", "slack", "notion", "drive", "docker", "calendar", "filesystem", "terminal", "browser", "duckduckgo"]
       },
-      "mirrors": ["C:/Users/erich/CrossDevice/E's OnePlus Open/HeadyStack/distribution/"],
+      "mirrors": ["%USERPROFILE%/CrossDevice/E's OnePlus Open/HeadyStack/distribution/"],
       "ownership": "core",
       "status": "active",
       "criticality": "high",
@@ -2073,4 +2073,5 @@
     }
   }
 }
+
 

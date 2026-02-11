@@ -262,3 +262,4 @@ if ($notificationEnabled) {
     [System.Windows.Forms.MessageBox]::Show($notifMessage, $notifTitle, 'OK', $(if ($syncStatus -eq 'SUCCESS') { 'Information' } else { 'Warning' })) | Out-Null
 }
 "Drive sync completed at $(Get-Date)" | Out-File $logFile -Append
+

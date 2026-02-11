@@ -135,3 +135,4 @@ services:
         key: HEADY_API_KEY
       - from: secret
         key: HF_TOKEN
+

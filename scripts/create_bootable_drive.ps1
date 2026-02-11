@@ -22,9 +22,9 @@ param(
 $ventoyUrl = 'https://github.com/ventoy/Ventoy/releases/download/v1.0.96/ventoy-1.0.96-windows.zip'
 $isoPath = "${driveLetter}\\ISOs"
 $dropzonePath = "${driveLetter}\\Dropzone"
-$localIsoPath = "c:\\Users\\erich\\Heady\\distribution\\iso"
-$ventoyDir = "c:\\Users\\erich\\Heady\\ventoy"
-$downloadPath = "c:\\Users\\erich\\Heady\\ventoy\\ventoy.zip"
+$localIsoPath = "$env:USERPROFILE\Heady\distribution\iso"
+$ventoyDir = "$env:USERPROFILE\Heady\ventoy"
+$downloadPath = "$env:USERPROFILE\Heady\ventoy\ventoy.zip"
 
 # Create local ISO directory if not exists
 if (-not (Test-Path $localIsoPath)) {
@@ -66,7 +66,7 @@ foreach ($os in $isos.Keys) {
 }
 
 # Copy HeadyOS ISO if exists
-$headyIso = "c:\\Users\\erich\\Heady\\distribution\\HeadyOS.iso"
+$headyIso = "$env:USERPROFILE\Heady\distribution\HeadyOS.iso"
 if (Test-Path $headyIso) {
     Write-Host "Copying HeadyOS ISO..."
     Copy-Item -Path $headyIso -Destination "${localIsoPath}\\HeadyOS.iso"

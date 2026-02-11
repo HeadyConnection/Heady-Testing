@@ -317,7 +317,7 @@ switch (command) {
     if (!dryRun) {
       console.log('\n✅ Migration complete!');
       console.log('\nNext steps:');
-      console.log('  1. Run: node scripts/localhost-to-domain.js hosts > C:\\Windows\\System32\\drivers\\etc\\hosts (admin)');
+      console.log('  1. Run: node scripts/localhost-to-domain.js hosts > %WINDIR%\\System32\\drivers\\etc\\hosts (admin)');
       console.log('  2. Or manually add entries from hosts file below to your system hosts file');
     }
     break;

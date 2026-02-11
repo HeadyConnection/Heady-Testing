@@ -14,9 +14,9 @@ layers:
     description: "Developer/personal layer — local Docker, Ollama, private data"
     dns_zone: "*.headysystems.com"
     providers:
-      compute: [docker, native]
-      models: [ollama, vllm, gguf]
-      storage: [local-fs, sqlite, postgres-local]
+      compute: [HeadyDocker, HeadyNative]
+      models: [HeadyBrain]
+      storage: [HeadyStorage, HeadyCache]
     defaults:
       privacy: strict
       cost_sensitivity: high
@@ -36,9 +36,9 @@ layers:
     description: "Team/staging layer — shared knowledge bases, team MCP connectors"
     dns_zone: "*.staging.headysystems.comheady.systems"
     providers:
-      compute: [render, docker]
-      models: [ollama, gpt-4o, claude-3.5-sonnet]
-      storage: [postgres-render, redis-render]
+      compute: [HeadyRender, HeadyDocker]
+      models: [HeadyBrain]
+      storage: [HeadyStorage, HeadyCache]
     defaults:
       privacy: team
       cost_sensitivity: medium
@@ -58,9 +58,9 @@ layers:
     description: "Public production layer — customer-facing, full PQ mTLS, multi-tenant"
     dns_zone: "*.heady.systems"
     providers:
-      compute: [render, cloudflare-workers]
-      models: [gpt-4o, claude-3.5-sonnet, gemini-pro, ollama-fallback]
-      storage: [postgres-render, redis-render, r2-storage]
+      compute: [HeadyRender, HeadyWorkers]
+      models: [HeadyBrain]
+      storage: [HeadyStorage, HeadyCache, HeadyR2]
     defaults:
       privacy: per-tenant
       cost_sensitivity: ppp-aware

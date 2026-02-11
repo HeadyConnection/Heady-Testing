@@ -105,3 +105,4 @@ Write-Host "   - Add New Interpreter → Existing environment" -ForegroundColor 
 Write-Host "   - Select: $((Resolve-Path $VenvPath).Path)\Scripts\python.exe" -ForegroundColor Gray
 Write-Host ""
 Write-Host "✨ Ready for Heady development in PyCharm!" -ForegroundColor Magenta
+

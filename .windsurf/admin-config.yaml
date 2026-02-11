@@ -171,9 +171,9 @@ system:
 # Heady Integration
 heady:
   # API Endpoints
-  manager_url: "http://localhost:3301"
-  brain_url: "http://localhost:3400"
-  mcp_gateway_url: "http://localhost:3500"
+  manager_url: "https://headysystems.com/manager"
+  brain_url: "https://brain.headysystems.com"
+  mcp_gateway_url: "https://headysystems.com/mcp"
   
   # Authentication
   api_key: "${HEADY_API_KEY}"

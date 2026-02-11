@@ -8,3 +8,4 @@ try {
 } catch (error) {
   console.error('Failed to access Electron API:', error.message);
 }
+

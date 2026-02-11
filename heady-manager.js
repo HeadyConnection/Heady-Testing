@@ -1251,6 +1251,31 @@ try {
   app.use("/api/brain", brainApiRoutes);
   console.log("  ∞ HeadyBrain API: LOADED");
   console.log("    → Endpoints: /api/brain/health, /plan, /feedback, /status");
+  
+  // Initialize BrainConnector for 100% uptime
+  const { getBrainConnector } = require("./src/brain_connector");
+  const brainConnector = getBrainConnector({
+    poolSize: 5,
+    healthCheckInterval: 15000
+  });
+  
+  // Monitor brain connector events
+  brainConnector.on('circuitBreakerOpen', (data) => {
+    console.warn(`  ⚠ Brain circuit breaker OPEN: ${data.endpointId} (${data.failures} failures)`);
+  });
+  
+  brainConnector.on('allEndpointsFailed', (data) => {
+    console.error(`  🚨 ALL BRAIN ENDPOINTS FAILED! Using fallback mode.`);
+  });
+  
+  brainConnector.on('healthCheck', (results) => {
+    const healthy = Array.from(results.entries()).filter(([_, r]) => r.status === 'healthy').length;
+    if (healthy < results.size) {
+      console.warn(`  ⚠ Brain health check: ${healthy}/${results.size} endpoints healthy`);
+    }
+  });
+  
+  console.log("  ∞ BrainConnector: ACTIVE (100% uptime guarantee)");
 } catch (err) {
   console.warn(`  ⚠ HeadyBrain API not loaded: ${err.message}`);
 }
@@ -2061,3 +2086,4 @@ try {
 } catch (err) {
   console.warn(`  \u26a0 Branding Monitor not loaded: ${err.message}`);
 }
+

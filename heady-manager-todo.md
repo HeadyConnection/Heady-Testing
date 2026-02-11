@@ -70,7 +70,8 @@ concept.risk_notes.push('Auto-discarded: risk score exceeds threshold')
 - Broken notebooks
 ```
 
-### hcfp-localhost-migration.md
-```@c:\Users\erich\Heady\.windsurf\workflows\hcfp-localhost-migration.md:198
+### hcfp-api.headysystems.com-migration.md
+```@c:\Users\erich\Heady\.windsurf\workflows\hcfp-api.headysystems.com-migration.md:198
 # - Notebook validation
 ```
+

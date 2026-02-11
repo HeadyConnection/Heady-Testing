@@ -34,7 +34,7 @@ services:
       - mcp-gateway
       - redis
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://admin-ui.heady.internal:3000/health"]
+      test: ["CMD", "wget", "-qO-", "http://admin-ui.headysystems.com:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -62,3 +62,4 @@ services:
     read_only: false
     tmpfs:
       - /tmp:size=100M,mode=1777
+

@@ -39,7 +39,7 @@ services:
       - heady-redis
       - heady-ollama
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://manager.internal.headyio.com:3300/api/health"]
+      test: ["CMD", "wget", "-qO-", "http://manager.headysystems.comheadyio.com:3300/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -123,8 +123,8 @@ services:
       dockerfile: Dockerfile
     container_name: heady-web
     environment:
-      - REACT_APP_API_URL=http://manager.internal.headyio.com:3300
-      - REACT_APP_MCP_URL=http://mcp.internal.headyio.com:3001
+      - REACT_APP_API_URL=http://manager.headysystems.comheadyio.com:3300
+      - REACT_APP_MCP_URL=http://mcp.headysystems.comheadyio.com:3001
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -141,7 +141,7 @@ services:
       dockerfile: Dockerfile.mcp
     container_name: heady-mcp
     environment:
-      - MANAGER_URL=http://manager.internal.headyio.com:3300
+      - MANAGER_URL=http://manager.headysystems.comheadyio.com:3300
       - OLLAMA_URL=http://heady-ollama:11434
     volumes:
       - ./backend:/app
@@ -160,7 +160,7 @@ services:
       dockerfile: Dockerfile
     container_name: heady-buddy
     environment:
-      - MANAGER_URL=http://manager.internal.headyio.com:3300
+      - MANAGER_URL=http://manager.headysystems.comheadyio.com:3300
     volumes:
       - ./headybuddy:/app
       - heady-buddy:/app/data
@@ -177,7 +177,7 @@ services:
       dockerfile: Dockerfile.bridge
     container_name: heady-browser-bridge
     environment:
-      - MANAGER_URL=http://manager.internal.headyio.com:3300
+      - MANAGER_URL=http://manager.headysystems.comheadyio.com:3300
     networks:
       - heady-net
     depends_on:
@@ -191,7 +191,7 @@ services:
       dockerfile: Dockerfile.voice
     container_name: heady-voice
     environment:
-      - MANAGER_URL=http://manager.internal.headyio.com:3300
+      - MANAGER_URL=http://manager.headysystems.comheadyio.com:3300
     volumes:
       - ./workers:/app
       - heady-voice:/app/data
@@ -283,7 +283,7 @@ services:
       - CONSUL_BIND_INTERFACE=eth0
       - CONSUL_CLIENT_INTERFACE=eth0
       - CONSUL_UI_BETA=true
-      - CONSUL_LOCAL_CONFIG={"datacenter":"heady-dc","server":true,"ui":true,"log_level":"INFO","enable_script_checks":false,"enable_local_script_checks":true,"services":[{"name":"heady-manager","port":3300,"check":{"http":"http://manager.internal.headyio.com:3300/health","interval":"10s"}},{"name":"heady-web","port":3400,"check":{"http":"http://heady-web:3400","interval":"30s"}},{"name":"heady-mcp","port":3200,"check":{"http":"http://mcp.internal.headyio.com:3200/health","interval":"10s"}},{"name":"heady-postgres","port":5432,"check":{"tcp":"heady-postgres:5432","interval":"10s"}},{"name":"heady-redis","port":6379,"check":{"tcp":"heady-redis:6379","interval":"10s"}},{"name":"heady-ollama","port":11434,"check":{"http":"http://heady-ollama:11434/api/tags","interval":"30s"}},{"name":"heady-rag","port":8000},{"name":"heady-buddy","port":8001},{"name":"heady-voice","port":8002},{"name":"heady-nginx","port":80},{"name":"heady-grafana","port":3000},{"name":"heady-prometheus","port":9090}],"telemetry":{"prometheus_retention_time":"24h","disable_hostname":false}}
+      - CONSUL_LOCAL_CONFIG={"datacenter":"heady-dc","server":true,"ui":true,"log_level":"INFO","enable_script_checks":false,"enable_local_script_checks":true,"services":[{"name":"heady-manager","port":3300,"check":{"http":"http://manager.headysystems.comheadyio.com:3300/health","interval":"10s"}},{"name":"heady-web","port":3400,"check":{"http":"http://heady-web:3400","interval":"30s"}},{"name":"heady-mcp","port":3200,"check":{"http":"http://mcp.headysystems.comheadyio.com:3200/health","interval":"10s"}},{"name":"heady-postgres","port":5432,"check":{"tcp":"heady-postgres:5432","interval":"10s"}},{"name":"heady-redis","port":6379,"check":{"tcp":"heady-redis:6379","interval":"10s"}},{"name":"heady-ollama","port":11434,"check":{"http":"http://heady-ollama:11434/api/tags","interval":"30s"}},{"name":"heady-rag","port":8000},{"name":"heady-buddy","port":8001},{"name":"heady-voice","port":8002},{"name":"heady-nginx","port":80},{"name":"heady-grafana","port":3000},{"name":"heady-prometheus","port":9090}],"telemetry":{"prometheus_retention_time":"24h","disable_hostname":false}}
       - CONSUL_HTTP_TOKEN=${CONSUL_HTTP_TOKEN:-}
     ports:
       - "8500:8500"
@@ -295,7 +295,7 @@ services:
     networks:
       - heady-net
     healthcheck:
-      test: ["CMD", "consul", "members", "-http-addr=http://consul.internal.headyio.com:8500"]
+      test: ["CMD", "consul", "members", "-http-addr=http://consul.headysystems.comheadyio.com:8500"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -334,3 +334,4 @@ volumes:
 networks:
   heady-net:
     driver: bridge
+

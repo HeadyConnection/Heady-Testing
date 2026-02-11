@@ -23,11 +23,11 @@ Goal: Default all clients to HeadyClouds, keep local strictly opt‑in, and enfo
 
 We use these exact IDs everywhere (code, docs, CI, MCP, scripts):
 
-- `local` – Local dev (<http://localhost:3300/api>)
+- `local` – Local dev (<http://api.headysystems.com:3300/api>)
 - `cloud-me` – Personal cloud (HeadyMe)
 - `cloud-sys` – Main product cloud (HeadySystems)
 - `cloud-conn` – Bridge cloud (HeadyConnection)
-- `hybrid` – Local+cloud sync (localhost:3300 with cloud sync)
+- `hybrid` – Local+cloud sync (api.headysystems.com:3300 with cloud sync)
 
 No other IDs are allowed. If new clouds are added, they must follow `cloud-<name>`.
 
@@ -38,10 +38,10 @@ All HTTP clients must use these base URLs only:
 
 | Layer       | API base URL                                       |
 |-------------|----------------------------------------------------|
-| `local`     | <http://localhost:3300/api>                        |
-| `cloud-me`  | <https://heady-manager-headyme.onrender.com/api>    |
-| `cloud-sys` | <https://heady-manager-headysystems.onrender.com/api> |
-| `cloud-conn`| <https://heady-manager-headyconnection.onrender.com/api> |
+| `local`     | <http://api.headysystems.com:3300/api>                        |
+| `cloud-me`  | <https://heady-manager-headyme.headysystems.com/api>    |
+| `cloud-sys` | <https://heady-manager-headysystems.headysystems.com/api> |
+| `cloud-conn`| <https://heady-manager-headyconnection.headysystems.com/api> |
 
 Frontends and tools must derive all endpoints from `API_BASE_URL`, not hard-code full URLs.
 
@@ -58,7 +58,7 @@ On any machine that runs Heady scripts:
 
 Effects:
 - Writes `scripts\heady-active-layer` to `cloud-sys`
-- Sets `HEADY_ACTIVE_LAYER=cloud-sys` and `HEADY_ACTIVE_ENDPOINT=https://heady-manager-headysystems.onrender.com/api`
+- Sets `HEADY_ACTIVE_LAYER=cloud-sys` and `HEADY_ACTIVE_ENDPOINT=https://heady-manager-headysystems.headysystems.com/api`
 - Updates the cascade proxy to route all hooks to `cloud-sys`
 
 Local is only used when explicitly requested:
@@ -76,7 +76,7 @@ Every client must have a single source of truth for the API base URL:
 - IDE plugins: Use same env/config file
 - MCP clients: Commands hit cloud endpoints by default
 
-**Rule:** No "localhost" defaults in any production/shared config.
+**Rule:** No "api.headysystems.com" defaults in any production/shared config.
 
 
 ## 5. Repo and remote naming
@@ -96,8 +96,8 @@ Use `.\-Sync.ps1` or `npm run sync` to push to all remotes.
 ## 6. Allowed hostnames and banned patterns
 
 Documentation/configs must:
-- Use only approved host patterns (`app.headysystems.com` or `heady-manager-*.onrender.com`)
-- Never expose raw IPs/localhost in user-facing docs
+- Use only approved host patterns (`app.headysystems.com` or `heady-manager-*.headysystems.com`)
+- Never expose raw IPs/api.headysystems.com in user-facing docs
 - Use environment variables in examples
 
 Lint/check scripts must treat raw IPs/inconsistent hostnames as errors.
@@ -105,7 +105,7 @@ Lint/check scripts must treat raw IPs/inconsistent hostnames as errors.
 
 ## 7. When local is allowed
 
-Local (localhost:3300) permitted only for:
+Local (api.headysystems.com:3300) permitted only for:
 - Debugging cloud incidents
 - Offline work (explicit "run local" directive)
 - Performance benchmarks/experiments
@@ -114,3 +114,4 @@ In these cases, devs must:
 1. Run `.\-layer.ps1 switch local`
 2. Clearly mark local-only configs
 3. Never commit local configs to shared main
+

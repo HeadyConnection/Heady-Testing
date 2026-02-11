@@ -62,3 +62,4 @@ Guidelines:
 - Keep notebooks reasonably short and focused.
 - Move reusable code into src/ and import it in notebooks.
 - Use meaningful, descriptive notebook names (e.g., 01_eda_customers.ipynb, 02_model_training.ipynb).
+

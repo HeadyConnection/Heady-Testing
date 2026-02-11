@@ -41,6 +41,7 @@ class ModelRouter extends EventEmitter {
     this.brainProfiles = null;
     this.usage = new Map(); // track daily usage per brain profile
     this.circuitBreakers = new Map(); // provider -> { failures, lastFailure, open }
+    this.headyOnly = true; // ENFORCE 100% Heady Services
     this.reload();
   }
 
@@ -63,6 +64,18 @@ class ModelRouter extends EventEmitter {
    */
   select(params) {
     const { layer, taskType, privacy, costSensitivity, brainProfileId } = params;
+
+    // ENFORCE 100% Heady Services
+    if (this.headyOnly) {
+      return {
+        provider: 'HeadyBrain',
+        fallback: null,
+        source: 'heady-only-enforcement',
+        blocked: false,
+        reason: '100% Heady service requirement',
+        cost: 0.00
+      };
+    }
 
     // Step 1: Get brain policy constraints
     const brainPolicy = this._getBrainPolicy(brainProfileId);
