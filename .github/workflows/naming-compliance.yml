@@ -23,25 +23,43 @@ on:
 
 jobs:
   naming-audit:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Run naming audit
-      run: heady skill run naming-audit --scope=repo
-
-  localhost-check:
-    runs-on: windows-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Check for localhost references
       run: |
-        $violations = Select-String -Path . -Pattern "localhost|127.0.0.1|[A-Z]:\\" -Exclude "*.md"
-        $domainViolations = Select-String -Path . -Pattern "onrender\.com|vercel\.app|netlify\.app|herokuapp\.com|firebaseapp\.com"
-        if ($violations -or $domainViolations) {
-          Write-Error "Found banned references in files"
+        echo "Running naming standards audit..."
+        ISSUES=0
+
+        # Check for localhost references in source files
+        if grep -rE 'localhost|127\.0\.0\.1' \
+             --include="*.js" --include="*.ts" --include="*.json" --include="*.yaml" \
+             --exclude-dir=node_modules --exclude-dir=.git . 2>/dev/null; then
+          echo "::warning::Found localhost references"
+          ISSUES=$((ISSUES + 1))
+        fi
+
+        # Check for banned cloud provider domains
+        if grep -rE 'onrender\.com|vercel\.app|netlify\.app|herokuapp\.com|firebaseapp\.com' \
+             --include="*.js" --include="*.ts" --include="*.json" --include="*.yaml" \
+             --exclude-dir=node_modules --exclude-dir=.git . 2>/dev/null; then
+          echo "::warning::Found banned cloud provider domains"
+          ISSUES=$((ISSUES + 1))
+        fi
+
+        # Check for Windows drive letter paths
+        if grep -rE '[A-Z]:\\' \
+             --include="*.js" --include="*.ts" --include="*.json" --include="*.yaml" \
+             --exclude-dir=node_modules --exclude-dir=.git . 2>/dev/null; then
+          echo "::warning::Found Windows drive letter paths"
+          ISSUES=$((ISSUES + 1))
+        fi
+
+        if [ "$ISSUES" -gt 0 ]; then
+          echo "::error::Found $ISSUES naming compliance issues"
           exit 1
-        }
+        fi
+
+        echo "✅ Naming compliance check passed"

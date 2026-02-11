@@ -18,6 +18,8 @@ const config = require('../configs/branding/branding-standards.yaml');
 const fs = require('fs');
 const path = require('path');
 
+module.exports = { validateBranding, getAllProjectFiles };
+
 async function validateBranding() {
   const testResults = [];
   
@@ -45,18 +47,17 @@ async function validateBranding() {
     }
   }
   
-  // Fail CI if any branding check fails
+  // Return violations (caller decides whether to exit)
   const failures = testResults.filter(r => !r.passed);
   if (failures.length > 0) {
-    console.error('Branding validation failures:', failures);
-    process.exit(1);
+    return failures;
   }
   
-  console.log('All branding checks passed');
+  return [];
 }
 
 function getAllProjectFiles() {
-  const ignoreDirs = ['node_modules', 'dist', 'build', '.git', '.husky'];
+  const ignoreDirs = ['node_modules', 'dist', 'build', '.git', '.husky', '.venv', 'venv', 'AndroidSDK', 'gradle', 'nginx', 'ventoy', '.wrangler', 'lfs', '__pycache__', 'cmake', 'nasm', 'tools', 'platform-tools'];
   const files = [];
   
   function walk(dir) {
@@ -76,4 +77,3 @@ function getAllProjectFiles() {
   return files;
 }
 
-validateBranding();

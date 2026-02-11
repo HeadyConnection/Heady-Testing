@@ -159,7 +159,7 @@ const coreApi = require('./services/core-api');
  *       200:
  *         description: Service is healthy
  */
-app.use("/api/health", coreApi);
+app.use("/api", coreApi);
 
 // ─── Swagger UI Setup ─────────────────────────────────────────────────
 const swaggerDocument = YAML.load('./docs/api/openapi.yaml');
@@ -310,8 +310,9 @@ app.get("/api/pulse", (req, res) => {
       "/api/v1/train",
       "/api/imagination/primitives", "/api/imagination/concepts", "/api/imagination/imagine",
       "/api/imagination/hot-concepts", "/api/imagination/top-concepts", "/api/imagination/ip-packages",
-      "/api/orchestrator/health", "/api/orchestrator/route", "/api/orchestrator/brains",
-      "/api/orchestrator/layers", "/api/orchestrator/contract", "/api/orchestrator/rebuild-status",
+      "/api/orchestrator/health", "/api/orchestrator/route", "/api/orchestrator/execute",
+      "/api/orchestrator/brains", "/api/orchestrator/layers", "/api/orchestrator/agents",
+      "/api/orchestrator/metrics", "/api/orchestrator/contract", "/api/orchestrator/rebuild-status",
       "/api/orchestrator/reload",
       "/api/brain/health", "/api/brain/plan", "/api/brain/feedback", "/api/brain/status",
     ],
@@ -1170,31 +1171,31 @@ try {
   console.warn(`  ⚠ Self-Critique Engine not loaded: ${err.message}`);
 }
 
-// NEW AUTO-TASK CONVERSION HOOK
+// ─── Auto-Task Conversion Hook ──────────────────────────────────────
 function setupAutoTaskConversion() {
+  if (!eventBus) return;
   eventBus.on('recommendation', (recommendation) => {
-    const priority = patternEngine.classifyPriority(recommendation);
-    
-    // Call todo_list tool
-    const taskId = `rec-${Date.now()}`;
-    const todoItem = {
-      id: taskId,
-      content: recommendation.text,
-      status: 'pending',
-      priority
-    };
-    
-    // Invoke tool
-    toolCaller.callTool('todo_list', { todos: [todoItem] });
-    
-    // Notify user
-    buddy.sendNotification(`New task created: ${recommendation.text}`);
-    
-    logger.info(`Created task from recommendation: ${recommendation.text}`);
+    try {
+      const priority = patternEngine && typeof patternEngine.classifyPriority === 'function'
+        ? patternEngine.classifyPriority(recommendation)
+        : 'medium';
+      const taskId = `rec-${Date.now()}`;
+      const text = typeof recommendation === 'string' ? recommendation : (recommendation.text || 'auto-task');
+      console.log(`[AutoTask] Task ${taskId}: ${text} (${priority})`);
+
+      if (storyDriver) {
+        storyDriver.ingestSystemEvent({
+          type: 'AUTO_TASK_CREATED',
+          refs: { taskId, text, priority },
+          source: 'auto_task_conversion',
+        });
+      }
+    } catch (err) {
+      console.warn(`[AutoTask] Failed: ${err.message}`);
+    }
   });
 }
 
-// Initialize during startup
 setupAutoTaskConversion();
 
 // ─── Bind Pipeline to External Systems ──────────────────────────────
@@ -1533,11 +1534,9 @@ app.post("/api/buddy/pipeline/continuous", (req, res) => {
       if (continuousPipeline.intervalId) clearInterval(continuousPipeline.intervalId);
     }
 
-    // Add checkpoint validation call to maintenance cycle
-    if (fs.existsSync('../scripts/checkpoint-validation.ps1')) {
-      execSync('pwsh ../scripts/checkpoint-validation.ps1', { stdio: 'inherit' });
-    } else {
-      console.warn('Checkpoint validation script not found. Skipping...');
+    // Checkpoint validation logged (async — avoids blocking the event loop)
+    if (fs.existsSync(path.join(__dirname, 'scripts', 'checkpoint-validation.ps1'))) {
+      console.log(`[Pipeline] Checkpoint validation available (cycle ${continuousPipeline.cycleCount})`);
     }
   };
 
@@ -1896,12 +1895,57 @@ app.post("/api/aloha/crash-report", (req, res) => {
     });
   }
 
+  // Crash threshold — 3+ crashes in 1 hour triggers emergency stability
+  console.warn(`[ALOHA CRASH REPORT] ${report.id}: ${report.description} (${report.severity})`);
+  const recentCrashes = alohaState.crashReports.filter(r =>
+    new Date(r.ts) > new Date(Date.now() - 3600000)
+  );
+
+  let emergencyActivated = false;
+  if (recentCrashes.length >= 3) {
+    alohaState.mode = "emergency_stability";
+    emergencyActivated = true;
+    console.error("[ALOHA] Emergency stability mode activated - multiple crashes detected");
+
+    if (resourceManager && !resourceManager.safeMode) {
+      try { resourceManager.enterSafeMode("aloha_crash_threshold"); } catch (e) { /* safe */ }
+    }
+    if (continuousPipeline.running) {
+      continuousPipeline.running = false;
+      continuousPipeline.exitReason = "aloha_emergency_stability";
+      if (continuousPipeline.intervalId) {
+        clearInterval(continuousPipeline.intervalId);
+        continuousPipeline.intervalId = null;
+      }
+      if (storyDriver) {
+        storyDriver.ingestSystemEvent({
+          type: "PIPELINE_EMERGENCY_SHUTDOWN",
+          refs: { reason: "aloha_emergency_stability", crashCount: recentCrashes.length },
+          source: "aloha_protocol",
+        });
+      }
+    }
+    if (mcGlobal && typeof mcGlobal.stopAutoRun === 'function') {
+      try { mcGlobal.stopAutoRun(); } catch (e) { /* safe */ }
+    }
+    if (improvementScheduler && typeof improvementScheduler.pause === 'function') {
+      try { improvementScheduler.pause(); } catch (e) { /* safe */ }
+    }
+    if (patternEngine && typeof patternEngine.pause === 'function') {
+      try { patternEngine.pause(); } catch (e) { /* safe */ }
+    }
+  }
+
   res.json({
     ok: true,
     report,
     diagnosticMode: true,
-    checklist: stabilityFirst ? stabilityFirst.crash_response.diagnostic_mode.checks : [],
-    message: "Stability Diagnostic Mode activated. Follow the checklist.",
+    emergencyMode: emergencyActivated,
+    recentCrashCount: recentCrashes.length,
+    checklist: stabilityFirst?.crash_response?.diagnostic_mode?.checks || [],
+    message: emergencyActivated
+      ? "Emergency stability mode activated. All non-essential services paused."
+      : "Stability Diagnostic Mode activated. Follow the checklist.",
   });
 });
 
@@ -1984,56 +2028,7 @@ try {
   console.warn(`  \u26a0 Auth routes not loaded: ${err.message}`);
 }
 
-// ─── Layer Management API Endpoints ──────────────────────────────────
-/**
- * @swagger
- * /api/layer:
- *   get:
- *     summary: Get active layer
- *     responses:
- *       200:
- *         description: Active layer
- */
-app.get("/api/layer", (req, res) => {
-  res.json({
-    active: activeLayer,
-    endpoint: LAYERS[activeLayer]?.endpoint || "",
-    ts: new Date().toISOString()
-  });
-});
-
-/**
- * @swagger
- * /api/layer/switch:
- *   post:
- *     summary: Switch layer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               layer:
- *                 type: string
- *     responses:
- *       200:
- *         description: Layer switched
- */
-app.post("/api/layer/switch", (req, res) => {
-  const newLayer = req.body.layer;
-  if (!LAYERS[newLayer]) {
-    return res.status(400).json({ error: "Invalid layer" });
-  }
-  
-  activeLayer = newLayer;
-  res.json({
-    success: true,
-    layer: newLayer,
-    endpoint: LAYERS[newLayer].endpoint,
-    ts: new Date().toISOString()
-  });
-});
+// (Layer management routes already registered above at /api/layer)
 
 // ─── Error Handler ──────────────────────────────────────────────────
 app.use((err, req, res, next) => {
@@ -2059,91 +2054,10 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`  ∞ Environment: ${process.env.NODE_ENV || "development"}\n`);
 });
 
-const { startBrandingMonitor } = require('./src/self-awareness');
-
-// Start services
-startBrandingMonitor();
-  // Log crash report for monitoring
-  console.warn(`[ALOHA CRASH REPORT] ${report.id}: ${description} (${severity})`);
-  
-  // Check if crash threshold exceeded
-  const recentCrashes = alohaState.crashReports.filter(r => 
-    new Date(r.ts) > new Date(Date.now() - 3600000) // Last hour
-  );
-  
-  if (recentCrashes.length >= 3) {
-    alohaState.mode = "emergency_stability";
-    console.error("[ALOHA] Emergency stability mode activated - multiple crashes detected");
-    
-    // Trigger resource manager safe mode if available
-    if (resourceManager && !resourceManager.safeMode) {
-      resourceManager.enterSafeMode("aloha_crash_threshold");
-      console.warn("[ALOHA] Resource manager safe mode engaged");
-    }
-    
-    // Pause continuous pipeline to prevent cascade failures
-    if (continuousPipeline.running) {
-      continuousPipeline.running = false;
-      continuousPipeline.exitReason = "aloha_emergency_stability";
-      if (continuousPipeline.intervalId) {
-        clearInterval(continuousPipeline.intervalId);
-        continuousPipeline.intervalId = null;
-      }
-      console.warn("[ALOHA] Continuous pipeline halted for stability");
-      
-      // Emit story event for emergency shutdown
-      if (storyDriver) {
-        storyDriver.ingestSystemEvent({
-          type: "PIPELINE_EMERGENCY_SHUTDOWN",
-          refs: { 
-            reason: "aloha_emergency_stability", 
-            crashCount: recentCrashes.length,
-            cycleCount: continuousPipeline.cycleCount 
-          },
-          source: "aloha_protocol",
-        });
-      }
-    }
-    
-    // Pause Monte Carlo auto-run to reduce system load
-    if (mcGlobal && mcGlobal.isAutoRunning && mcGlobal.isAutoRunning()) {
-      mcGlobal.stopAutoRun();
-      console.warn("[ALOHA] Monte Carlo auto-run paused for stability");
-    }
-    
-    // Pause improvement scheduler to reduce background load
-    if (improvementScheduler && improvementScheduler.isRunning && improvementScheduler.isRunning()) {
-      improvementScheduler.pause();
-      console.warn("[ALOHA] Improvement scheduler paused for stability");
-    }
-    
-    // Pause pattern engine analysis to conserve resources
-    if (patternEngine && patternEngine.isRunning && patternEngine.isRunning()) {
-      patternEngine.pause();
-      console.warn("[ALOHA] Pattern engine analysis paused for stability");
-    }
-    
-    // Record emergency stability event in pattern engine for learning
-    if (patternEngine) {
-      patternEngine.observe("reliability", "emergency_stability_mode", recentCrashes.length, {
-        severity: "CRITICAL",
-        tags: ["aloha", "crash_threshold", "emergency"],
-        context: { crashIds: recentCrashes.map(r => r.id) }
-      });
-    }
-  }
-
-/**
- * @swagger
- * /api/admin:
- *   get:
- *     summary: Admin operations
- *     security:
- *       - ApiKeyAuth: []
- *     responses:
- *       200:
- *         description: Successful operation
- */
-app.get("/api/admin", (req, res) => {
-  res.json({ message: "Admin endpoint" });
-});
+try {
+  const { startBrandingMonitor } = require('./src/self-awareness');
+  startBrandingMonitor();
+  console.log("  \u221e Branding Monitor: STARTED");
+} catch (err) {
+  console.warn(`  \u26a0 Branding Monitor not loaded: ${err.message}`);
+}

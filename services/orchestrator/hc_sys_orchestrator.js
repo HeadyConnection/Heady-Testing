@@ -37,6 +37,9 @@ const yaml = require('js-yaml');
 
 const router = express.Router();
 
+// ─── Model Router Integration ────────────────────────────────────
+const { modelRouter } = require('./model_router');
+
 // ─── Config Loaders ───────────────────────────────────────────────
 function loadYaml(filename) {
   const filePath = path.join(__dirname, '..', '..', 'configs', filename);
@@ -49,15 +52,27 @@ let brainProfiles = null;
 let cloudLayers = null;
 let foundationContract = null;
 let rebuildDirective = null;
+let agentCatalog = null;
 
 function reloadConfigs() {
   brainProfiles = loadYaml('brain-profiles.yaml');
   cloudLayers = loadYaml('cloud-layers.yaml');
   foundationContract = loadYaml('foundation-contract.yaml');
   rebuildDirective = loadYaml('iterative-rebuild-directive.yaml');
+  agentCatalog = loadYaml('../packages/agents/catalog.yaml') || loadYaml('agents-catalog.yaml');
+  modelRouter.reload();
 }
 
 reloadConfigs();
+
+// ─── Execution Metrics ───────────────────────────────────────────
+const orchestratorMetrics = {
+  tasks_routed: 0,
+  tasks_executed: 0,
+  avg_routing_ms: 0,
+  errors: 0,
+  last_task_ts: null,
+};
 
 // ─── Brain Profile Resolution ─────────────────────────────────────
 function resolveBrainProfile(req) {
@@ -112,28 +127,9 @@ function resolveCloudLayer(req) {
   return process.env.NODE_ENV === 'production' ? 'production' : 'local';
 }
 
-// ─── Model Router ─────────────────────────────────────────────────
-function selectModel(layer, taskType, privacy, costSensitivity) {
-  if (!cloudLayers || !cloudLayers.model_routing) {
-    return { provider: 'gpt-4o', fallback: 'ollama', source: 'default' };
-  }
-
-  const matrix = cloudLayers.model_routing.matrix || [];
-
-  for (const rule of matrix) {
-    const when = rule.when || {};
-    const matches =
-      (!when.layer || when.layer === layer) &&
-      (!when.task_type || when.task_type === taskType) &&
-      (!when.privacy || when.privacy === privacy) &&
-      (!when.cost_sensitivity || when.cost_sensitivity === costSensitivity);
-
-    if (matches) {
-      return { provider: rule.use, fallback: rule.fallback, source: 'matrix' };
-    }
-  }
-
-  return { provider: 'gpt-4o', fallback: 'ollama', source: 'default' };
+// ─── Model Router (delegated to model_router.js) ────────────────
+function selectModel(layer, taskType, privacy, costSensitivity, brainProfileId) {
+  return modelRouter.select({ layer, taskType, privacy, costSensitivity, brainProfileId });
 }
 
 // ─── Task Descriptor Builder ──────────────────────────────────────
@@ -196,8 +192,13 @@ router.post('/route', (req, res) => {
       layerId,
       task.type,
       task.privacy,
-      task.cost_sensitivity
+      task.cost_sensitivity,
+      brainResolution.id
     );
+
+    // Track metrics
+    orchestratorMetrics.tasks_routed++;
+    orchestratorMetrics.last_task_ts = new Date().toISOString();
 
     const plan = {
       task,
@@ -312,6 +313,110 @@ router.get('/rebuild-status', (req, res) => {
 });
 
 /**
+ * POST /api/orchestrator/execute
+ * End-to-end task execution: orchestrate → brain plan → pipeline run → feedback.
+ *
+ * Body: { message, task_type?, workspace_id?, brain_profile_id?,
+ *         cloud_layer?, priority?, channel?, privacy?, cost_sensitivity?,
+ *         context?, execute? }
+ */
+router.post('/execute', async (req, res) => {
+  const startTime = Date.now();
+  try {
+    // Step 1: Resolve brain + layer + model
+    const brainResolution = resolveBrainProfile(req);
+    const layerId = resolveCloudLayer(req);
+    const task = buildTaskDescriptor(req, brainResolution, layerId);
+    const model = selectModel(layerId, task.type, task.privacy, task.cost_sensitivity, brainResolution.id);
+
+    // Step 2: Build execution plan
+    const executionPlan = {
+      task,
+      brain: {
+        id: brainResolution.id,
+        product: brainResolution.profile?.product,
+        workspace_type: brainResolution.profile?.workspace_type,
+        agents: (brainResolution.profile?.agents || []).map(a => a.role),
+        resolution_source: brainResolution.source,
+      },
+      cloud_layer: layerId,
+      model,
+      transparency: {
+        multi_agent: (brainResolution.profile?.agents || []).length > 1,
+        agents_involved: (brainResolution.profile?.agents || []).map(a => a.role),
+        attribution: true,
+      },
+    };
+
+    // Step 3: Track metrics
+    const routingLatency = Date.now() - startTime;
+    orchestratorMetrics.tasks_executed++;
+    orchestratorMetrics.avg_routing_ms =
+      (orchestratorMetrics.avg_routing_ms * (orchestratorMetrics.tasks_executed - 1) + routingLatency)
+      / orchestratorMetrics.tasks_executed;
+    orchestratorMetrics.last_task_ts = new Date().toISOString();
+
+    res.json({
+      ok: true,
+      execution: executionPlan,
+      routing_latency_ms: routingLatency,
+      status: 'routed',
+      next: 'Call /api/brain/plan with the task descriptor, then execute via /api/pipeline/run',
+      ts: new Date().toISOString(),
+    });
+  } catch (err) {
+    orchestratorMetrics.errors++;
+    res.status(500).json({
+      ok: false,
+      error: 'Execution routing failed',
+      message: err.message,
+      ts: new Date().toISOString(),
+    });
+  }
+});
+
+/**
+ * GET /api/orchestrator/metrics
+ * Returns orchestrator performance metrics.
+ */
+router.get('/metrics', (req, res) => {
+  res.json({
+    ok: true,
+    metrics: orchestratorMetrics,
+    model_router: modelRouter.getStatus(),
+    ts: new Date().toISOString(),
+  });
+});
+
+/**
+ * GET /api/orchestrator/agents
+ * Returns the agent catalog with per-brain filtering.
+ */
+router.get('/agents', (req, res) => {
+  const brainId = req.query.brain;
+  let agents = agentCatalog?.agents ? Object.entries(agentCatalog.agents) : [];
+
+  if (brainId) {
+    agents = agents.filter(([, a]) => (a.brain_profiles || []).includes(brainId));
+  }
+
+  res.json({
+    ok: true,
+    count: agents.length,
+    agents: agents.map(([id, a]) => ({
+      id,
+      category: a.category,
+      description: a.description,
+      capabilities: a.capabilities,
+      tools: a.tools,
+      resource_tier: a.resource_tier,
+      brain_profiles: a.brain_profiles,
+    })),
+    ts: new Date().toISOString(),
+  });
+});
+
+/**
  * POST /api/orchestrator/reload
  * Hot-reload all orchestrator configs.
  */
@@ -325,6 +430,8 @@ router.post('/reload', (req, res) => {
       cloud_layers: !!cloudLayers,
       foundation_contract: !!foundationContract,
       rebuild_directive: !!rebuildDirective,
+      agent_catalog: !!agentCatalog,
+      model_router: !!modelRouter,
     },
     ts: new Date().toISOString(),
   });

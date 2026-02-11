@@ -13,22 +13,39 @@
 // ║  LAYER: backend/src                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
-const { validateBranding } = require('../scripts/validate-branding');
-const { fixBrandingViolations } = require('../scripts/migrate-localhost-to-domains');
+
+let validateBranding = null;
+let fixBrandingViolations = null;
+
+try {
+  ({ validateBranding } = require('../scripts/validate-branding'));
+} catch (e) {
+  console.warn(`  ⚠ validate-branding not available: ${e.message}`);
+}
+
+try {
+  ({ fixBrandingViolations } = require('../scripts/migrate-localhost-to-domains'));
+} catch (e) {
+  // Optional — fix function may not exist
+}
 
 function startBrandingMonitor() {
-  setInterval(() => {
+  if (!validateBranding) {
+    console.warn('  ⚠ Branding monitor skipped: validateBranding not loaded');
+    return;
+  }
+
+  setInterval(async () => {
     try {
-      const violations = validateBranding();
-      if (violations.length > 0) {
-        console.warn(`Found ${violations.length} branding violations`);
-        if (process.env.AUTO_FIX_BRANDING === 'true') {
+      const violations = await validateBranding();
+      if (Array.isArray(violations) && violations.length > 0) {
+        console.warn(`[BrandingMonitor] ${violations.length} branding violations found`);
+        if (process.env.AUTO_FIX_BRANDING === 'true' && fixBrandingViolations) {
           fixBrandingViolations();
-          console.log('Fixed branding violations');
         }
       }
     } catch (error) {
-      console.error('Branding monitor error:', error);
+      console.warn(`[BrandingMonitor] Error: ${error.message}`);
     }
   }, 60 * 60 * 1000); // Hourly
 }

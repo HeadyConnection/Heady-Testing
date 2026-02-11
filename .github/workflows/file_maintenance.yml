@@ -25,13 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
-      - name: Setup PowerShell
-        uses: actions/setup-powershell@v2
-        with:
-          pwsh: true
-          
       - name: Run pre-scan check
         run: |
           pwsh ./scripts/file_maintenance/pre_scan_check.ps1

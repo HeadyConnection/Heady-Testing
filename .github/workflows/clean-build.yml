@@ -80,6 +80,7 @@ jobs:
           else
             echo "should_build=false" >> $GITHUB_OUTPUT
             echo "No relevant changes detected"
+          fi
 
   # ============================================================================
   # JOB 2: Clean Build - Manager (Node.js)

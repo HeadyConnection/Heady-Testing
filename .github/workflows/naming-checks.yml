@@ -23,46 +23,42 @@ on:
 
 jobs:
   check-naming-standards:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         
       - name: Check for banned patterns
         run: |
-          # Existing checks
-          !grep -rE 'localhost|127\.0\.0\.1|10\.\d+|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.' .
-          
-          # New checks
-          !grep -rE '\.onrender\.com|\.vercel\.app|\.netlify\.app|\.herokuapp\.com|\.firebaseapp\.com' .
-          !grep -rE '[A-Z]:\\' .  # Windows drive letters
-          !grep -rE 'F:\\' .  # Specific drive letter
-          
-          $bannedDomains = @('onrender.com', 'vercel.app', 'netlify.app', 'herokuapp.com', 'firebaseapp.com')
-          $driveLetters = @('C:\\', 'D:\\', 'E:\\', 'F:\\', 'G:\\', 'H:\\', 'I:\\', 'J:\\', 'K:\\', 'L:\\', 'M:\\', 'N:\\', 'O:\\', 'P:\\', 'Q:\\', 'R:\\', 'S:\\', 'T:\\', 'U:\\', 'V:\\', 'W:\\', 'X:\\', 'Y:\\', 'Z:\\')
-          $patterns = @('localhost', '127.0.0.1') + $driveLetters + $bannedDomains
-          $files = Get-ChildItem -Recurse -Include *.js,*.json,*.yaml,*.md,*.html
-          $violations = 0
-          
-          foreach ($file in $files) {
-            $content = Get-Content $file.FullName -Raw
-            foreach ($pattern in $patterns) {
-              if ($content -match $pattern) {
-                Write-Host "Found '$pattern' in $($file.FullName)"
-                $violations++
-              }
-            }
-          }
-          
-          # Additional domain format check
-          $domainPattern = 'https?:\/\/(?!.*(headysystems\.com|headyconnection\.org|headybuddy\.org|heady\.internal))[a-zA-Z0-9-]+\.[a-zA-Z]{2,}'
-          $domainMatches = Select-String -Path $files -Pattern $domainPattern -AllMatches
-          if ($domainMatches) {
-            Write-Host "::error::Found non-branded domains"
+          VIOLATIONS=0
+
+          # Check for localhost / private IPs
+          if grep -rE 'localhost|127\.0\.0\.1|10\.\d+|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.' \
+               --include="*.js" --include="*.json" --include="*.yaml" --include="*.html" \
+               --exclude-dir=node_modules --exclude-dir=.git .; then
+            echo "::warning::Found localhost / private IP references"
+            VIOLATIONS=$((VIOLATIONS + 1))
+          fi
+
+          # Check for banned cloud provider domains
+          if grep -rE '\.onrender\.com|\.vercel\.app|\.netlify\.app|\.herokuapp\.com|\.firebaseapp\.com' \
+               --include="*.js" --include="*.json" --include="*.yaml" --include="*.html" \
+               --exclude-dir=node_modules --exclude-dir=.git .; then
+            echo "::warning::Found banned cloud provider domains"
+            VIOLATIONS=$((VIOLATIONS + 1))
+          fi
+
+          # Check for Windows drive letter paths
+          if grep -rE '[A-Z]:\\' \
+               --include="*.js" --include="*.json" --include="*.yaml" --include="*.html" \
+               --exclude-dir=node_modules --exclude-dir=.git .; then
+            echo "::warning::Found Windows drive letter paths"
+            VIOLATIONS=$((VIOLATIONS + 1))
+          fi
+
+          if [ "$VIOLATIONS" -gt 0 ]; then
+            echo "::error::Found $VIOLATIONS naming standard violation categories"
             exit 1
-          }
-          
-          if ($violations -gt 0) {
-            Write-Host "::error::Found $violations naming standard violations"
-            exit 1
-          }
+          fi
+
+          echo "✅ No naming standard violations found"

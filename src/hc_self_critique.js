@@ -335,60 +335,60 @@ class SelfCritiqueEngine extends EventEmitter {
       autoRollbackThreshold: improvement.autoRollbackThreshold || 0.3,
       rollbackConditions: improvement.rollbackConditions || []
     };
-metaAnalysisId: recentMeta.turn,
-metaTimestamp: recentMeta.ts,
-confidenceScore: this._calculateMetaConfidence(improvement, recentMeta),
-alignmentScore: this._calculateAlignmentWithMeta(improvement, recentMeta),
-recommendationMatch: recentMeta.recommendations?.some(r => 
-  r.action?.toLowerCase().includes(improvement.type?.toLowerCase()) ||
-  improvement.description?.toLowerCase().includes(r.area?.toLowerCase())
-),
-criticalityScore: this._assessImprovementCriticality(improvement, recentMeta),
-impactRadius: this._estimateImpactRadius(improvement, recentMeta),
-riskLevel: this._calculateRiskLevel(improvement, recentMeta),
-priorityWeight: this._calculatePriorityWeight(improvement, recentMeta),
-dependencyChain: this._identifyDependencies(improvement),
-conflictingPatterns: this._detectConflictingPatterns(improvement),
-synergisticImprovements: this._findSynergisticImprovements(improvement),
-historicalCorrelation: this._findHistoricalCorrelations(improvement),
-patternEvolutionStage: this._determinePatternStage(improvement),
-monteCarloValidation: this.mcPlanScheduler ? {
-  estimatedSuccessRate: this._estimateSuccessRate(improvement.type),
-  optimalStrategy: this._getOptimalStrategy(improvement.type),
-  estimatedLatency: this._estimateLatency(improvement.type, improvement.strategy),
-  qualityEstimate: this._estimateQuality(improvement.type, improvement.strategy),
-  ucb1Score: this.mcPlanScheduler._getUCB1ForStrategy?.(improvement.type, improvement.strategy?.id),
-  convergenceStatus: this._checkConvergenceStatus(improvement.type),
-  driftDetected: this.mcPlanScheduler.driftAlerts?.some(d => d.taskType === improvement.type),
-  speedMode: this.mcPlanScheduler.speedMode?.label,
-  planCount: this.mcPlanScheduler.generatePlans?.(improvement.type, improvement.meta, {}).length,
-  resourceFiltering: improvement.requiredResources?.length > 0,
-  parallelismScore: improvement.strategy?.parallelism || 1
-} : null,
-connectionHealthCorrelation: this._correlateWithConnectionHealth(improvement),
-costBenefitRatio: record.resourceCost?.budgetUsd && improvement.measuredImpact ? 
-  improvement.measuredImpact / record.resourceCost.budgetUsd : null,
-expectedROI: this._calculateExpectedROI(improvement, recentMeta),
-degradationRisk: recentMeta.topWeaknesses?.some(w => 
-  improvement.description?.toLowerCase().includes(w.weakness?.toLowerCase())
-) ? 'high' : 'low',
-systemStateAlignment: this._assessSystemStateAlignment(improvement, recentMeta),
-pipelineReadiness: this._assessPipelineReadiness(improvement),
-validationRequirements: this._determineValidationRequirements(improvement, recentMeta),
-rollbackComplexity: this._assessRollbackComplexity(improvement),
-weaknessTargeting: recentMeta.topWeaknesses?.filter(w => 
-  improvement.description?.toLowerCase().includes(w.weakness?.toLowerCase())
-).map(w => ({ weakness: w.weakness, occurrences: w.count })),
-improvementEffectivenessHistory: recentMeta.improvementEffectiveness,
-connectionHealthSnapshot: Object.entries(recentMeta.connectionHealth || {}).map(([id, health]) => ({
-  channelId: id,
-  healthy: health.healthy,
-  errorRate: health.errorRate,
-  consecutiveFailures: health.consecutiveFailures
-})),
-diagnosticAlignment: this.store.diagnostics.slice(-3).some(d => 
-  d.findings?.some(f => improvement.description?.includes(f.item))
-),
+
+    // Meta-enrichment: extended analysis when meta-analysis is available
+    const recentMetaForEnrichment = typeof this._getRecentMetaAnalysis === 'function' ? this._getRecentMetaAnalysis() : null;
+    if (recentMetaForEnrichment) {
+      record.metaEnrichment = {
+        metaAnalysisId: recentMetaForEnrichment.turn,
+        metaTimestamp: recentMetaForEnrichment.ts,
+        confidenceScore: typeof this._calculateMetaConfidence === 'function' ? this._calculateMetaConfidence(improvement, recentMetaForEnrichment) : null,
+        alignmentScore: typeof this._calculateAlignmentWithMeta === 'function' ? this._calculateAlignmentWithMeta(improvement, recentMetaForEnrichment) : null,
+        recommendationMatch: recentMetaForEnrichment.recommendations?.some(r =>
+          r.action?.toLowerCase().includes(improvement.type?.toLowerCase()) ||
+          improvement.description?.toLowerCase().includes(r.area?.toLowerCase())
+        ),
+        criticalityScore: typeof this._assessImprovementCriticality === 'function' ? this._assessImprovementCriticality(improvement, recentMetaForEnrichment) : null,
+        impactRadius: typeof this._estimateImpactRadius === 'function' ? this._estimateImpactRadius(improvement, recentMetaForEnrichment) : null,
+        riskLevel: typeof this._calculateRiskLevel === 'function' ? this._calculateRiskLevel(improvement, recentMetaForEnrichment) : null,
+        priorityWeight: typeof this._calculatePriorityWeight === 'function' ? this._calculatePriorityWeight(improvement, recentMetaForEnrichment) : null,
+        dependencyChain: typeof this._identifyDependencies === 'function' ? this._identifyDependencies(improvement) : [],
+        conflictingPatterns: typeof this._detectConflictingPatterns === 'function' ? this._detectConflictingPatterns(improvement) : [],
+        synergisticImprovements: typeof this._findSynergisticImprovements === 'function' ? this._findSynergisticImprovements(improvement) : [],
+        historicalCorrelation: typeof this._findHistoricalCorrelations === 'function' ? this._findHistoricalCorrelations(improvement) : null,
+        patternEvolutionStage: typeof this._determinePatternStage === 'function' ? this._determinePatternStage(improvement) : null,
+        monteCarloValidation: this.mcPlanScheduler ? {
+          estimatedSuccessRate: typeof this._estimateSuccessRate === 'function' ? this._estimateSuccessRate(improvement.type) : null,
+          optimalStrategy: typeof this._getOptimalStrategy === 'function' ? this._getOptimalStrategy(improvement.type) : null,
+          estimatedLatency: typeof this._estimateLatency === 'function' ? this._estimateLatency(improvement.type, improvement.strategy) : null,
+          qualityEstimate: typeof this._estimateQuality === 'function' ? this._estimateQuality(improvement.type, improvement.strategy) : null,
+          speedMode: this.mcPlanScheduler.speedMode?.label,
+        } : null,
+        connectionHealthCorrelation: typeof this._correlateWithConnectionHealth === 'function' ? this._correlateWithConnectionHealth(improvement) : null,
+        costBenefitRatio: record.resourceCost?.budgetUsd && improvement.measuredImpact ?
+          improvement.measuredImpact / record.resourceCost.budgetUsd : null,
+        expectedROI: typeof this._calculateExpectedROI === 'function' ? this._calculateExpectedROI(improvement, recentMetaForEnrichment) : null,
+        degradationRisk: recentMetaForEnrichment.topWeaknesses?.some(w =>
+          improvement.description?.toLowerCase().includes(w.weakness?.toLowerCase())
+        ) ? 'high' : 'low',
+        systemStateAlignment: typeof this._assessSystemStateAlignment === 'function' ? this._assessSystemStateAlignment(improvement, recentMetaForEnrichment) : null,
+        pipelineReadiness: typeof this._assessPipelineReadiness === 'function' ? this._assessPipelineReadiness(improvement) : null,
+        rollbackComplexity: typeof this._assessRollbackComplexity === 'function' ? this._assessRollbackComplexity(improvement) : null,
+        weaknessTargeting: recentMetaForEnrichment.topWeaknesses?.filter(w =>
+          improvement.description?.toLowerCase().includes(w.weakness?.toLowerCase())
+        ).map(w => ({ weakness: w.weakness, occurrences: w.count })),
+        improvementEffectivenessHistory: recentMetaForEnrichment.improvementEffectiveness,
+        connectionHealthSnapshot: Object.entries(recentMetaForEnrichment.connectionHealth || {}).map(([id, health]) => ({
+          channelId: id,
+          healthy: health.healthy,
+          errorRate: health.errorRate,
+          consecutiveFailures: health.consecutiveFailures
+        })),
+        diagnosticAlignment: this.store.diagnostics.slice(-3).some(d =>
+          d.findings?.some(f => improvement.description?.includes(f.item))
+        ),
+      };
+    }
 
     if (context.errorRates) {
       const highError = Object.entries(context.errorRates)

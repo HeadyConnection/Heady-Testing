@@ -60,7 +60,7 @@ class ImprovementScheduler extends EventEmitter {
 
   async runCycle() {
     if (!this.pipeline || !this.patternEngine || !this.selfCritiqueEngine) {
-      this.emit('error', 'Dependencies not available');
+      console.warn('[ImprovementScheduler] Dependencies not available, skipping cycle');
       return;
     }
     
@@ -71,9 +71,12 @@ class ImprovementScheduler extends EventEmitter {
       const improvements = await this.getImprovementCandidates();
       
       // 2. Prioritize using Monte Carlo if available
-      const prioritized = this.mcPlanScheduler 
-        ? this.mcPlanScheduler.prioritizeImprovements(improvements)
-        : improvements;
+      let prioritized = improvements;
+      if (this.mcPlanScheduler && typeof this.mcPlanScheduler.prioritizeImprovements === 'function') {
+        prioritized = this.mcPlanScheduler.prioritizeImprovements(improvements);
+      } else {
+        prioritized = improvements.sort((a, b) => (a.priority || 99) - (b.priority || 99));
+      }
       
       // 3. Execute top improvements via pipeline
       for (const improvement of prioritized.slice(0, 3)) {
@@ -82,7 +85,8 @@ class ImprovementScheduler extends EventEmitter {
       
       this.emit('cycle_complete', { improvements: prioritized.length });
     } catch (error) {
-      this.emit('error', error);
+      console.warn(`[ImprovementScheduler] Cycle error: ${error.message}`);
+      this.emit('cycle_error', error);
     }
   }
 

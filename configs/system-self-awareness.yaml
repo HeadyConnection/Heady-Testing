@@ -525,3 +525,58 @@ checkpointRebuild:
     - "Pipeline Run: 0 failures"
     - "Phone Sync: key files to CrossDevice HeadySystems"
   enforcement: "Self-critique engine flags any checkpoint where rebuild was skipped"
+
+# ─── HEADY VM SWITCH READINESS ──────────────────────────────────────
+headyVMSwitch:
+  description: >
+    The system is preparing for migration to HeadyVM — a dedicated cloud
+    VM environment that replaces local development as the primary compute.
+    All services must be remote-first and deterministic before the switch.
+  status: preparing
+  readiness_checklist:
+    - item: "Foundation services bootable on remote VM"
+      status: in_progress
+      validation: "heady-manager.js starts clean with all subsystems loaded"
+    - item: "Model router operational with circuit breakers"
+      status: complete
+      validation: "services/orchestrator/model_router.js handles fallback chains"
+    - item: "HCSysOrchestrator multi-brain routing"
+      status: complete
+      validation: "/api/orchestrator/route resolves brain + layer + model"
+    - item: "HeadyBrain API with MC/pattern/critique integration"
+      status: complete
+      validation: "/api/brain/plan returns PlanSpec with MC strategy"
+    - item: "Edge proxy worker ready for Cloudflare deployment"
+      status: complete
+      validation: "workers/edge-proxy/src/index.ts handles all product domains"
+    - item: "Agent catalog centralized"
+      status: complete
+      validation: "packages/agents/catalog.yaml defines all agent roles"
+    - item: "All configs canonical (cloud-layers, brain-profiles, foundation-contract)"
+      status: complete
+    - item: "Website definitions configured for all products"
+      status: complete
+      validation: "configs/website-definitions.yaml covers all product sites"
+    - item: "Critical bugs in heady-manager.js fixed"
+      status: complete
+      validation: "No orphaned code, no undefined refs, no duplicate routes"
+  pre_switch_actions:
+    - "Run full health check: all /api/health endpoints return 200"
+    - "Verify all configs load without error"
+    - "Test orchestrator route with each brain profile"
+    - "Confirm edge proxy routes to correct Render origins"
+    - "Run checkpoint protocol and HeadySync"
+  post_switch_actions:
+    - "Update DNS to point to VM IP"
+    - "Verify Cloudflare Workers route correctly"
+    - "Monitor for 24h stability"
+    - "Decommission local-only services"
+
+# ─── CURRENT OPTIMIZATION FOCUS ──────────────────────────────────────
+currentFocus:
+  phase: "Foundation rebuild — Tier 1 (Core Services)"
+  bottlenecks:
+    - "Server startup reliability (fixed: orphaned code, missing imports)"
+    - "Model routing lacks cost tracking and circuit breakers (fixed: model_router.js)"
+    - "No centralized agent catalog (fixed: packages/agents/catalog.yaml)"
+  next_review: "2026-02-12T00:00:00Z"
