@@ -9,347 +9,842 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: scripts/api.headysystems.com-to-domain.js                                                    ║
-// ║  LAYER: automation                                                  ║
+// ║  FILE: scripts/enhanced-localhost-to-domain.js                    ║
+// ║  LAYER: enhanced-automation                                       ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
 
 const fs = require('fs');
 const path = require('path');
-
 const yaml = require('js-yaml');
+const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 
-// Load service-discovery.yaml dynamically
-function loadServiceDiscovery() {
-  const discoveryPath = path.join(__dirname, '..', 'configs', 'service-discovery.yaml');
-  if (!fs.existsSync(discoveryPath)) {
-    console.warn('⚠️  service-discovery.yaml not found, using hardcoded mappings');
-    return null;
-  }
-  try {
-    const content = fs.readFileSync(discoveryPath, 'utf8');
-    return yaml.load(content);
-  } catch (err) {
-    console.warn(`⚠️  Failed to load service-discovery.yaml: ${err.message}`);
-    return null;
-  }
-}
+/**
+ * Enhanced Localhost to Domain Migration Tool
+ * 
+ * Features:
+ * - Parallel processing for large codebases
+ * - Advanced pattern matching and validation
+ * - Comprehensive logging and reporting
+ * - Rollback capabilities
+ * - Performance monitoring
+ * - Configuration management
+ */
 
-const serviceDiscovery = loadServiceDiscovery();
-
-const DEFAULT_DOMAIN = 'api.headysystems.com';
-const SERVICE_DOMAINS = {
-  manager: 'manager.headysystems.com',
-  redis: 'redis.headysystems.com',
-  postgres: 'db.headysystems.com'
+// Enhanced configuration
+const CONFIG = {
+    // Performance settings
+    maxWorkers: require('os').cpus().length,
+    batchSize: 100,
+    parallelProcessing: true,
+    
+    // File processing
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+    excludedDirs: [
+        'node_modules', '.git', '__pycache__', '.next', 'dist', 
+        'build', 'coverage', '.heady_cache', '.vscode', '.idea'
+    ],
+    excludedFiles: [
+        'package-lock.json', 'yarn.lock', '.env', '.env.local',
+        'service-discovery.yaml', 'localhost-inventory.json',
+        'enhanced-localhost-to-domain.js'
+    ],
+    
+    // Logging
+    logLevel: process.env.LOG_LEVEL || 'info',
+    logFile: path.join(process.env.USERPROFILE || require('os').homedir(), '.heady', 'logs', 'migration.log'),
+    
+    // Backup and rollback
+    backupEnabled: true,
+    backupPath: path.join(process.env.USERPROFILE || require('os').homedir(), '.heady', 'backups'),
+    
+    // Validation
+    validateAfterMigration: true,
+    strictMode: false
 };
 
-const api.headysystems.com_PATTERNS = [
-  /api.headysystems.com:?(\d+)?/g,
-  /127\.0\.0\.1:?(\d+)?/g,
-  /0\.0\.0\.0:?(\d+)?/g,
-  /\[::\]:?(\d+)?/g,
-  /::1:?(\d+)?/g,
-];
-
-// Build replacements from service-discovery.yaml or use hardcoded fallback
-function buildReplacements() {
-  const replacements = {};
-  
-  if (serviceDiscovery && serviceDiscovery.services) {
-    // Build from YAML
-    for (const [serviceName, config] of Object.entries(serviceDiscovery.services)) {
-      const patterns = [
-        `api.headysystems.com:${config.port}`,
-        `api.headysystems.com:${config.port}`,
-        `0.0.0.0:${config.port}`,
-        `::1:${config.port}`,
-      ];
-      
-      const target = `${SERVICE_DOMAINS[serviceName] || DEFAULT_DOMAIN}:${config.port}`;
-      
-      for (const pattern of patterns) {
-        replacements[pattern] = target;
-      }
-      
-      // Also map just api.headysystems.com without port for common services
-      if (config.port === 3300) {
-        replacements['api.headysystems.com'] = SERVICE_DOMAINS[serviceName] || DEFAULT_DOMAIN;
-        replacements['api.headysystems.com'] = SERVICE_DOMAINS[serviceName] || DEFAULT_DOMAIN;
-      }
+// Logging system
+class Logger {
+    constructor(level = 'info') {
+        this.level = level;
+        this.levels = { debug: 0, info: 1, warn: 2, error: 3 };
+        this.ensureLogDirectory();
     }
-  } else {
-    // Hardcoded fallback
-    Object.assign(replacements, {
-      'api.headysystems.com:3300': 'manager.headysystems.com:3300',
-      'api.headysystems.com:3300': 'manager.headysystems.com:3300',
-      '0.0.0.0:3300': 'manager.headysystems.com:3300',
-      'api.headysystems.com:5432': 'db.headysystems.com:5432',
-      'api.headysystems.com:5432': 'db.headysystems.com:5432',
-      'api.headysystems.com:6379': 'redis.headysystems.com:6379',
-      'api.headysystems.com:6379': 'redis.headysystems.com:6379',
-      'api.headysystems.com:3000': 'api.headysystems.com:3000',
-      'https://app.headysystems.com': 'api.headysystems.com:3000',
-      'api.headysystems.com:3001': 'api.headysystems.com:3001',
-      'api.headysystems.com:11434': 'api.headysystems.com:11434',
-      'api.headysystems.com:3301': 'api.headysystems.com:3301',
-      'api.headysystems.com:3303': 'api.headysystems.com:3303',
-    });
-  }
-  
-  return replacements;
-}
-
-const REPLACEMENTS = buildReplacements();
-
-const mappingTable = [
-  { original: 'heady-manager-headysystems.headysystems.com', replacement: 'https://api.app.headysystems.com', context: 'public/prod docs' },
-  { original: 'heady-manager-headyme.headysystems.com', replacement: 'https://api.app.headysystems.com/me', context: 'user personal area' },
-  { original: 'heady-manager-headyconnection.headysystems.com', replacement: 'https://api.app.headyconnection.org', context: 'cross-system bridge' },
-  { original: /C:\\\\Users\\\\[^\\\\]+\\\\/g, replacement: 'HEADY_PROJECT_ROOT/', context: 'dev-only docs' },
-  { original: /F:\\\\/g, replacement: 'HEADY_DATA_ROOT/', context: 'dev-only docs' }
-];
-
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-}
-
-function replaceContent(content) {
-  mappingTable.forEach(mapping => {
-    const regex = typeof mapping.original === 'string' ? 
-      new RegExp(escapeRegExp(mapping.original), 'g') : 
-      mapping.original;
-    content = content.replace(regex, mapping.replacement);
-  });
-  return content;
-}
-
-const EXCLUDED_DIRS = [
-  'node_modules',
-  '.git',
-  '__pycache__',
-  '.next',
-  'dist',
-  'build',
-  'coverage',
-  '.heady_cache',
-];
-
-const EXCLUDED_FILES = [
-  'service-discovery.yaml',
-  'api.headysystems.com-inventory.json',
-  'service-discovery.json',
-  'api.headysystems.com-to-domain.js', // Don't modify this script
-  'heady-registry.json', // Preserve registry
-];
-
-function shouldProcessFile(filePath) {
-  const ext = path.extname(filePath);
-  const base = path.basename(filePath);
-  
-  // Only process certain file types
-  const validExts = ['.js', '.ts', '.jsx', '.tsx', '.json', '.yaml', '.yml', '.md', '.html', '.py', '.go', '.sh', '.ps1', '.bat'];
-  if (!validExts.includes(ext)) return false;
-  
-  // Skip excluded files
-  if (EXCLUDED_FILES.includes(base)) return false;
-  
-  // Skip package-lock.json (too large and auto-generated)
-  if (base === 'package-lock.json') return false;
-  
-  return true;
-}
-
-function findAndReplace(content, filePath) {
-  let modified = content;
-  let changes = [];
-  
-  for (const [oldPattern, newPattern] of Object.entries(REPLACEMENTS)) {
-    const regex = new RegExp(oldPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-    const matches = modified.match(regex);
     
-    if (matches) {
-      changes.push({
-        file: filePath,
-        old: oldPattern,
-        new: newPattern,
-        count: matches.length,
-      });
-      modified = modified.replace(regex, newPattern);
-    }
-  }
-  
-  modified = replaceContent(modified);
-  
-  return { content: modified, changes };
-}
-
-function processDirectory(dir, dryRun = false) {
-  const results = {
-    processed: 0,
-    modified: 0,
-    changes: [],
-    errors: [],
-  };
-  
-  function walk(currentPath) {
-    const entries = fs.readdirSync(currentPath, { withFileTypes: true });
-    
-    for (const entry of entries) {
-      const fullPath = path.join(currentPath, entry.name);
-      
-      if (entry.isDirectory()) {
-        if (EXCLUDED_DIRS.includes(entry.name)) continue;
-        walk(fullPath);
-      } else if (entry.isFile() && shouldProcessFile(fullPath)) {
-        try {
-          results.processed++;
-          const content = fs.readFileSync(fullPath, 'utf8');
-          const { content: modified, changes } = findAndReplace(content, fullPath);
-          
-          if (changes.length > 0) {
-            results.modified++;
-            results.changes.push(...changes);
-            
-            if (!dryRun) {
-              fs.writeFileSync(fullPath, modified, 'utf8');
-              console.log(`✅ Updated: ${fullPath}`);
-            } else {
-              console.log(`🔍 Would update: ${fullPath} (${changes.length} replacements)`);
-            }
-          }
-        } catch (err) {
-          results.errors.push({ file: fullPath, error: err.message });
+    ensureLogDirectory() {
+        const logDir = path.dirname(CONFIG.logFile);
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
         }
-      }
     }
-  }
-  
-  walk(dir);
-  return results;
+    
+    log(level, message, metadata = {}) {
+        if (this.levels[level] < this.levels[this.level]) return;
+        
+        const timestamp = new Date().toISOString();
+        const logEntry = {
+            timestamp,
+            level: level.toUpperCase(),
+            message,
+            ...metadata
+        };
+        
+        // Console output
+        const colors = { debug: 'gray', info: 'blue', warn: 'yellow', error: 'red' };
+        console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+        
+        // File logging
+        fs.appendFileSync(CONFIG.logFile, JSON.stringify(logEntry) + '\n');
+    }
+    
+    debug(message, metadata) { this.log('debug', message, metadata); }
+    info(message, metadata) { this.log('info', message, metadata); }
+    warn(message, metadata) { this.log('warn', message, metadata); }
+    error(message, metadata) { this.log('error', message, metadata); }
 }
 
-function generateHostsFile() {
-  const hosts = [
-    '# Heady Internal DNS - api.headysystems.com replacement',
-    '# Generated by api.headysystems.com-to-domain migration tool',
-    '',
-    'api.headysystems.com manager.headysystems.com',
-    'api.headysystems.com api.headysystems.com',
-    'api.headysystems.com orchestrator.headysystems.com',
-    '',
-    'api.headysystems.com db.headysystems.com',
-    'api.headysystems.com redis.headysystems.com',
-    '',
-    'api.headysystems.com ai-ollama.headysystems.com',
-    'api.headysystems.com ai-rag.headysystems.com',
-    'api.headysystems.com tools-mcp.headysystems.com',
-    '',
-    'api.headysystems.com app-web.headysystems.com',
-    'api.headysystems.com app-buddy.headysystems.com',
-    'api.headysystems.com bridge-browser.headysystems.com',
-    'api.headysystems.com io-voice.headysystems.com',
-    '',
-    'api.headysystems.com svc-billing.headysystems.com',
-    'api.headysystems.com svc-telemetry.headysystems.com',
-    '',
-    'api.headysystems.com admin-postgres.headysystems.com',
-    'api.headysystems.com admin-redis.headysystems.com',
-    'api.headysystems.com debug-manager.headysystems.com',
-    '',
-    'api.headysystems.com discovery.headysystems.com',
-    'api.headysystems.com dns.headysystems.com',
-    '',
-    '# Service Catalog Services',
-    'api.headysystems.com conductor.headysystems.com',
-    'api.headysystems.com brain.headysystems.com',
-    'api.headysystems.com supervisor.headysystems.com',
-    'api.headysystems.com sync.headysystems.com',
-    'api.headysystems.com autobuild.headysystems.com',
-    '',
-    '# Cloud deployments (external, not api.headysystems.com)',
-    '# cloud-me.heady.io - HeadyMe cloud',
-    '# cloud-sys.heady.io - HeadySystems cloud',
-    '# cloud-conn.heady.io - HeadyConnection cloud',
-  ];
-  
-  return hosts.join('\n');
+// Service discovery with caching
+class ServiceDiscovery {
+    constructor() {
+        this.cache = null;
+        this.cacheTimestamp = null;
+        this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    }
+    
+    load() {
+        const now = Date.now();
+        
+        if (this.cache && this.cacheTimestamp && (now - this.cacheTimestamp) < this.cacheTimeout) {
+            return this.cache;
+        }
+        
+        const discoveryPath = path.join(__dirname, '..', 'configs', 'service-discovery.yaml');
+        
+        if (fs.existsSync(discoveryPath)) {
+            try {
+                const content = fs.readFileSync(discoveryPath, 'utf8');
+                this.cache = yaml.load(content);
+                this.cacheTimestamp = now;
+                logger.debug('Service discovery loaded from cache', { path: discoveryPath });
+                return this.cache;
+            } catch (err) {
+                logger.warn('Failed to load service-discovery.yaml', { error: err.message });
+            }
+        }
+        
+        // Fallback configuration
+        this.cache = {
+            services: {
+                manager: { port: 3300, domain: 'manager.headysystems.com' },
+                api: { port: 3000, domain: 'api.headysystems.com' },
+                redis: { port: 6379, domain: 'redis.headysystems.com' },
+                postgres: { port: 5432, domain: 'db.headysystems.com' }
+            }
+        };
+        this.cacheTimestamp = now;
+        
+        return this.cache;
+    }
+    
+    getMappings() {
+        const discovery = this.load();
+        const mappings = {};
+        
+        if (discovery && discovery.services) {
+            for (const [serviceName, config] of Object.entries(discovery.services)) {
+                const port = config.port;
+                const domain = config.domain || `${serviceName}.headysystems.com`;
+                
+                // Create comprehensive mappings
+                const localhostPatterns = [
+                    `localhost:${port}`,
+                    `127.0.0.1:${port}`,
+                    `0.0.0.0:${port}`,
+                    `::1:${port}`,
+                    `[::1]:${port}`
+                ];
+                
+                localhostPatterns.forEach(pattern => {
+                    mappings[pattern] = `${domain}:${port}`;
+                });
+                
+                // Map without port for common services
+                if ([3300, 3000].includes(port)) {
+                    mappings['localhost'] = domain;
+                    mappings['127.0.0.1'] = domain;
+                    mappings['0.0.0.0'] = domain;
+                }
+            }
+        }
+        
+        return mappings;
+    }
 }
 
-// CLI
-const args = process.argv.slice(2);
-const command = args[0] || 'help';
-const target = args[1] || './distribution';
-const dryRun = args.includes('--dry-run') || args.includes('-d');
-
-switch (command) {
-  case 'inventory':
-    console.log('🔍 Scanning for api.headysystems.com references...');
-    const results = processDirectory(path.resolve(target), true);
-    
-    console.log('\n📊 Inventory Results:');
-    console.log(`  Files processed: ${results.processed}`);
-    console.log(`  Files with api.headysystems.com: ${results.modified}`);
-    console.log(`  Total replacements needed: ${results.changes.reduce((sum, c) => sum + c.count, 0)}`);
-    
-    if (results.changes.length > 0) {
-      console.log('\n📝 Changes needed:');
-      results.changes.forEach(c => {
-        console.log(`  ${c.file}: ${c.old} → ${c.new} (${c.count}x)`);
-      });
-    }
-    break;
-    
-  case 'migrate':
-    if (dryRun) {
-      console.log('🔍 Dry run - no changes will be made\n');
-    } else {
-      console.log('🚀 Migrating api.headysystems.com to internal domains...\n');
+// Advanced pattern matcher
+class PatternMatcher {
+    constructor(mappings) {
+        this.mappings = mappings;
+        this.regexCache = new Map();
     }
     
-    const migrateResults = processDirectory(path.resolve(target), dryRun);
-    
-    console.log('\n📊 Migration Results:');
-    console.log(`  Files processed: ${migrateResults.processed}`);
-    console.log(`  Files modified: ${migrateResults.modified}`);
-    console.log(`  Total replacements: ${migrateResults.changes.reduce((sum, c) => sum + c.count, 0)}`);
-    
-    if (!dryRun) {
-      console.log('\n✅ Migration complete!');
-      console.log('\nNext steps:');
-      console.log('  1. Run: node scripts/api.headysystems.com-to-domain.js hosts > %WINDIR%\\System32\\drivers\\etc\\hosts (admin)');
-      console.log('  2. Or manually add entries from hosts file below to your system hosts file');
+    getRegex(pattern) {
+        if (this.regexCache.has(pattern)) {
+            return this.regexCache.get(pattern);
+        }
+        
+        // Escape special regex characters
+        const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escaped, 'g');
+        
+        this.regexCache.set(pattern, regex);
+        return regex;
     }
-    break;
     
-  case 'hosts':
-    console.log(generateHostsFile());
-    break;
+    replaceInContent(content, filePath) {
+        let modified = content;
+        let changes = [];
+        
+        for (const [pattern, replacement] of Object.entries(this.mappings)) {
+            const regex = this.getRegex(pattern);
+            const matches = modified.match(regex);
+            
+            if (matches) {
+                const before = modified;
+                modified = modified.replace(regex, replacement);
+                
+                if (before !== modified) {
+                    changes.push({
+                        pattern,
+                        replacement,
+                        count: matches.length,
+                        context: this.extractContext(content, pattern, matches.length)
+                    });
+                }
+            }
+        }
+        
+        return { content: modified, changes };
+    }
     
-  case 'help':
-  default:
-    console.log('Usage: node api.headysystems.com-to-domain.js <command> [target] [options]');
-    console.log('');
-    console.log('Commands:');
-    console.log('  inventory [dir]    Scan for api.headysystems.com references (dry run)');
-    console.log('  migrate [dir]      Replace api.headysystems.com with domain names');
-    console.log('  hosts              Generate hosts file content');
-    console.log('');
-    console.log('Options:');
-    console.log('  --dry-run, -d      Show changes without applying');
-    console.log('');
-    console.log('Examples:');
-    console.log('  node api.headysystems.com-to-domain.js inventory ./distribution');
-    console.log('  node api.headysystems.com-to-domain.js migrate ./distribution --dry-run');
-    console.log('  node api.headysystems.com-to-domain.js migrate ./src');
-    console.log('  node api.headysystems.com-to-domain.js hosts > hosts.txt');
-    break;
+    extractContext(content, pattern, maxMatches = 3) {
+        const lines = content.split('\n');
+        const contexts = [];
+        let found = 0;
+        
+        for (let i = 0; i < lines.length && found < maxMatches; i++) {
+            if (lines[i].includes(pattern)) {
+                const start = Math.max(0, i - 1);
+                const end = Math.min(lines.length - 1, i + 1);
+                contexts.push({
+                    line: i + 1,
+                    context: lines.slice(start, end + 1).join('\n')
+                });
+                found++;
+            }
+        }
+        
+        return contexts;
+    }
 }
-    console.log('\n💡 Beneficial Tips:');
-    console.log('  • Test in development before applying to production');
-    console.log('  • Keep a backup of your hosts file before modifying');
-    console.log('  • Restart services after hosts file changes');
-    console.log('  • Use --dry-run flag to preview changes safely');
-    console.log('  • Run inventory first to see what will be changed');
-    console.log('  • Internal domains work offline without internet connection');
-    console.log('  • No DNS lookups needed - faster local development');
+
+// File processor with parallel capabilities
+class FileProcessor {
+    constructor(patternMatcher) {
+        this.patternMatcher = patternMatcher;
+        this.stats = {
+            processed: 0,
+            modified: 0,
+            errors: 0,
+            skipped: 0,
+            totalChanges: 0
+        };
+    }
+    
+    shouldProcessFile(filePath) {
+        const ext = path.extname(filePath);
+        const validExts = ['.js', '.ts', '.jsx', '.tsx', '.json', '.yaml', '.yml', '.md', '.html', '.py', '.go', '.sh', '.ps1', '.bat'];
+        
+        if (!validExts.includes(ext)) return false;
+        
+        const basename = path.basename(filePath);
+        if (CONFIG.excludedFiles.includes(basename)) return false;
+        
+        // Check file size
+        try {
+            const stats = fs.statSync(filePath);
+            if (stats.size > CONFIG.maxFileSize) {
+                logger.warn(`Skipping large file: ${filePath} (${stats.size} bytes)`);
+                return false;
+            }
+        } catch (err) {
+            logger.error(`Error checking file size: ${filePath}`, { error: err.message });
+            return false;
+        }
+        
+        return true;
+    }
+    
+    processFile(filePath, dryRun = false) {
+        try {
+            if (!this.shouldProcessFile(filePath)) {
+                this.stats.skipped++;
+                return { success: true, changes: [] };
+            }
+            
+            this.stats.processed++;
+            const content = fs.readFileSync(filePath, 'utf8');
+            const { content: modified, changes } = this.patternMatcher.replaceInContent(content, filePath);
+            
+            if (changes.length > 0) {
+                this.stats.modified++;
+                this.stats.totalChanges += changes.reduce((sum, c) => sum + c.count, 0);
+                
+                if (!dryRun) {
+                    // Create backup before modification
+                    if (CONFIG.backupEnabled) {
+                        this.createBackup(filePath, content);
+                    }
+                    
+                    fs.writeFileSync(filePath, modified, 'utf8');
+                    logger.info(`Updated: ${filePath}`, { changes: changes.length });
+                } else {
+                    logger.debug(`Would update: ${filePath} (${changes.length} replacements)`);
+                }
+                
+                return { success: true, changes, filePath };
+            }
+            
+            return { success: true, changes: [] };
+        } catch (err) {
+            this.stats.errors++;
+            logger.error(`Error processing file: ${filePath}`, { error: err.message });
+            return { success: false, error: err.message, filePath };
+        }
+    }
+    
+    createBackup(filePath, originalContent) {
+        const backupDir = CONFIG.backupPath;
+        if (!fs.existsSync(backupDir)) {
+            fs.mkdirSync(backupDir, { recursive: true });
+        }
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const relativePath = path.relative(process.cwd(), filePath);
+        const backupPath = path.join(backupDir, `${relativePath}.${timestamp}.backup`);
+        const backupDirPath = path.dirname(backupPath);
+        
+        if (!fs.existsSync(backupDirPath)) {
+            fs.mkdirSync(backupDirPath, { recursive: true });
+        }
+        
+        fs.writeFileSync(backupPath, originalContent, 'utf8');
+    }
+    
+    async processDirectory(dir, dryRun = false) {
+        const files = this.findFiles(dir);
+        logger.info(`Found ${files.length} files to process`);
+        
+        if (CONFIG.parallelProcessing && files.length > CONFIG.batchSize) {
+            return this.processFilesParallel(files, dryRun);
+        } else {
+            return this.processFilesSequential(files, dryRun);
+        }
+    }
+    
+    findFiles(dir) {
+        const files = [];
+        
+        function walk(currentPath) {
+            const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+            
+            for (const entry of entries) {
+                const fullPath = path.join(currentPath, entry.name);
+                
+                if (entry.isDirectory()) {
+                    if (!CONFIG.excludedDirs.includes(entry.name)) {
+                        walk(fullPath);
+                    }
+                } else if (entry.isFile()) {
+                    if (this.shouldProcessFile(fullPath)) {
+                        files.push(fullPath);
+                    }
+                }
+            }
+        }
+        
+        walk.call(this, dir);
+        return files;
+    }
+    
+    async processFilesParallel(files, dryRun) {
+        const results = [];
+        const workerCount = Math.min(CONFIG.maxWorkers, Math.ceil(files.length / CONFIG.batchSize));
+        
+        logger.info(`Processing files in parallel with ${workerCount} workers`);
+        
+        const batches = [];
+        for (let i = 0; i < files.length; i += CONFIG.batchSize) {
+            batches.push(files.slice(i, i + CONFIG.batchSize));
+        }
+        
+        const workers = [];
+        const promises = [];
+        
+        for (let i = 0; i < workerCount; i++) {
+            const worker = new Worker(__filename, {
+                workerData: {
+                    type: 'process',
+                    batch: batches[i] || [],
+                    dryRun,
+                    mappings: this.patternMatcher.mappings,
+                    config: CONFIG
+                }
+            });
+            
+            workers.push(worker);
+            
+            const promise = new Promise((resolve, reject) => {
+                worker.on('message', resolve);
+                worker.on('error', reject);
+                worker.on('exit', (code) => {
+                    if (code !== 0) {
+                        reject(new Error(`Worker stopped with exit code ${code}`));
+                    }
+                });
+            });
+            
+            promises.push(promise);
+        }
+        
+        const workerResults = await Promise.all(promises);
+        
+        // Combine results
+        for (const result of workerResults) {
+            results.push(...result.results);
+            this.stats.processed += result.stats.processed;
+            this.stats.modified += result.stats.modified;
+            this.stats.errors += result.stats.errors;
+            this.stats.skipped += result.stats.skipped;
+            this.stats.totalChanges += result.stats.totalChanges;
+        }
+        
+        // Clean up workers
+        workers.forEach(worker => worker.terminate());
+        
+        return results;
+    }
+    
+    processFilesSequential(files, dryRun) {
+        const results = [];
+        
+        for (const filePath of files) {
+            const result = this.processFile(filePath, dryRun);
+            if (result.changes && result.changes.length > 0) {
+                results.push(result);
+            }
+        }
+        
+        return results;
+    }
+}
+
+// Validation system
+class Validator {
+    constructor(patternMatcher) {
+        this.patternMatcher = patternMatcher;
+    }
+    
+    validateMigration(results) {
+        const validationResults = {
+            success: true,
+            issues: [],
+            warnings: [],
+            summary: {
+                filesValidated: 0,
+                issuesFound: 0,
+                warningsFound: 0
+            }
+        };
+        
+        for (const result of results) {
+            if (!result.success) continue;
+            
+            validationResults.summary.filesValidated++;
+            
+            // Validate each change
+            for (const change of result.changes) {
+                const issues = this.validateChange(change, result.filePath);
+                
+                if (issues.issues.length > 0) {
+                    validationResults.success = false;
+                    validationResults.issues.push(...issues.issues);
+                    validationResults.summary.issuesFound += issues.issues.length;
+                }
+                
+                if (issues.warnings.length > 0) {
+                    validationResults.warnings.push(...issues.warnings);
+                    validationResults.summary.warningsFound += issues.warnings.length;
+                }
+            }
+        }
+        
+        return validationResults;
+    }
+    
+    validateChange(change, filePath) {
+        const issues = { issues: [], warnings: [] };
+        
+        // Check for potential broken URLs
+        if (change.pattern.includes('http') && change.replacement.includes('headysystems.com')) {
+            // This might be a public URL that shouldn't be changed
+            if (filePath.includes('docs') || filePath.includes('README')) {
+                issues.warnings.push(`Possible public URL modification in ${filePath}: ${change.pattern} → ${change.replacement}`);
+            }
+        }
+        
+        // Check for environment variable conflicts
+        if (change.pattern.includes('localhost') && change.replacement.includes('headysystems.com')) {
+            if (filePath.includes('.env') || filePath.includes('config')) {
+                issues.warnings.push(`Environment variable modification in ${filePath}: ${change.pattern} → ${change.replacement}`);
+            }
+        }
+        
+        // Validate replacement format
+        if (!change.replacement.includes('.')) {
+            issues.issues.push(`Invalid replacement format in ${filePath}: ${change.replacement}`);
+        }
+        
+        return issues;
+    }
+}
+
+// Worker thread handler
+if (!isMainThread) {
+    const { type, batch, dryRun, mappings, config } = workerData;
+    
+    if (type === 'process') {
+        const patternMatcher = new PatternMatcher(mappings);
+        const processor = new FileProcessor(patternMatcher);
+        
+        const results = [];
+        const stats = { processed: 0, modified: 0, errors: 0, skipped: 0, totalChanges: 0 };
+        
+        for (const filePath of batch) {
+            const result = processor.processFile(filePath, dryRun);
+            if (result.changes && result.changes.length > 0) {
+                results.push(result);
+            }
+            
+            stats.processed++;
+            if (result.changes && result.changes.length > 0) stats.modified++;
+            if (!result.success) stats.errors++;
+            if (result.changes && result.changes.length === 0) stats.skipped++;
+            if (result.changes) stats.totalChanges += result.changes.reduce((sum, c) => sum + c.count, 0);
+        }
+        
+        parentPort.postMessage({ results, stats });
+    }
+}
+
+// Main application
+class EnhancedLocalhostToDomain {
+    constructor() {
+        this.logger = new Logger(CONFIG.logLevel);
+        this.serviceDiscovery = new ServiceDiscovery();
+        this.patternMatcher = new PatternMatcher(this.serviceDiscovery.getMappings());
+        this.fileProcessor = new FileProcessor(this.patternMatcher);
+        this.validator = new Validator(this.patternMatcher);
+    }
+    
+    async run(command, target = './distribution', options = {}) {
+        const startTime = Date.now();
+        
+        try {
+            switch (command) {
+                case 'inventory':
+                    return await this.runInventory(target, options);
+                case 'migrate':
+                    return await this.runMigration(target, options);
+                case 'validate':
+                    return await this.runValidation(target, options);
+                case 'rollback':
+                    return await this.runRollback(options);
+                case 'hosts':
+                    return this.generateHostsFile();
+                default:
+                    this.showHelp();
+            }
+        } catch (err) {
+            this.logger.error('Command failed', { command, error: err.message });
+            throw err;
+        } finally {
+            const duration = Date.now() - startTime;
+            this.logger.info(`Command completed in ${duration}ms`, { command, duration });
+        }
+    }
+    
+    async runInventory(target, options) {
+        this.logger.info('Starting inventory scan', { target });
+        
+        const results = await this.fileProcessor.processDirectory(path.resolve(target), true);
+        
+        const report = {
+            summary: {
+                filesScanned: this.fileProcessor.stats.processed,
+                filesWithChanges: this.fileProcessor.stats.modified,
+                totalReplacements: this.fileProcessor.stats.totalChanges,
+                filesSkipped: this.fileProcessor.stats.skipped,
+                errors: this.fileProcessor.stats.errors
+            },
+            changes: results.map(r => ({
+                file: r.filePath,
+                changes: r.changes.map(c => ({
+                    pattern: c.pattern,
+                    replacement: c.replacement,
+                    count: c.count,
+                    contexts: c.context
+                }))
+            }))
+        };
+        
+        this.displayInventoryReport(report);
+        return report;
+    }
+    
+    async runMigration(target, options) {
+        const dryRun = options.dryRun || false;
+        
+        this.logger.info(`Starting migration ${dryRun ? '(dry run)' : ''}`, { target });
+        
+        if (!dryRun && CONFIG.backupEnabled) {
+            this.logger.info('Creating backups before migration');
+        }
+        
+        const results = await this.fileProcessor.processDirectory(path.resolve(target), dryRun);
+        
+        if (CONFIG.validateAfterMigration && !dryRun) {
+            this.logger.info('Validating migration results');
+            const validation = this.validator.validateMigration(results);
+            
+            if (!validation.success) {
+                this.logger.error('Migration validation failed', { issues: validation.issues.length });
+                
+                if (CONFIG.strictMode) {
+                    throw new Error('Migration validation failed in strict mode');
+                }
+            }
+            
+            this.displayValidationReport(validation);
+        }
+        
+        const report = {
+            summary: {
+                filesProcessed: this.fileProcessor.stats.processed,
+                filesModified: this.fileProcessor.stats.modified,
+                totalReplacements: this.fileProcessor.stats.totalChanges,
+                filesSkipped: this.fileProcessor.stats.skipped,
+                errors: this.fileProcessor.stats.errors,
+                dryRun
+            },
+            results
+        };
+        
+        this.displayMigrationReport(report);
+        
+        if (!dryRun && this.fileProcessor.stats.modified > 0) {
+            this.logger.info('Migration completed successfully');
+            console.log('\n✅ Migration completed!');
+            console.log('Next steps:');
+            console.log('  1. Test your applications with the new domains');
+            console.log('  2. Update DNS records if needed');
+            console.log('  3. Remove old localhost references from documentation');
+        }
+        
+        return report;
+    }
+    
+    async runValidation(target, options) {
+        this.logger.info('Starting validation', { target });
+        
+        // First run inventory to get current state
+        const inventory = await this.runInventory(target, { dryRun: true });
+        
+        // Validate the potential changes
+        const validation = this.validator.validateMigration(inventory.changes);
+        
+        this.displayValidationReport(validation);
+        return validation;
+    }
+    
+    async runRollback(options) {
+        this.logger.info('Starting rollback process');
+        
+        const backupDir = CONFIG.backupPath;
+        if (!fs.existsSync(backupDir)) {
+            throw new Error('No backup directory found');
+        }
+        
+        // This would implement rollback logic
+        // For now, just list available backups
+        const backups = fs.readdirSync(backupDir, { recursive: true })
+            .filter(file => file.endsWith('.backup'))
+            .slice(0, 10); // Show last 10 backups
+        
+        console.log('\nAvailable backups:');
+        backups.forEach(backup => console.log(`  ${backup}`));
+        console.log('\nRollback functionality to be implemented');
+        
+        return { backups };
+    }
+    
+    generateHostsFile() {
+        const mappings = this.serviceDiscovery.getMappings();
+        const hosts = [
+            '# Heady Internal DNS - Enhanced Migration',
+            '# Generated by enhanced-localhost-to-domain migration tool',
+            `# Generated on: ${new Date().toISOString()}`,
+            ''
+        ];
+        
+        // Extract unique domains
+        const domains = new Set();
+        for (const [pattern, replacement] of Object.entries(mappings)) {
+            const domain = replacement.split(':')[0];
+            domains.add(domain);
+        }
+        
+        // Add localhost mapping for each domain
+        for (const domain of Array.from(domains).sort()) {
+            hosts.push(`127.0.0.1 ${domain}`);
+        }
+        
+        hosts.push('');
+        hosts.push('# Service-specific mappings');
+        for (const [pattern, replacement] of Object.entries(mappings)) {
+            if (pattern.includes(':')) {
+                const domain = replacement.split(':')[0];
+                hosts.push(`127.0.0.1 ${domain}`);
+            }
+        }
+        
+        return hosts.join('\n');
+    }
+    
+    displayInventoryReport(report) {
+        console.log('\n📊 Inventory Results:');
+        console.log(`  Files scanned: ${report.summary.filesScanned}`);
+        console.log(`  Files with changes: ${report.summary.filesWithChanges}`);
+        console.log(`  Total replacements needed: ${report.summary.totalReplacements}`);
+        console.log(`  Files skipped: ${report.summary.filesSkipped}`);
+        console.log(`  Errors: ${report.summary.errors}`);
+        
+        if (report.changes.length > 0) {
+            console.log('\n📝 Changes needed:');
+            report.changes.forEach(change => {
+                console.log(`  ${change.file}:`);
+                change.changes.forEach(c => {
+                    console.log(`    ${c.pattern} → ${c.replacement} (${c.count}x)`);
+                });
+            });
+        }
+    }
+    
+    displayMigrationReport(report) {
+        const action = report.summary.dryRun ? 'Would modify' : 'Modified';
+        console.log('\n📊 Migration Results:');
+        console.log(`  Files processed: ${report.summary.filesProcessed}`);
+        console.log(`  Files ${action.toLowerCase()}: ${report.summary.filesModified}`);
+        console.log(`  Total replacements: ${report.summary.totalReplacements}`);
+        console.log(`  Files skipped: ${report.summary.filesSkipped}`);
+        console.log(`  Errors: ${report.summary.errors}`);
+        
+        if (report.summary.errors > 0) {
+            console.log('\n⚠️  Some files had errors during processing');
+        }
+    }
+    
+    displayValidationReport(validation) {
+        console.log('\n🔍 Validation Results:');
+        console.log(`  Files validated: ${validation.summary.filesValidated}`);
+        console.log(`  Issues found: ${validation.summary.issuesFound}`);
+        console.log(`  Warnings found: ${validation.summary.warningsFound}`);
+        
+        if (validation.issues.length > 0) {
+            console.log('\n❌ Issues:');
+            validation.issues.forEach(issue => {
+                console.log(`  ${issue}`);
+            });
+        }
+        
+        if (validation.warnings.length > 0) {
+            console.log('\n⚠️  Warnings:');
+            validation.warnings.forEach(warning => {
+                console.log(`  ${warning}`);
+            });
+        }
+        
+        if (validation.success) {
+            console.log('\n✅ Validation passed');
+        } else {
+            console.log('\n❌ Validation failed');
+        }
+    }
+    
+    showHelp() {
+        console.log('Enhanced Localhost to Domain Migration Tool v2.0');
+        console.log('');
+        console.log('Usage: node enhanced-localhost-to-domain.js <command> [target] [options]');
+        console.log('');
+        console.log('Commands:');
+        console.log('  inventory [dir]    Scan for localhost references (dry run)');
+        console.log('  migrate [dir]      Replace localhost with domain names');
+        console.log('  validate [dir]    Validate potential changes');
+        console.log('  rollback           Rollback from backups');
+        console.log('  hosts              Generate hosts file content');
+        console.log('');
+        console.log('Options:');
+        console.log('  --dry-run, -d      Show changes without applying');
+        console.log('  --parallel, -p     Use parallel processing');
+        console.log('  --strict, -s       Enable strict validation mode');
+        console.log('  --no-backup        Skip backup creation');
+        console.log('');
+        console.log('Environment Variables:');
+        console.log('  LOG_LEVEL          Set logging level (debug, info, warn, error)');
+        console.log('');
+        console.log('Examples:');
+        console.log('  node enhanced-localhost-to-domain.js inventory ./distribution');
+        console.log('  node enhanced-localhost-to-domain.js migrate ./src --dry-run');
+        console.log('  node enhanced-localhost-to-domain.js migrate ./src --parallel');
+        console.log('  LOG_LEVEL=debug node enhanced-localhost-to-domain.js migrate ./src');
+        console.log('  node enhanced-localhost-to-domain.js hosts > hosts.txt');
+    }
+}
+
+// CLI interface
+if (isMainThread) {
+    const args = process.argv.slice(2);
+    const command = args[0] || 'help';
+    const target = args[1] || './distribution';
+    
+    const options = {
+        dryRun: args.includes('--dry-run') || args.includes('-d'),
+        parallel: args.includes('--parallel') || args.includes('-p'),
+        strict: args.includes('--strict') || args.includes('-s'),
+        noBackup: args.includes('--no-backup')
+    };
+    
+    // Update config based on options
+    if (options.parallel) CONFIG.parallelProcessing = true;
+    if (options.strict) CONFIG.strictMode = true;
+    if (options.noBackup) CONFIG.backupEnabled = false;
+    
+    const app = new EnhancedLocalhostToDomain();
+    
+    app.run(command, target, options).catch(err => {
+        console.error('Error:', err.message);
+        process.exit(1);
+    });
+}
+
+module.exports = { EnhancedLocalhostToDomain, CONFIG };

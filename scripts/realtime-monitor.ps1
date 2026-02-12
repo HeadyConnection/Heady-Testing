@@ -11,7 +11,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-Set-Location 'C:\Users\erich\heady'
+# HeadyCloud deployment - no local paths needed
 
 # Real-time monitoring configuration
 $MonitorConfig = @{
@@ -64,18 +64,18 @@ function Get-SystemMetrics {
     # Memory metrics
     $process = Get-Process -Id $PID
     $memory = $process | Measure-Object -Property WorkingSet -Sum
-    $totalMemory = (Get-CimInstance -ClassName Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
+    $totalMemory = (Get-CimInstance -ClassName Win32_ComputerSystem).TotalPhysicalMemory / 1GB
     $metrics.memory_usage = [math]::Round(($memory.Sum / $totalMemory) * 100, 2)
     
     # Network metrics
     $network = Get-NetAdapterStatistics | Where-Object { $_.OperationalStatus -eq "Up" }
     $metrics.network_in = ($network | Measure-Object -Property BytesReceived -Sum).Sum / 1MB
-    $metrics.network_out = ($network | Measure-Object -Property BytesSent -Sum). Sum / 1MB
+    $metrics.network_out = ($network | Measure-Object -Property BytesSent -Sum).Sum / 1MB
     
     # Disk metrics
     $disk = Get-CimInstance -ClassName Win32_LogicalDisk | Select-Object Size, FreeSpace
     $totalDisk = ($disk | Measure-Object -Property Size -Sum).Sum / 1GB
-    $freeDisk = ($disk | Measure-Object -Property FreeSpace -Sum). Sum / 1GB
+    $freeDisk = ($disk | Measure-Object -Property FreeSpace -Sum).Sum / 1GB
     $metrics.disk_usage = [math]::Round((($totalDisk - $freeDisk) / $totalDisk) * 100, 2)
     
     # Timestamp
@@ -160,7 +160,7 @@ function Test-InterSystemCommunication {
             }
         }
     } catch {
-        return @{ channel = $Channel; status = "failed"; timestamp = (Get-Date).toString('yyyy-MM-ddTHH:mm:ssZ'); error = $_.Exception.Message }
+        return @{ channel = $Channel; status = "failed"; timestamp = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ'); error = $_.Exception.Message }
     }
 }
 
