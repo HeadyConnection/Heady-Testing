@@ -33,16 +33,15 @@ param(
 $ErrorActionPreference = "Stop"
 
 # Configuration
-$HEADY_ROOT = "C:\Users\erich\Heady"
-$E_DRIVE = "C:\Users\erich\CrossDevice\E's OnePlus Open\HeadyStack"
-$F_DRIVE = "F:\HeadyOS"
-$CONFIG_DIR = "$env:USERPROFILE\.heady"
-$LOG_DIR = "$CONFIG_DIR\logs"
-$STATE_FILE = "$CONFIG_DIR\device-state.json"
+# Cloud-Only Configuration (NO LOCAL STORAGE)
+$HEADY_ROOT = "https://headysystems.com/api/repo"
+$E_DRIVE = "https://headysystems.com/api/crossdevice"
+$F_DRIVE = "https://headysystems.com/api/headyos"
+$CONFIG_DIR = "https://headysystems.com/api/config"
+$LOG_DIR = "https://headysystems.com/api/logs"
+$STATE_FILE = "https://headysystems.com/api/state/device-state.json"
 
-# Ensure directories
-New-Item -ItemType Directory -Force -Path $CONFIG_DIR | Out-Null
-New-Item -ItemType Directory -Force -Path $LOG_DIR | Out-Null
+# Cloud paths - No local directory creation needed
 
 # Device registry
 $DEVICES = @{

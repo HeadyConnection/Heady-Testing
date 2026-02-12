@@ -34,12 +34,11 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$HEADY_LOG_DIR = "$env:USERPROFILE\.heady\logs"
-$HEADY_STATE_DIR = "$env:USERPROFILE\.heady\state"
+# Cloud-Only Configuration (NO LOCAL STORAGE)
+$HEADY_LOG_DIR = "https://headysystems.com/api/logs"
+$HEADY_STATE_DIR = "https://headysystems.com/api/state"
 
-# Ensure directories exist
-New-Item -ItemType Directory -Force -Path $HEADY_LOG_DIR | Out-Null
-New-Item -ItemType Directory -Force -Path $HEADY_STATE_DIR | Out-Null
+# Cloud paths - No local directory creation needed
 
 # Error classification patterns
 $ERROR_PATTERNS = @{
@@ -195,11 +194,10 @@ function Invoke-Recovery {
     
     switch ($Strategy.action) {
         "cleanup" {
-            Write-Host "   Cleaning up temp files and caches..." -ForegroundColor Gray
-            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue `
-                "$env:TEMP\heady-*",
-                "$env:USERPROFILE\.heady\cache\*",
-                "$env:USERPROFILE\.npm\_cacache"
+            Write-Host "   Cleaning up cloud caches and temp data..." -ForegroundColor Gray
+            # Cloud-only cleanup - no local filesystem access
+            Invoke-RestMethod -Uri "https://headysystems.com/api/cache/clear" -Method POST | Out-Null
+            Invoke-RestMethod -Uri "https://headysystems.com/api/temp/clear" -Method POST | Out-Null
         }
         
         "reinstall_deps" {

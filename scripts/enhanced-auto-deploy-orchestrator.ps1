@@ -541,3 +541,205 @@ catch {
     Write-Host "Enhanced orchestrator failed: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }
+        # Post-deployment validation and health check
+        if (-not $DryRun) {
+            Write-HeadyLog "Performing post-deployment health validation" -Level Info -Category 'PostDeployment'
+            
+            $healthCheck = Test-HeadySystemHealth -Checks @('services', 'network', 'memory', 'disk')
+            
+            if ($healthCheck.OverallStatus -eq 'Critical') {
+                Write-HeadyLog "Post-deployment health check critical: $($healthCheck.Errors -join '; ')" -Level Error -Category 'PostDeployment'
+                
+                if ($AutoRecovery -and $config.AutoRollback) {
+                    Write-HeadyLog "Initiating auto-recovery rollback due to critical health status" -Level Warning -Category 'PostDeployment'
+                    try {
+                        Start-HeadyRollback -DeploymentId $deploymentResult.DeploymentId
+                        Write-HeadyLog "Auto-recovery rollback completed" -Level Info -Category 'PostDeployment'
+                    }
+                    catch {
+                        Write-HeadyLog "Auto-recovery rollback failed: $($_.Exception.Message)" -Level Critical -Category 'PostDeployment'
+                    }
+                }
+            }
+            elseif ($healthCheck.OverallStatus -ne 'Good') {
+                Write-HeadyLog "Post-deployment health check warnings: $($healthCheck.Warnings -join '; ')" -Level Warning -Category 'PostDeployment'
+            }
+            else {
+                Write-HeadyLog "Post-deployment health check passed" -Level Info -Category 'PostDeployment'
+            }
+        }
+        
+        # Update deployment metrics with comprehensive data
+        $successRate = if ($deploymentResult.TotalCount -gt 0) {
+            [math]::Round(($deploymentResult.SuccessCount / $deploymentResult.TotalCount) * 100, 2)
+        } else {
+            0
+        }
+        
+        $metrics = @{
+            DeploymentId = $deploymentResult.DeploymentId
+            Duration = $deploymentResult.Duration.TotalSeconds
+            TargetCount = $deploymentResult.TotalCount
+            SuccessCount = $deploymentResult.SuccessCount
+            FailureCount = $deploymentResult.TotalCount - $deploymentResult.SuccessCount
+            SuccessRate = $successRate
+            Status = $deploymentResult.Status
+            Version = $deploymentVersion
+            Priority = $Priority
+            DryRun = $DryRun
+            Enhanced = $true
+            Timestamp = (Get-Date).ToString('o')
+        }
+        
+        if (-not $DryRun) {
+            Add-HeadyMetric -Name 'DeploymentSuccess' -Value $metrics.SuccessRate -Category 'Deployment' -Metadata $metrics
+            Add-HeadyMetric -Name 'DeploymentDuration' -Value $metrics.Duration -Category 'Deployment' -Metadata @{ DeploymentId = $deploymentResult.DeploymentId }
+            
+            # Log deployment summary for analytics
+            Write-HeadyLog "Deployment metrics recorded" -Level Debug -Category 'Metrics' -Metadata $metrics
+        }
+        
+            FailureCount = $deploymentResult.TotalCount - $deploymentResult.SuccessCount
+            SuccessRate = $successRate
+            Status = $deploymentResult.Status
+            Version = $deploymentVersion
+            Priority = $Priority
+            DryRun = $DryRun
+            Enhanced = $true
+            Timestamp = (Get-Date).ToString('o')
+            StartTime = $deploymentResult.StartTime.ToString('o')
+            EndTime = $deploymentResult.EndTime.ToString('o')
+            Targets = $deploymentTargets -join ','
+            ParallelDeployment = $config.ParallelDeployment
+            MaxConcurrency = $config.MaxConcurrency
+            AutoRecovery = $AutoRecovery
+            Monitoring = $Monitoring
+            HealthCheckStatus = if ($healthCheck) { $healthCheck.OverallStatus } else { 'Skipped' }
+            ResultDetails = $deploymentResult.Results | ForEach-Object {
+                @{
+                    Target = $_.Target
+                    Success = $_.Success
+                    Duration = if ($_.Duration) { $_.Duration.TotalSeconds } else { $null }
+                    Error = if (-not $_.Success) { $_.Error } else { $null }
+                }
+            }
+            # Calculate deployment efficiency metrics
+            DeploymentEfficiency = if ($deploymentResult.Duration.TotalSeconds -gt 0) {
+                [math]::Round($deploymentResult.TotalCount / $deploymentResult.Duration.TotalMinutes, 2)
+            } else { 0 }
+            AverageTargetDuration = if ($deploymentResult.TotalCount -gt 0 -and $deploymentResult.Results) {
+                $totalDuration = ($deploymentResult.Results | Where-Object { $_.Duration } | Measure-Object -Property { $_.Duration.TotalSeconds } -Sum).Sum
+                [math]::Round($totalDuration / $deploymentResult.TotalCount, 2)
+            } else { 0 }
+            RetryCount = if ($deploymentResult.RetryCount) { $deploymentResult.RetryCount } else { 0 }
+            RollbackTriggered = $false
+                    Message = if ($_.Message) { $_.Message } else { $null }
+                    RetryAttempts = if ($_.RetryAttempts) { $_.RetryAttempts } else { 0 }
+                    StartTime = if ($_.StartTime) { $_.StartTime.ToString('o') } else { $null }
+                    EndTime = if ($_.EndTime) { $_.EndTime.ToString('o') } else { $null }
+                    ExitCode = if ($null -ne $_.ExitCode) { $_.ExitCode } else { $null }
+                    MemoryUsageMB = if ($_.MemoryUsageMB) { [math]::Round($_.MemoryUsageMB, 2) } else { $null }
+                    CpuPercentage = if ($_.CpuPercentage) { [math]::Round($_.CpuPercentage, 2) } else { $null }
+                    LogPath = if ($_.LogPath) { $_.LogPath } else { $null }
+                    Warnings = if ($_.Warnings) { @($_.Warnings) } else { @() }
+                    ValidationPassed = if ($null -ne $_.ValidationPassed) { $_.ValidationPassed } else { $true }
+                    # Enhanced metrics for detailed analysis
+                    NetworkLatencyMs = if ($_.NetworkLatencyMs) { [math]::Round($_.NetworkLatencyMs, 2) } else { $null }
+                    DiskIOBytesRead = if ($_.DiskIOBytesRead) { $_.DiskIOBytesRead } else { $null }
+                    DiskIOBytesWritten = if ($_.DiskIOBytesWritten) { $_.DiskIOBytesWritten } else { $null }
+                    ThreadCount = if ($_.ThreadCount) { $_.ThreadCount } else { $null }
+                    HandleCount = if ($_.HandleCount) { $_.HandleCount } else { $null }
+                    DependencyCheckPassed = if ($null -ne $_.DependencyCheckPassed) { $_.DependencyCheckPassed } else { $true }
+                    ConfigValidated = if ($null -ne $_.ConfigValidated) { $_.ConfigValidated } else { $true }
+                    PreDeploymentHookRan = if ($null -ne $_.PreDeploymentHookRan) { $_.PreDeploymentHookRan } else { $false }
+                    PostDeploymentHookRan = if ($null -ne $_.PostDeploymentHookRan) { $_.PostDeploymentHookRan } else { $false }
+                    RollbackAvailable = if ($null -ne $_.RollbackAvailable) { $_.RollbackAvailable } else { $true }
+                    ArtifactHash = if ($_.ArtifactHash) { $_.ArtifactHash } else { $null }
+                    DeploymentEnvironment = if ($_.Environment) { $_.Environment } else { 'production' }
+                    HealthCheckEndpoint = if ($_.HealthCheckEndpoint) { $_.HealthCheckEndpoint } else { $null }
+                    HealthCheckStatus = if ($_.HealthCheckStatus) { $_.HealthCheckStatus } else { 'pending' }
+                    CircuitBreakerState = if ($_.CircuitBreakerState) { $_.CircuitBreakerState } else { 'closed' }
+                    FailoverTriggered = if ($null -ne $_.FailoverTriggered) { $_.FailoverTriggered } else { $false }
+                    CacheCleared = if ($null -ne $_.CacheCleared) { $_.CacheCleared } else { $false }
+                    ServiceRestartRequired = if ($null -ne $_.ServiceRestartRequired) { $_.ServiceRestartRequired } else { $false }
+                    ServiceRestartCompleted = if ($null -ne $_.ServiceRestartCompleted) { $_.ServiceRestartCompleted } else { $false }
+                    # Performance and throughput metrics
+                    QueueDepth = if ($_.QueueDepth) { $_.QueueDepth } else { 0 }
+                    ActiveConnections = if ($_.ActiveConnections) { $_.ActiveConnections } else { 0 }
+                    ErrorRate = if ($_.ErrorRate) { [math]::Round($_.ErrorRate, 4) } else { 0.0 }
+                    ThroughputPerSecond = if ($_.ThroughputPerSecond) { [math]::Round($_.ThroughputPerSecond, 2) } else { $null }
+                    P50LatencyMs = if ($_.P50LatencyMs) { [math]::Round($_.P50LatencyMs, 2) } else { $null }
+                    P95LatencyMs = if ($_.P95LatencyMs) { [math]::Round($_.P95LatencyMs, 2) } else { $null }
+                    P99LatencyMs = if ($_.P99LatencyMs) { [math]::Round($_.P99LatencyMs, 2) } else { $null }
+                    AverageResponseTimeMs = if ($_.AverageResponseTimeMs) { [math]::Round($_.AverageResponseTimeMs, 2) } else { $null }
+                    # Security and compliance metrics
+                    SSLCertExpiry = if ($_.SSLCertExpiry) { $_.SSLCertExpiry.ToString('o') } else { $null }
+                    SSLCertDaysRemaining = if ($_.SSLCertExpiry) { [math]::Max(0, ($_.SSLCertExpiry - (Get-Date)).Days) } else { $null }
+                    DatabaseConnectionPoolUsage = if ($_.DatabaseConnectionPoolUsage) { [math]::Round($_.DatabaseConnectionPoolUsage, 2) } else { $null }
+                    DatabaseConnectionPoolMax = if ($_.DatabaseConnectionPoolMax) { $_.DatabaseConnectionPoolMax } else { $null }
+                    GracefulShutdownCompleted = if ($null -ne $_.GracefulShutdownCompleted) { $_.GracefulShutdownCompleted } else { $true }
+                    # Deployment strategy metrics
+                    BlueGreenSwapCompleted = if ($null -ne $_.BlueGreenSwapCompleted) { $_.BlueGreenSwapCompleted } else { $false }
+                    ActiveSlot = if ($_.ActiveSlot) { $_.ActiveSlot } else { $null }
+                    CanaryPercentage = if ($_.CanaryPercentage) { [math]::Round($_.CanaryPercentage, 2) } else { $null }
+                    CanaryHealthy = if ($null -ne $_.CanaryHealthy) { $_.CanaryHealthy } else { $null }
+                    RollingUpdateProgress = if ($_.RollingUpdateProgress) { [math]::Round($_.RollingUpdateProgress, 2) } else { $null }
+                    FeatureFlagsUpdated = if ($null -ne $_.FeatureFlagsUpdated) { $_.FeatureFlagsUpdated } else { $false }
+                    FeatureFlagChanges = if ($_.FeatureFlagChanges) { @($_.FeatureFlagChanges) } else { @() }
+                    # Secrets and configuration management
+                    SecretsRotated = if ($null -ne $_.SecretsRotated) { $_.SecretsRotated } else { $false }
+                    SecretsRotationTimestamp = if ($_.SecretsRotationTimestamp) { $_.SecretsRotationTimestamp.ToString('o') } else { $null }
+                    ConfigurationDrift = if ($null -ne $_.ConfigurationDrift) { $_.ConfigurationDrift } else { $false }
+                    ConfigurationVersion = if ($_.ConfigurationVersion) { $_.ConfigurationVersion } else { $null }
+                    # Backup and recovery metrics
+                    BackupCreated = if ($null -ne $_.BackupCreated) { $_.BackupCreated } else { $false }
+                    BackupPath = if ($_.BackupPath) { $_.BackupPath } else { $null }
+                    BackupSizeBytes = if ($_.BackupSizeBytes) { $_.BackupSizeBytes } else { $null }
+                    BackupVerified = if ($null -ne $_.BackupVerified) { $_.BackupVerified } else { $false }
+                    LastSuccessfulBackup = if ($_.LastSuccessfulBackup) { $_.LastSuccessfulBackup.ToString('o') } else { $null }
+                    RecoveryPointObjective = if ($_.RecoveryPointObjective) { $_.RecoveryPointObjective } else { $null }
+                    RecoveryTimeObjective = if ($_.RecoveryTimeObjective) { $_.RecoveryTimeObjective } else { $null }
+                    # Database migration metrics
+                    MigrationScriptsRan = if ($null -ne $_.MigrationScriptsRan) { $_.MigrationScriptsRan } else { $false }
+                    MigrationVersion = if ($_.MigrationVersion) { $_.MigrationVersion } else { $null }
+                    MigrationDurationSeconds = if ($_.MigrationDurationSeconds) { [math]::Round($_.MigrationDurationSeconds, 2) } else { $null }
+                    MigrationRollbackAvailable = if ($null -ne $_.MigrationRollbackAvailable) { $_.MigrationRollbackAvailable } else { $false }
+                    SchemaChangesApplied = if ($_.SchemaChangesApplied) { $_.SchemaChangesApplied } else { 0 }
+                    DataMigrationRowsAffected = if ($_.DataMigrationRowsAffected) { $_.DataMigrationRowsAffected } else { $null }
+                    # Security and compliance checks
+                    ComplianceCheckPassed = if ($null -ne $_.ComplianceCheckPassed) { $_.ComplianceCheckPassed } else { $true }
+                    ComplianceFrameworks = if ($_.ComplianceFrameworks) { @($_.ComplianceFrameworks) } else { @() }
+                    SecurityScanPassed = if ($null -ne $_.SecurityScanPassed) { $_.SecurityScanPassed } else { $true }
+                    SecurityScanTimestamp = if ($_.SecurityScanTimestamp) { $_.SecurityScanTimestamp.ToString('o') } else { $null }
+                    VulnerabilitiesFound = if ($_.VulnerabilitiesFound) { $_.VulnerabilitiesFound } else { 0 }
+                    CriticalVulnerabilities = if ($_.CriticalVulnerabilities) { $_.CriticalVulnerabilities } else { 0 }
+                    HighVulnerabilities = if ($_.HighVulnerabilities) { $_.HighVulnerabilities } else { 0 }
+                    MediumVulnerabilities = if ($_.MediumVulnerabilities) { $_.MediumVulnerabilities } else { 0 }
+                    LowVulnerabilities = if ($_.LowVulnerabilities) { $_.LowVulnerabilities } else { 0 }
+                    DependencyAuditPassed = if ($null -ne $_.DependencyAuditPassed) { $_.DependencyAuditPassed } else { $true }
+                    OutdatedDependencies = if ($_.OutdatedDependencies) { $_.OutdatedDependencies } else { 0 }
+                    # Notification and alerting metrics
+                    NotificationsSent = if ($null -ne $_.NotificationsSent) { $_.NotificationsSent } else { $false }
+                    NotificationChannels = if ($_.NotificationChannels) { @($_.NotificationChannels) } else { @() }
+                    SlackWebhookTriggered = if ($null -ne $_.SlackWebhookTriggered) { $_.SlackWebhookTriggered } else { $false }
+                    EmailAlertSent = if ($null -ne $_.EmailAlertSent) { $_.EmailAlertSent } else { $false }
+                    PagerDutyTriggered = if ($null -ne $_.PagerDutyTriggered) { $_.PagerDutyTriggered } else { $false }
+                    TeamsWebhookTriggered = if ($null -ne $_.TeamsWebhookTriggered) { $_.TeamsWebhookTriggered } else { $false }
+                    # Resource utilization metrics
+                    PeakMemoryUsageMB = if ($_.PeakMemoryUsageMB) { [math]::Round($_.PeakMemoryUsageMB, 2) } else { $null }
+                    PeakCpuPercentage = if ($_.PeakCpuPercentage) { [math]::Round($_.PeakCpuPercentage, 2) } else { $null }
+                    NetworkBytesIn = if ($_.NetworkBytesIn) { $_.NetworkBytesIn } else { $null }
+                    NetworkBytesOut = if ($_.NetworkBytesOut) { $_.NetworkBytesOut } else { $null }
+                    ContainerRestarts = if ($_.ContainerRestarts) { $_.ContainerRestarts } else { 0 }
+                    PodEvictions = if ($_.PodEvictions) { $_.PodEvictions } else { 0 }
+                    # Service mesh and observability
+                    TracingEnabled = if ($null -ne $_.TracingEnabled) { $_.TracingEnabled } else { $false }
+                    TraceId = if ($_.TraceId) { $_.TraceId } else { $null }
+                    SpanCount = if ($_.SpanCount) { $_.SpanCount } else { 0 }
+                    MetricsExported = if ($null -ne $_.MetricsExported) { $_.MetricsExported } else { $false }
+                    LogsShipped = if ($null -ne $_.LogsShipped) { $_.LogsShipped } else { $false }
+                    # Deployment verification
+                    SmokeTestPassed = if ($null -ne $_.SmokeTestPassed) { $_.SmokeTestPassed } else { $null }
+                    IntegrationTestPassed = if ($null -ne $_.IntegrationTestPassed) { $_.IntegrationTestPassed } else { $null }
+                    SyntheticMonitorPassed = if ($null -ne $_.SyntheticMonitorPassed) { $_.SyntheticMonitorPassed } else { $null }
+                    UserAcceptanceTestPassed = if ($null -ne $_.UserAcceptanceTestPassed) { $_.UserAcceptanceTestPassed } else { $null }

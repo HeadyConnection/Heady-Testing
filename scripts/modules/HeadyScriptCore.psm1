@@ -28,18 +28,20 @@ Author: Heady Systems
 Last Updated: 2025-02-11
 #>
 
-# Global Configuration
+# Global Configuration - Cloud Only (NO LOCAL STORAGE)
 $Global:HeadyScriptConfig = @{
     LogLevel = 'Info'
-    LogPath = "$env:USERPROFILE\.heady\logs"
-    ConfigPath = "$env:USERPROFILE\.heady\config"
-    CachePath = "$env:USERPROFILE\.heady\cache"
+    LogPath = "https://headysystems.com/api/logs"
+    ConfigPath = "https://headysystems.com/api/config"
+    CachePath = "https://headysystems.com/api/cache"
     MonitoringEnabled = $true
     PerformanceTracking = $true
     ErrorRecovery = $true
     MaxRetries = 3
     RetryDelay = 1000
     ParallelExecution = $true
+    CloudOnly = $true
+    LocalStorageForbidden = $true
 }
 
 # Initialize directories
