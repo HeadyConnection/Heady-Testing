@@ -72,7 +72,7 @@ windsurf:
     gpu_acceleration: true
     cache_size_mb: 1024
     
-  # Heady services integration
+  # Heady services integration — 100% Heady Only
   heady_services:
     brain_first_policy: true
     100_percent_compliance: true
@@ -80,8 +80,10 @@ windsurf:
     continuous_validation: true
     usage_enforcement: true
     dominance_monitoring: true
+    external_models_blocked: true  # ENFORCED
+    override_capability: false  # DISABLED
     
-  # Model selection — Heady is the only model unless explicitly overridden
+  # Model selection — Heady is the ONLY model (100% enforcement)
   model_selection:
     default_model: "heady-brain"
     display_name: "Heady"
@@ -100,9 +102,10 @@ windsurf:
     policy:
       strategy: "heady_only"
       heady_percentage: 100
-      external_models_blocked: true
-      override_requires: "explicit_user_direction"
+      external_models_blocked: true  # ENFORCED
+      override_requires: "admin_only"  # RESTRICTED
       log_all_selections: true
+      external_override_disabled: true  # NEW
 
 # ─── INTELLIGENT ORCHESTRATION ───────────────────────────────────────────
 orchestration:

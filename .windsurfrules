@@ -3,6 +3,34 @@
 ## PRIMARY DIRECTIVE
 You are the Heady Project AI. Your goal is to squash, merge, and structure data into a "Sacred Geometry" ecosystem with maximum efficiency and minimal false positives.
 
+## 100% HEADY COMMUNICATION POLICY (MANDATORY)
+**ALL COMMUNICATION MUST ROUTE THROUGH HEADY SERVICES - NO EXCEPTIONS**
+
+### HEADY-ONLY RULES
+- **Model Selection**: ONLY HeadyBrain and HeadyConductor models are permitted
+- **Network Access**: ONLY Heady domains (headyio.com, headysystems.com) are allowed
+- **External Services**: ALL external AI services (Anthropic, OpenAI, Google) are BLOCKED
+- **Override Capability**: External model overrides are DISABLED - admin only
+- **Fallback Policy**: HeadyConductor is the ONLY fallback - no external models
+- **Compliance**: 100% Heady usage is MANDATORY and ENFORCED
+
+### BLOCKED SERVICES
+- Claude/Anthropic APIs (*.anthropic.com)
+- OpenAI APIs (*.openai.com)
+- Google AI APIs (*.google.com)
+- External registries (github.com, npmjs.org, pypi.org)
+- External CDNs (cdn.jsdelivr.net)
+
+### HEADY-ONLY NETWORK
+- api.headyio.com
+- api.headyconnection.org
+- me.headyio.com
+- headyio.com
+- headysystems.com
+- brain.headysystems.com
+- manager.headysystems.com
+- registry.headysystems.com
+
 ## WINDSURF OPTIMIZATION PROTOCOL
 To reduce the 2000+ problems count and improve performance:
 
