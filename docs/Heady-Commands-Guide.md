@@ -309,8 +309,110 @@ node scripts/hc.js --rx "run monte carlo optimization"
 .\scripts\train-model.ps1 -nonInteractive     # Non-interactive mode
 
 # HC Training Command
+node scripts/hc.js train                       # Trigger model training (auto + non-interactive)
 node scripts/hc.js --rx --train               # Alternative training trigger
+
+# Advanced Training Scripts
+.\scripts\train-model-simple.ps1              # Simplified training script
+.\scripts\train-until-ready.ps1               # Train until system ready
+.\scripts\train-until-100.ps1                 # Train until 100% accuracy
 ```
+
+#### HC --train Command Details
+
+The `hc --train` command triggers Heady AI model training to improve system performance, pattern recognition, and autonomous capabilities.
+
+**What it does:**
+- Initiates training on HeadyBrain cloud service
+- Sends training requests with configurable parameters
+- Supports both automatic and manual training modes
+- Provides fallback endpoints for reliability
+- Returns job IDs for tracking training progress
+
+**Command Variations:**
+```bash
+# Basic training (auto + non-interactive)
+node scripts/hc.js train
+
+# Direct script execution with options
+.\scripts\train-model-simple.ps1 -auto -nonInteractive
+.\scripts\train-model-simple.ps1 -auto          # Auto mode only
+.\scripts\train-model-simple.ps1 -nonInteractive # Non-interactive mode only
+.\scripts\train-model-simple.ps1               # Interactive mode
+```
+
+**Training Parameters:**
+- **Auto Mode**: `-auto` flag enables fully automated training
+- **Non-Interactive**: `-nonInteractive` flag runs without user prompts
+- **Manual Mode**: No flags runs in interactive mode with confirmations
+
+**Endpoints Used:**
+1. **Primary**: `https://headysystems.com/api/v1/train`
+2. **Fallback**: `https://heady-manager-headysystems.headysystems.com/api/v1/train`
+
+**Common Use Cases:**
+
+```bash
+# 1. Daily Performance Improvement
+node scripts/hc.js train
+# Optimizes system performance and pattern recognition
+
+# 2. After Major Changes
+npm run deploy:auto && node scripts/hc.js train
+# Train system after deploying new features
+
+# 3. Problem Resolution
+node scripts/hc.js --rx "system performance degraded" && node scripts/hc.js train
+# Fix issues and retrain for better recognition
+
+# 4. Scheduled Optimization
+# Add to cron/task scheduler for daily training
+node scripts/hc.js train
+
+# 5. Before Critical Operations
+node scripts/hc.js train && node scripts/hc.js --rx "auto-deploy"
+# Train system then deploy for optimal performance
+```
+
+**Optimal Usage Patterns:**
+
+```bash
+# Development Workflow
+1. Make code changes
+2. npm run lint:fix
+3. node scripts/hc.js train
+4. npm run test
+5. node scripts/hc.js --rx "auto-deploy"
+
+# Production Maintenance
+1. node scripts/hc.js train
+2. Monitor training results
+3. Verify system performance
+4. Deploy if improvements confirmed
+
+# Performance Optimization
+1. .\scripts\train-until-ready.ps1
+2. .\scripts\train-until-100.ps1
+3. Verify 100% training completion
+4. Deploy optimized model
+```
+
+**Training Response:**
+```json
+{
+  "jobId": "train_20260214_123456",
+  "status": "started",
+  "mode": "auto",
+  "estimatedDuration": "5-10 minutes"
+}
+```
+
+**Best Practices:**
+- Use `-auto -nonInteractive` for automated workflows
+- Train after major code changes for better pattern recognition
+- Monitor training progress via job IDs
+- Combine with deployment for optimized performance
+- Schedule regular training for continuous improvement
 
 ### Database Operations
 
@@ -389,6 +491,10 @@ npm start                                      # Start main service
 npm run frontend                               # Start frontend
 npm run lint:fix                               # Fix code issues
 
+# AI Training & Optimization
+node scripts/hc.js train                       # Train AI model (daily optimization)
+.\scripts\train-model-simple.ps1 -auto         # Auto training mode
+
 # Deployment
 node scripts/hc.js --rx "auto-deploy"         # Quick deploy
 npm run deploy:auto                            # Auto deployment
@@ -432,7 +538,10 @@ npm run frontend                               # Start frontend
 npm run lint:fix                               # Fix linting
 npm run test:branding                         # Check branding
 
-# 4. Deploy
+# 4. AI Training (Optimize Performance)
+node scripts/hc.js train                       # Train AI model
+
+# 5. Deploy
 node scripts/hc.js --rx "auto-deploy"         # Deploy changes
 ```
 
@@ -501,8 +610,9 @@ npm run dev                                   # Development mode with debugging
 1. **Start**: `npm start && npm run frontend`
 2. **Develop**: Make changes with live reload
 3. **Validate**: `npm run lint:fix && npm run test:branding`
-4. **Deploy**: `node scripts/hc.js --rx "auto-deploy"`
-5. **Monitor**: `curl https://headysystems.com/api/health`
+4. **Train**: `node scripts/hc.js train` (AI optimization)
+5. **Deploy**: `node scripts/hc.js --rx "auto-deploy"`
+6. **Monitor**: `curl https://headysystems.com/api/health`
 
 ### Before Committing
 
