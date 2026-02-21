@@ -1330,6 +1330,14 @@ try {
   console.warn(`  ⚠ HeadyHCFP router not loaded: ${err.message}`);
 }
 
+try {
+  const patternsRouter = require("./src/routes/patterns");
+  app.use("/api/patterns", patternsRouter);
+  console.log("  ∞ HeadyPatterns: LOADED (real router) → /api/patterns/*");
+} catch (err) {
+  console.warn(`  ⚠ HeadyPatterns router not loaded: ${err.message}`);
+}
+
 // ─── Service Stub Routes for remaining MCP Tools ────────────────────
 // These ensure all heady_* MCP tools have working backend endpoints.
 // Each stub logs the request, records the connectivity pattern, and
@@ -1392,7 +1400,6 @@ const serviceStubs = {
   perplexity: ["search", "research"],
   jules: ["task", "status"],
   huggingface: ["model"],
-  patterns: ["analyze", "library"],
   risks: ["assess", "mitigate"],
   coder: ["generate", "orchestrate"],
   openai: ["chat", "complete"],
