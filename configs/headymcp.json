@@ -9,7 +9,7 @@
       "env": {
         "HEADY_API_KEY": "${HEADY_API_KEY}",
         "HEADY_MANAGER_URL": "https://manager.headysystems.com",
-        "HEADY_BRAIN_URL": "https://headyio.com",
+        "HEADY_BRAIN_URL": "https://manager.headysystems.com",
         "NODE_ENV": "production"
       },
       "priority": 300,
