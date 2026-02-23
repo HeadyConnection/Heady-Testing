@@ -364,6 +364,14 @@ app.get("/api/services/groups", (req, res) => {
 // ─── 3D Vector Memory (Real Embeddings) ────────────────────────────
 const vectorMemory = require("./src/vector-memory");
 vectorMemory.init();
+
+// ─── Vector-Augmented Response Pipeline (THE CRITICAL PIECE) ────────
+// Queries vector memory BEFORE every /brain/* response, injects context
+const vectorPipeline = require("./src/vector-pipeline");
+app.use(vectorPipeline.createVectorAugmentedMiddleware(vectorMemory));
+vectorPipeline.registerRoutes(app, vectorMemory);
+console.log("  ∞ VectorPipeline: ACTIVE — every /brain/* call queries memory first");
+
 vectorMemory.registerRoutes(app);
 console.log("  ∞ VectorMemory: LOADED (HF embeddings + cosine similarity)");
 

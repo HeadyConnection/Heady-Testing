@@ -1,25 +1,9 @@
 {
-  "totalScans": 479,
+  "totalScans": 481,
   "totalDriftsDetected": 0,
   "determinismScore": 0.9999999999999996,
-  "lastChainHash": "de01ecfeedd61c75",
+  "lastChainHash": "1c373ee1dc5e0ba0",
   "proofChain": [
-    {
-      "index": 107,
-      "scanId": "scan-1771850958490-d1b183",
-      "ts": "2026-02-23T12:49:18.490Z",
-      "hash": "df12ab394e842d7e",
-      "prevHash": "10881a1957c6e8b9",
-      "determinismScore": 1
-    },
-    {
-      "index": 108,
-      "scanId": "scan-1771851066156-ab7285",
-      "ts": "2026-02-23T12:51:06.156Z",
-      "hash": "9fabcff12231cd57",
-      "prevHash": "df12ab394e842d7e",
-      "determinismScore": 1
-    },
     {
       "index": 109,
       "scanId": "scan-1771851173824-a0f1d3",
@@ -403,7 +387,23 @@
       "hash": "de01ecfeedd61c75",
       "prevHash": "81779d4e3d38cad3",
       "determinismScore": 1
+    },
+    {
+      "index": 51,
+      "scanId": "scan-1771858281417-22c5d1",
+      "ts": "2026-02-23T14:51:21.417Z",
+      "hash": "6d9db0821c857688",
+      "prevHash": "de01ecfeedd61c75",
+      "determinismScore": 1
+    },
+    {
+      "index": 50,
+      "scanId": "scan-1771858389176-00097a",
+      "ts": "2026-02-23T14:53:09.177Z",
+      "hash": "1c373ee1dc5e0ba0",
+      "prevHash": "6d9db0821c857688",
+      "determinismScore": 1
     }
   ],
-  "lastSave": "2026-02-23T14:49:38.753Z"
+  "lastSave": "2026-02-23T14:53:09.180Z"
 }

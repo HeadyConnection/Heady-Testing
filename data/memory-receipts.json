@@ -1159,5 +1159,23 @@
     "fallbackUsed": true,
     "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
     "ts": "2026-02-23T14:45:36.018Z"
+  },
+  {
+    "id": "cf85c3fc-ad78-4df1-a478-e3b00a01aef1",
+    "stored": "Stored in vector DB: \"Embedding request: Voice UX design patterns for mobile AI companions...\" (68 chars, type: brain_embed)",
+    "notStored": "Full content stored — nothing omitted",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-23T14:50:36.439Z"
+  },
+  {
+    "id": "d43b0241-4e05-4905-b0e6-e0802202c9be",
+    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Voice UX design patterns for mobile AI companions...\"",
+    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (49 chars) has no 3D vector representation.",
+    "method": "hash-fallback",
+    "fallbackUsed": true,
+    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
+    "ts": "2026-02-23T14:50:36.442Z"
   }
 ]

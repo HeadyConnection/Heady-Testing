@@ -677,5 +677,12 @@
     "input": "Cross-device authentication and permission management",
     "output": "[embedding generated]",
     "timestamp": "2026-02-23T14:45:35.893Z"
+  },
+  {
+    "id": "8830556d-c54d-4b9d-ac9b-c8915537440a",
+    "type": "embed",
+    "input": "Voice UX design patterns for mobile AI companions",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:50:36.327Z"
   }
 ]
