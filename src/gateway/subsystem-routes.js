@@ -33,13 +33,18 @@ const { loadUniversalPrompt, buildAgentPrompt, buildCompactDirective,
         getPromptHash, CSL_GATES, ARCHETYPES, COLAB_RUNTIMES,
         SWARM_MATRIX } = require('../agents/universal-agent-prompt.js');
 
-// Lazy-load bee factory and swarm coordinator (CJS modules)
-let BeeFactory, SwarmCoordinator;
+// Lazy-load bee factory, swarm coordinator, and pipeline (CJS modules)
+let BeeFactory, SwarmCoordinator, registerComputeProviders;
 try {
   BeeFactory = require('../bees/bee-factory.js');
   SwarmCoordinator = require('../bees/swarm-coordinator.js');
 } catch (err) {
   console.warn('[SubsystemRoutes] Bee/Swarm modules not loaded:', err.message);
+}
+try {
+  registerComputeProviders = require('../hc_pipeline.js').registerComputeProviders;
+} catch (err) {
+  console.warn('[SubsystemRoutes] Pipeline compute registration not available:', err.message);
 }
 
 // ── Subsystem Singletons ──
@@ -100,6 +105,12 @@ async function initializeSubsystems() {
     console.log(`[SubsystemRoutes] Universal Agent Prompt loaded (hash: ${getPromptHash()})`);
   } catch (err) {
     console.warn('[SubsystemRoutes] Universal Prompt load failed:', err.message);
+  }
+
+  // 5. Register compute providers with the pipeline task executor
+  if (registerComputeProviders && (colabCluster || swarmCoordinator)) {
+    registerComputeProviders({ colabCluster, swarmCoordinator });
+    console.log('[SubsystemRoutes] Pipeline compute providers registered (colab + swarms)');
   }
 
   return results;
