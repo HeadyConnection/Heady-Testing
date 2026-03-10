@@ -86,17 +86,11 @@
       'use strict';
       var PHI = 1.618; var PSI = 0.618;
 
-      var runtimes = [
-        { id: 'colab-1', name: 'Colab Pro+ US-East', region: 'us-east', gpu: 'A100',
-          vram: 40, state: 'warm', utilization: 0.42, memUsed: 12.3, temp: 52,
-          opsExecuted: 1247, queued: 3, errors: 2 },
-        { id: 'colab-2', name: 'Colab Pro+ US-West', region: 'us-west', gpu: 'A100',
-          vram: 40, state: 'idle', utilization: 0.0, memUsed: 0, temp: 28,
-          opsExecuted: 834, queued: 0, errors: 0 },
-        { id: 'colab-3', name: 'Colab Pro+ EU-West', region: 'eu-west', gpu: 'A100',
-          vram: 40, state: 'executing', utilization: 0.78, memUsed: 28.5, temp: 71,
-          opsExecuted: 2156, queued: 12, errors: 5 },
-      ];
+      // Default gateway port
+      const gatewayPort = 3352;
+      const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+      const hostname = window.location.hostname || 'localhost';
+      const gatewayUrl = `${protocol}//${hostname}:${gatewayPort}/health`;
 
       function gaugeClass(val) {
         if (val < 0.382) return 'low';
@@ -104,11 +98,45 @@
         return 'high';
       }
 
-      function render() {
+      async function fetchData() {
+        try {
+          const res = await fetch(gatewayUrl);
+          if (!res.ok) throw new Error('Network response was not ok');
+          const data = await res.json();
+          render(data);
+        } catch (error) {
+          console.error('Failed to fetch Colab runtime data:', error);
+          document.getElementById('runtime-grid').innerHTML = '<div style="color:var(--red); padding:1rem;">Failed to load data. Is the Colab gateway running?</div>';
+        }
+      }
+
+      function render(data) {
         var grid = document.getElementById('runtime-grid');
-        grid.innerHTML = runtimes.map(function (r) {
+
+        // Convert runtimes object to array
+        const runtimesList = [];
+        if (data.runtimes) {
+            for (const [pool, rt] of Object.entries(data.runtimes)) {
+                runtimesList.push({
+                    id: rt.id,
+                    name: `Colab Pro+ ${pool.charAt(0).toUpperCase() + pool.slice(1)}`,
+                    state: rt.status.toLowerCase(),
+                    gpu: rt.gpuType || 'Unknown',
+                    vram: rt.vram || 40, // Assume 40GB A100/T4 if unknown
+                    utilization: rt.gpuUtil ? rt.gpuUtil / 100 : 0,
+                    memUsed: rt.vram ? rt.vram * (rt.loadFactor || 0) : 0,
+                    temp: rt.temperature || 0,
+                    opsExecuted: rt.taskCount || 0,
+                    queued: pool === 'hot' ? data.queueDepth : 0, // Simplified queue display
+                    errors: 0
+                });
+            }
+        }
+
+        grid.innerHTML = runtimesList.map(function (r) {
           var utilPct = (r.utilization * 100).toFixed(1);
-          var memPct = ((r.memUsed / r.vram) * 100).toFixed(1);
+          var memPct = r.vram ? ((r.memUsed / r.vram) * 100).toFixed(1) : '0.0';
+          var memUsedFmt = r.memUsed.toFixed(1);
 
           return '<div class="runtime-card">' +
             '<div class="runtime-header">' +
@@ -122,7 +150,7 @@
             '</div>' +
 
             '<div class="gpu-gauge">' +
-              '<div class="gauge-label"><span>VRAM (' + r.memUsed + ' / ' + r.vram + ' GB)</span><span>' + memPct + '%</span></div>' +
+              '<div class="gauge-label"><span>VRAM (' + memUsedFmt + ' / ' + r.vram + ' GB)</span><span>' + memPct + '%</span></div>' +
               '<div class="gauge-bar"><div class="gauge-fill ' + gaugeClass(r.memUsed / r.vram) + '" style="width:' + memPct + '%"></div></div>' +
             '</div>' +
 
@@ -151,7 +179,10 @@
         }).join('');
       }
 
-      document.addEventListener('DOMContentLoaded', render);
+      document.addEventListener('DOMContentLoaded', () => {
+          fetchData();
+          setInterval(fetchData, 5000); // Update every 5 seconds
+      });
     })();
   </script>
 </body>
