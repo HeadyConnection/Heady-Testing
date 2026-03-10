@@ -9,6 +9,14 @@
 
 import express from 'express';
 import { randomUUID } from 'crypto';
+import ColabRuntimeManager from '../colab-runtime-manager.js';
+
+const manager = new ColabRuntimeManager([
+  { endpoint: process.env.COLAB_RUNTIME_0_URL || `http://${process.env.COLAB_HOST_0 || 'colab-runtime-0'}:8080`, apiToken: process.env.COLAB_RUNTIME_0_TOKEN || '' },
+  { endpoint: process.env.COLAB_RUNTIME_1_URL || `http://${process.env.COLAB_HOST_1 || 'colab-runtime-1'}:8081`, apiToken: process.env.COLAB_RUNTIME_1_TOKEN || '' },
+  { endpoint: process.env.COLAB_RUNTIME_2_URL || `http://${process.env.COLAB_HOST_2 || 'colab-runtime-2'}:8082`, apiToken: process.env.COLAB_RUNTIME_2_TOKEN || '' },
+]);
+manager.startHealthMonitor();
 
 // ─── φ-Math Constants (No Magic Numbers) ──────────────────────────────────────
 const PHI = 1.618033988749895;
@@ -162,6 +170,11 @@ app.get('/health/ready', (req, res) => {
   res.json({ status: 'ready', service: SERVICE_NAME, domain: DOMAIN });
 });
 
+// ─── Runtimes ─────────────────────────────────────────────────────────────────
+app.get('/api/runtimes', (req, res) => {
+  res.json(manager.status());
+});
+
 // ─── Service Info ─────────────────────────────────────────────────────────────
 app.get('/info', (req, res) => {
   res.json({
@@ -227,17 +240,20 @@ app.post('/execute', async (req, res) => {
       });
     }
 
+    const dispatchResult = await manager.dispatch(task?.type || 'any', task?.payload || {});
+
     const result = {
       service: SERVICE_NAME,
       domain: DOMAIN,
-      executed: true,
+      executed: dispatchResult.success,
+      dispatchResult,
       correlationId: req.headyContext.correlationId,
       domainMatch,
       latencyMs: Math.round(performance.now() - startTime),
       timestamp: new Date().toISOString(),
     };
 
-    res.json(result);
+    res.status(dispatchResult.success ? 200 : 503).json(result);
   } catch (err) {
     log('error', `Execution failed: ${err.message}`, {
       correlationId: req.headyContext.correlationId,

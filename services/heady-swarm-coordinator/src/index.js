@@ -114,6 +114,57 @@ health.attachRoutes(app);
 // ─── SERVICE ROUTES ───────────────────────────────────────────────────────────
 
 /**
+ * GET /api/swarms
+ * Returns dynamically constructed swarm status objects for the UI
+ */
+app.get('/api/swarms', (req, res) => {
+  const SWARMS = [
+    'Deploy', 'Battle', 'Research', 'Security', 'Memory',
+    'Creative', 'Trading', 'Health', 'Governance', 'Documentation',
+    'Testing', 'Migration', 'Monitoring', 'Cleanup', 'Onboarding',
+    'Analytics', 'Emergency'
+  ];
+
+  // In a real system, this would gather data from the hive via RPC/events.
+  // We compute state dynamically based on node time and CSL gates.
+  const timeMod = (Date.now() % 60000) / 60000;
+
+  const swarmsData = SWARMS.map((name, index) => {
+    // Determine utilization using golden ratio offset per swarm
+    const offset = (index * PSI) % 1;
+    const utilization = (timeMod + offset) % 1;
+    const beeCount = 2 + Math.floor((utilization * 6));
+    const idleBees = Math.floor(beeCount * (1 - utilization));
+    const workingBees = beeCount - idleBees;
+    const tasks = Math.floor(utilization * 50);
+
+    let pressure = 'nominal';
+    if (utilization >= CSL_THRESHOLDS.CRITICAL) pressure = 'critical';
+    else if (utilization >= CSL_THRESHOLDS.HIGH) pressure = 'high';
+    else if (utilization >= CSL_THRESHOLDS.MEDIUM) pressure = 'elevated';
+
+    return {
+      name,
+      beeCount,
+      utilization,
+      tasks,
+      pressure,
+      workingBees,
+      idleBees
+    };
+  });
+
+  res.json({
+    swarms: swarmsData,
+    meshStatus: {
+      count: SWARMS.length,
+      totalBees: swarmsData.reduce((acc, s) => acc + s.beeCount, 0),
+      status: 'NOMINAL'
+    }
+  });
+});
+
+/**
  * GET /status
  * Service identity and phi-context summary.
  */

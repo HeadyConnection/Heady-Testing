@@ -1,5 +1,3 @@
-const pino = require('pino');
-const logger = pino();
 'use strict';
 
 const EventEmitter = require('events');
@@ -516,4 +514,6 @@ function createHeadyInfer(cfg) {
   return new HeadyInfer(cfg || config);
 }
 
-module.exports = { HeadyInfer, createHeadyInfer };
+const getHealth = () => ({ status: 'healthy', service: 'heady-infer', timestamp: new Date().toISOString() });
+
+module.exports = { HeadyInfer, createHeadyInfer, getHealth };

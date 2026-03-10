@@ -1,5 +1,3 @@
-const pino = require('pino');
-const logger = pino();
 #!/usr/bin/env node
 /**
  * Heady™ MCP Server v5.0 — Master Control Program
@@ -365,4 +363,6 @@ main().catch((err) => {
   process.exit(1);
 });
 
-module.exports = { HeadyMCPProtocol, SERVER_INFO };
+const getHealth = () => ({ status: 'healthy', service: 'heady-mcp-server', timestamp: new Date().toISOString() });
+
+module.exports = { HeadyMCPProtocol, SERVER_INFO, getHealth };

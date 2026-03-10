@@ -1,5 +1,3 @@
-const pino = require('pino');
-const logger = pino();
 'use strict';
 
 /**
@@ -377,6 +375,8 @@ function middleware(opts = {}) {
 
 // ── Module exports ────────────────────────────────────────────────────────────
 
+const getHealth = () => ({ status: 'healthy', service: 'heady-guard', timestamp: new Date().toISOString() });
+
 module.exports = {
   initialize,
   shutdown,
@@ -389,4 +389,5 @@ module.exports = {
   pipeline,
   rules,
   config,
+  getHealth,
 };

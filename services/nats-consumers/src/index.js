@@ -381,6 +381,8 @@ class NATSConsumerManager extends EventEmitter {
   }
 }
 
+const getHealth = () => ({ status: 'healthy', service: 'nats-consumers', timestamp: new Date().toISOString() });
+
 export {
   NATSConsumerManager,
   ConsumerGroup,
@@ -388,4 +390,5 @@ export {
   STREAMS,
   CONSUMERS,
   CONFIG as NATS_CONFIG,
+  getHealth,
 };

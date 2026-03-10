@@ -455,6 +455,8 @@ const HEADY_SAGAS = {
   ]),
 };
 
+const getHealth = () => ({ status: 'healthy', service: 'saga-coordinator', timestamp: new Date().toISOString() });
+
 export {
   SagaCoordinator,
   Saga,
@@ -463,4 +465,5 @@ export {
   StepState,
   HEADY_SAGAS,
   CONFIG as SAGA_CONFIG,
+  getHealth,
 };

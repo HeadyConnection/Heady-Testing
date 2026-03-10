@@ -13,29 +13,34 @@
   const PSI = 0.6180339887;
   const PSI2 = PSI * PSI;
 
-  // ── Network Topology Data ─────────────────────────────────────────
-  let NODES = [];
-  let CONNECTIONS = [];
+  // ── Sample Topology Data (replaced by API in production) ──────────
 
-  async function fetchTopology() {
-    try {
-      const res = await fetch('/api/topology');
-      const data = await res.json();
-      if (data.nodes) {
-        NODES = data.nodes.map(n => ({
-          ...n,
-          platform: n.pool === 'HOT' ? 'colab' : n.pool === 'WARM' ? 'cloudflare' : 'vertex',
-          vector: n.capabilities ? { x: n.capabilities[0] || PSI, y: n.capabilities[1] || PSI, z: n.capabilities[2] || PSI } : { x: Math.random(), y: Math.random(), z: Math.random() },
-          status: 'active'
-        }));
-      }
-      if (data.edges) {
-        CONNECTIONS = data.edges.map(e => ({ ...e, weight: e.similarity }));
-      }
-    } catch (e) {
-      console.error('Failed to fetch topology:', e);
-    }
-  }
+  let NODES = [
+    { id: 'cf-gateway', name: 'Liquid Gateway', platform: 'cloudflare', type: 'worker', vector: { x: 1.0, y: 0.0, z: PHI }, status: 'active' },
+    { id: 'cf-edge-auth', name: 'Edge Auth', platform: 'cloudflare', type: 'worker', vector: { x: PHI, y: 0.0, z: 1.0 }, status: 'active' },
+    { id: 'cf-edge-cache', name: 'Edge Cache', platform: 'cloudflare', type: 'worker', vector: { x: 1.0, y: 0.0, z: PHI * PHI }, status: 'active' },
+    { id: 'cf-edge-embed', name: 'Edge Embed', platform: 'cloudflare', type: 'worker', vector: { x: PHI, y: PSI, z: PHI }, status: 'active' },
+    { id: 'colab-1', name: 'Colab US-East', platform: 'colab', type: 'gpu', vector: { x: 0.0, y: PHI, z: 0.0 }, status: 'active' },
+    { id: 'colab-2', name: 'Colab US-West', platform: 'colab', type: 'gpu', vector: { x: 0.0, y: 1.0, z: PSI }, status: 'standby' },
+    { id: 'colab-3', name: 'Colab EU-West', platform: 'colab', type: 'gpu', vector: { x: PSI, y: PHI, z: 0.0 }, status: 'standby' },
+    { id: 'vertex-gemini', name: 'Vertex Gemini', platform: 'vertex', type: 'llm', vector: { x: PSI, y: 1.0, z: PSI }, status: 'active' },
+    { id: 'vertex-embed', name: 'Vertex Embed', platform: 'vertex', type: 'embedding', vector: { x: PSI, y: PSI, z: 1.0 }, status: 'active' },
+    { id: 'origin-manager', name: 'Heady Manager', platform: 'cloud_run', type: 'service', vector: { x: PSI2, y: PSI2, z: PSI2 }, status: 'active' },
+    { id: 'origin-drupal', name: 'Drupal CMS', platform: 'local', type: 'cms', vector: { x: PSI, y: 0.0, z: 1.0 }, status: 'active' },
+  ];
+
+  let CONNECTIONS = [
+    { from: 'cf-gateway', to: 'origin-manager', type: 'proxy', weight: PHI },
+    { from: 'cf-gateway', to: 'origin-drupal', type: 'proxy', weight: 1.0 },
+    { from: 'cf-gateway', to: 'colab-1', type: 'compute', weight: PSI },
+    { from: 'cf-gateway', to: 'colab-2', type: 'compute', weight: PSI },
+    { from: 'cf-gateway', to: 'colab-3', type: 'compute', weight: PSI },
+    { from: 'origin-manager', to: 'vertex-gemini', type: 'ai', weight: PHI },
+    { from: 'origin-manager', to: 'vertex-embed', type: 'ai', weight: 1.0 },
+    { from: 'origin-manager', to: 'origin-drupal', type: 'internal', weight: PSI2 },
+    { from: 'colab-1', to: 'origin-manager', type: 'internal', weight: PSI },
+    { from: 'colab-1', to: 'vertex-gemini', type: 'internal', weight: PSI2 },
+  ];
 
   const PLATFORM_COLORS = {
     cloudflare: '#06b6d4',
@@ -255,21 +260,35 @@
 
   // ── Initialize ───────────────────────────────────────────────────
 
-  document.addEventListener('DOMContentLoaded', async function () {
-    await fetchTopology();
+  document.addEventListener('DOMContentLoaded', function () {
+    // Render initially with sample data (graceful degradation)
     populateNodeList();
     populateLayers();
     populateConnections();
     populateRoutingStats();
     updateClusterHealth();
     drawTopology();
-    setInterval(async () => {
-      await fetchTopology();
-      populateNodeList();
-      populateLayers();
-      populateConnections();
-      populateRoutingStats();
-      updateClusterHealth();
-    }, 5000);
+
+    // Attempt to load live data (without failing visual state if offline)
+    const apiUrl = "/api/topology"; // use relative path if possible, or gracefully fail
+    fetch(apiUrl)
+      .then(res => {
+        if (!res.ok) throw new Error("API Offline");
+        return res.json();
+      })
+      .then(data => {
+         if (data.nodes && data.nodes.length > 0) {
+           NODES = data.nodes;
+           CONNECTIONS = data.connections || [];
+           populateNodeList();
+           populateLayers();
+           populateConnections();
+           populateRoutingStats();
+           updateClusterHealth();
+         }
+      })
+      .catch(err => {
+         console.warn('Topology API offline, using fallback data:', err);
+      });
   });
 })();

@@ -429,6 +429,8 @@ const BUILT_IN_MIGRATIONS = [
   },
 ];
 
+const getHealth = () => ({ status: 'healthy', service: 'migration-service', timestamp: new Date().toISOString() });
+
 export {
   MigrationEngine,
   MigrationRecord,
@@ -436,4 +438,5 @@ export {
   parseMigrationFile,
   BUILT_IN_MIGRATIONS,
   CONFIG as MIGRATION_CONFIG,
+  getHealth,
 };

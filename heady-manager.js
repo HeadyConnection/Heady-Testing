@@ -1180,6 +1180,20 @@ app.use((err, req, res, next) => {
   });
 });
 
+app.get("/api/topology", (req, res) => {
+  const reg = loadRegistry();
+  const nodes = Object.entries(reg.nodes || {}).map(([id, n]) => ({
+    id, name: n.name || id, platform: n.platform || 'unknown',
+    type: n.role || 'service', vector: { x: Math.random(), y: Math.random(), z: Math.random() },
+    status: n.status || 'available'
+  }));
+  const connections = [];
+  res.json({
+    nodes: nodes,
+    connections: connections
+  });
+});
+
 // ─── SPA Fallback ───────────────────────────────────────────────────
 app.get('/*path', (req, res) => {
   const indexPath = path.join(frontendBuildPath, "index.html");
