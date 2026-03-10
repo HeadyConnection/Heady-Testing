@@ -68,37 +68,184 @@ function clearSessionCookie(res) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// IN-MEMORY STORAGE (demo only; replace with DB in production)
+// PERSISTENT STORAGE (Neon Postgres + in-memory fallback)
 // ═════════════════════════════════════════════════════════════════════════════
 
-// Map<token, { userId, email, name, createdAt, expiresAt }>
-const sessions = new Map();
+let pgPool = null;
+let useDb = false;
 
-// Map<userId, { email, passwordHash, name, createdAt }>
-const users = new Map();
+// Try to initialize Postgres connection pool
+try {
+  const { Pool } = require('pg');
+  if (process.env.DATABASE_URL) {
+    pgPool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 5,
+      idleTimeoutMillis: 30000,
+    });
+    useDb = true;
+    log.info('Auth using Neon Postgres for sessions/users');
 
-// Rate limiting for login attempts
-const loginAttempts = new Map(); // email -> { count, lastAttempt }
+    // Auto-create tables if they don't exist
+    pgPool.query(`
+      CREATE TABLE IF NOT EXISTS heady_users (
+        id TEXT PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        name TEXT NOT NULL,
+        preferences JSONB DEFAULT '{}',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS heady_sessions (
+        token TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES heady_users(id) ON DELETE CASCADE,
+        email TEXT NOT NULL,
+        name TEXT NOT NULL,
+        created_at BIGINT NOT NULL,
+        expires_at BIGINT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON heady_sessions(user_id);
+      CREATE INDEX IF NOT EXISTS idx_sessions_expires ON heady_sessions(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_users_email ON heady_users(email);
+    `).then(() => log.info('Auth tables ready'))
+      .catch(err => log.error('Auth table creation failed', { error: err.message }));
+  }
+} catch (err) {
+  log.warn('pg not available, using in-memory auth storage', { error: err.message });
+}
+
+// In-memory fallback (used when DB unavailable)
+const memSessions = new Map();
+const memUsers = new Map();
+
+// Rate limiting for login attempts (always in-memory, not persisted)
+const loginAttempts = new Map();
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
 
-// Demo user seed — password hashed at startup
-const DEMO_USER = {
-  id: 'demo-user-1',
-  email: 'eric@headyconnection.org',
-  passwordHash: hashPassword('heady2026'),
-  name: 'Eric Haywood',
-};
+// ── DB-backed user/session helpers ──────────────────────────────────────────
 
-// Register demo user on startup
-users.set(DEMO_USER.id, DEMO_USER);
+async function findUserByEmail(email) {
+  if (useDb) {
+    const result = await pgPool.query('SELECT id, email, password_hash, name, preferences FROM heady_users WHERE email = $1', [email]);
+    if (result.rows.length > 0) {
+      const row = result.rows[0];
+      return { id: row.id, email: row.email, passwordHash: row.password_hash, name: row.name, preferences: row.preferences };
+    }
+    return null;
+  }
+  for (const [, u] of memUsers) {
+    if (u.email === email) return u;
+  }
+  return null;
+}
+
+async function findUserById(id) {
+  if (useDb) {
+    const result = await pgPool.query('SELECT id, email, password_hash, name, preferences FROM heady_users WHERE id = $1', [id]);
+    if (result.rows.length > 0) {
+      const row = result.rows[0];
+      return { id: row.id, email: row.email, passwordHash: row.password_hash, name: row.name, preferences: row.preferences };
+    }
+    return null;
+  }
+  return memUsers.get(id) || null;
+}
+
+async function createUser(user) {
+  if (useDb) {
+    await pgPool.query(
+      'INSERT INTO heady_users (id, email, password_hash, name) VALUES ($1, $2, $3, $4) ON CONFLICT (email) DO NOTHING',
+      [user.id, user.email, user.passwordHash, user.name]
+    );
+  }
+  memUsers.set(user.id, user);
+}
+
+async function createSession(token, session) {
+  if (useDb) {
+    await pgPool.query(
+      'INSERT INTO heady_sessions (token, user_id, email, name, created_at, expires_at) VALUES ($1, $2, $3, $4, $5, $6)',
+      [token, session.userId, session.email, session.name, session.createdAt, session.expiresAt]
+    );
+  }
+  memSessions.set(token, session);
+}
+
+async function getSession(token) {
+  if (useDb) {
+    const result = await pgPool.query('SELECT * FROM heady_sessions WHERE token = $1 AND expires_at > $2', [token, Date.now()]);
+    if (result.rows.length > 0) {
+      const row = result.rows[0];
+      return { userId: row.user_id, email: row.email, name: row.name, createdAt: Number(row.created_at), expiresAt: Number(row.expires_at) };
+    }
+    return null;
+  }
+  return memSessions.get(token) || null;
+}
+
+async function deleteSession(token) {
+  if (useDb) {
+    await pgPool.query('DELETE FROM heady_sessions WHERE token = $1', [token]);
+  }
+  memSessions.delete(token);
+}
+
+async function countUserSessions(userId) {
+  if (useDb) {
+    const result = await pgPool.query('SELECT COUNT(*) as count FROM heady_sessions WHERE user_id = $1 AND expires_at > $2', [userId, Date.now()]);
+    return parseInt(result.rows[0].count, 10);
+  }
+  let count = 0;
+  for (const [, s] of memSessions) { if (s.userId === userId) count++; }
+  return count;
+}
+
+async function deleteOldestSession(userId) {
+  if (useDb) {
+    await pgPool.query('DELETE FROM heady_sessions WHERE token = (SELECT token FROM heady_sessions WHERE user_id = $1 ORDER BY created_at ASC LIMIT 1)', [userId]);
+  } else {
+    let oldestToken = null, oldestTime = Infinity;
+    for (const [tok, sess] of memSessions) {
+      if (sess.userId === userId && sess.createdAt < oldestTime) { oldestTime = sess.createdAt; oldestToken = tok; }
+    }
+    if (oldestToken) memSessions.delete(oldestToken);
+  }
+}
+
+async function updateUserPreferences(userId, preferences) {
+  if (useDb) {
+    await pgPool.query('UPDATE heady_users SET preferences = $1 WHERE id = $2', [JSON.stringify(preferences), userId]);
+  }
+  const user = memUsers.get(userId);
+  if (user) user.preferences = preferences;
+}
+
+// Seed admin user from env (password from env, NOT hardcoded)
+if (process.env.HEADY_ADMIN_EMAIL && process.env.HEADY_ADMIN_PASSWORD) {
+  const adminUser = {
+    id: 'admin-owner-1',
+    email: process.env.HEADY_ADMIN_EMAIL,
+    passwordHash: hashPassword(process.env.HEADY_ADMIN_PASSWORD),
+    name: process.env.HEADY_ADMIN_NAME || 'Admin',
+  };
+  createUser(adminUser).catch(err => log.error('Admin seed failed', { error: err.message }));
+}
 
 // Periodic session cleanup
-setInterval(() => {
+setInterval(async () => {
   const now = Date.now();
-  for (const [token, session] of sessions) {
+  if (useDb) {
+    try {
+      await pgPool.query('DELETE FROM heady_sessions WHERE expires_at < $1', [now]);
+    } catch (err) {
+      log.error('Session cleanup failed', { error: err.message });
+    }
+  }
+  for (const [token, session] of memSessions) {
     if (session.expiresAt && now > session.expiresAt) {
-      sessions.delete(token);
+      memSessions.delete(token);
     }
   }
 }, SESSION_CLEANUP_INTERVAL);
@@ -149,7 +296,7 @@ function extractToken(authHeader) {
  * Middleware: Validate Bearer token and attach user to req.user
  * Returns 401 if token is invalid or missing.
  */
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   // Check httpOnly cookie first, then fall back to Bearer header
   let token = req.cookies?.[COOKIE_NAME] || null;
   if (!token) {
@@ -163,39 +310,44 @@ function requireAuth(req, res, next) {
     });
   }
 
-  const session = sessions.get(token);
-  if (!session) {
-    return res.status(401).json({
-      error: 'unauthorized',
-      message: 'Invalid or expired session token',
-    });
+  try {
+    const session = await getSession(token);
+    if (!session) {
+      return res.status(401).json({
+        error: 'unauthorized',
+        message: 'Invalid or expired session token',
+      });
+    }
+
+    // Check session expiry
+    if (session.expiresAt && Date.now() > session.expiresAt) {
+      await deleteSession(token);
+      return res.status(401).json({
+        error: 'session_expired',
+        message: 'Session has expired. Please log in again.',
+      });
+    }
+
+    const user = await findUserById(session.userId);
+    if (!user) {
+      return res.status(401).json({
+        error: 'unauthorized',
+        message: 'User not found',
+      });
+    }
+
+    req.user = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
+    req.token = token;
+
+    next();
+  } catch (error) {
+    log.error('Auth middleware error', { error: error.message });
+    return res.status(500).json({ error: 'server_error', message: 'Authentication check failed' });
   }
-
-  // Check session expiry
-  if (session.expiresAt && Date.now() > session.expiresAt) {
-    sessions.delete(token);
-    return res.status(401).json({
-      error: 'session_expired',
-      message: 'Session has expired. Please log in again.',
-    });
-  }
-
-  const user = users.get(session.userId);
-  if (!user) {
-    return res.status(401).json({
-      error: 'unauthorized',
-      message: 'User not found',
-    });
-  }
-
-  req.user = {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-  };
-  req.token = token;
-
-  next();
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -215,7 +367,7 @@ function requireAuth(req, res, next) {
  *   - 401: { error, message }
  *   - 400: { error, message }
  */
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password, apiKey } = req.body;
 
   try {
@@ -244,11 +396,11 @@ router.post('/login', (req, res) => {
         name: 'System Admin',
       };
 
-      sessions.set(token, {
+      await createSession(token, {
         userId: adminUser.id,
         email: adminUser.email,
         name: adminUser.name,
-        createdAt: new Date(),
+        createdAt: Date.now(),
         expiresAt: Date.now() + SESSION_TTL_MS,
       });
 
@@ -278,20 +430,13 @@ router.post('/login', (req, res) => {
           retryAfter: Math.ceil((LOGIN_LOCKOUT_MS - timeSince) / 1000),
         });
       }
-      loginAttempts.delete(cleanEmail); // Reset after lockout
+      loginAttempts.delete(cleanEmail);
     }
 
-    // Find user by email
-    let user = null;
-    for (const [, u] of users) {
-      if (u.email === cleanEmail) {
-        user = u;
-        break;
-      }
-    }
+    // Find user by email (DB-backed)
+    const user = await findUserByEmail(cleanEmail);
 
     if (!user || !verifyPassword(password, user.passwordHash)) {
-      // Track failed attempt
       const current = loginAttempts.get(cleanEmail) || { count: 0, lastAttempt: 0 };
       loginAttempts.set(cleanEmail, { count: current.count + 1, lastAttempt: Date.now() });
 
@@ -305,24 +450,13 @@ router.post('/login', (req, res) => {
     loginAttempts.delete(cleanEmail);
 
     // Enforce max sessions per user
-    let userSessionCount = 0;
-    let oldestToken = null;
-    let oldestTime = Infinity;
-    for (const [tok, sess] of sessions) {
-      if (sess.userId === user.id) {
-        userSessionCount++;
-        if (sess.createdAt < oldestTime) {
-          oldestTime = sess.createdAt;
-          oldestToken = tok;
-        }
-      }
-    }
-    if (userSessionCount >= MAX_SESSIONS_PER_USER && oldestToken) {
-      sessions.delete(oldestToken);
+    const sessionCount = await countUserSessions(user.id);
+    if (sessionCount >= MAX_SESSIONS_PER_USER) {
+      await deleteOldestSession(user.id);
     }
 
     const token = generateToken();
-    sessions.set(token, {
+    await createSession(token, {
       userId: user.id,
       email: user.email,
       name: user.name,
@@ -356,11 +490,10 @@ router.post('/login', (req, res) => {
  *   - 400: { error, message }
  *   - 409: { error, message } (email already exists)
  */
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { email, password, name } = req.body;
 
   try {
-    // Validate inputs
     if (!email || !password || !name) {
       return res.status(400).json({
         error: 'bad_request',
@@ -375,31 +508,27 @@ router.post('/register', (req, res) => {
       });
     }
 
-    // Check for existing user
-    for (const [, u] of users) {
-      if (u.email === email) {
-        return res.status(409).json({
-          error: 'conflict',
-          message: 'Email already registered',
-        });
-      }
+    const cleanEmail = String(email).toLowerCase().trim();
+    const existing = await findUserByEmail(cleanEmail);
+    if (existing) {
+      return res.status(409).json({
+        error: 'conflict',
+        message: 'Email already registered',
+      });
     }
 
-    // Create new user with hashed password
     const userId = `user-${crypto.randomBytes(8).toString('hex')}`;
     const newUser = {
       id: userId,
-      email: String(email).toLowerCase().trim(),
+      email: cleanEmail,
       passwordHash: hashPassword(password),
       name: String(name).trim().substring(0, 100),
-      createdAt: new Date(),
     };
 
-    users.set(userId, newUser);
+    await createUser(newUser);
 
-    // Create session token
     const token = generateToken();
-    sessions.set(token, {
+    await createSession(token, {
       userId: newUser.id,
       email: newUser.email,
       name: newUser.name,
@@ -410,11 +539,7 @@ router.post('/register', (req, res) => {
     setSessionCookie(res, token);
     return res.status(201).json({
       token,
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-      },
+      user: { id: newUser.id, email: newUser.email, name: newUser.name },
     });
   } catch (error) {
     log.error('Registration error', { errorMessage: error.message, errorStack: error.stack });
@@ -436,10 +561,9 @@ router.post('/register', (req, res) => {
  *   - 200: { message }
  *   - 401: { error, message }
  */
-router.post('/logout', requireAuth, (req, res) => {
+router.post('/logout', requireAuth, async (req, res) => {
   try {
-    const token = req.token;
-    sessions.delete(token);
+    await deleteSession(req.token);
     clearSessionCookie(res);
 
     return res.status(200).json({
@@ -491,47 +615,25 @@ router.get('/me', requireAuth, (req, res) => {
  *   - 200: { valid: true, user: { id, email, name } }
  *   - 200: { valid: false }
  */
-router.get('/validate', (req, res) => {
+router.get('/validate', async (req, res) => {
   try {
     let token = extractToken(req.headers.authorization);
-    if (!token) {
-      token = req.query.token;
-    }
+    if (!token) token = req.query.token;
+    if (!token) return res.status(200).json({ valid: false });
 
-    if (!token) {
-      return res.status(200).json({
-        valid: false,
-      });
-    }
+    const session = await getSession(token);
+    if (!session) return res.status(200).json({ valid: false });
 
-    const session = sessions.get(token);
-    if (!session) {
-      return res.status(200).json({
-        valid: false,
-      });
-    }
-
-    const user = users.get(session.userId);
-    if (!user) {
-      return res.status(200).json({
-        valid: false,
-      });
-    }
+    const user = await findUserById(session.userId);
+    if (!user) return res.status(200).json({ valid: false });
 
     return res.status(200).json({
       valid: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-      },
+      user: { id: user.id, email: user.email, name: user.name },
     });
   } catch (error) {
     log.error('Validate error', { errorMessage: error.message, errorStack: error.stack });
-    return res.status(500).json({
-      error: 'server_error',
-      message: error.message,
-    });
+    return res.status(500).json({ error: 'server_error', message: error.message });
   }
 });
 
@@ -539,13 +641,11 @@ router.get('/validate', (req, res) => {
 // POST /preferences — Save user onboarding preferences
 // ═════════════════════════════════════════════════════════════════════════════
 
-router.post('/preferences', requireAuth, (req, res) => {
+router.post('/preferences', requireAuth, async (req, res) => {
   try {
     const { workspace, integrations } = req.body;
-    const user = users.get(req.user.id);
-    if (user) {
-      user.preferences = { workspace, integrations, onboardedAt: new Date().toISOString() };
-    }
+    const prefs = { workspace, integrations, onboardedAt: new Date().toISOString() };
+    await updateUserPreferences(req.user.id, prefs);
     res.json({ status: 'saved', preferences: { workspace, integrations } });
   } catch (error) {
     res.status(500).json({ error: 'server_error', message: error.message });
