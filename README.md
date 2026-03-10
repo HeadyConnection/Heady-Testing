@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!-- HEADY_BRAND:BEGIN
 <!-- ╔══════════════════════════════════════════════════════════════════╗
 <!-- ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -15,13 +14,10 @@
 <!-- ╚══════════════════════════════════════════════════════════════════╝
 <!-- HEADY_BRAND:END
 -->
-=======
->>>>>>> a3d7d06c432bf92df85e53f8d0cf1e6c8622ccea
 # Heady Systems
 
 > Sacred Geometry :: Organic Systems :: Breathing Interfaces
 
-<<<<<<< HEAD
 ## 🚀 System Status: 100% FULLY FUNCTIONAL
 
 **HeadyCloud is live and operational** with complete auto-deployment capabilities. All services are running at optimal performance with 100% HeadyBrain dominance and persistent memory integration.
@@ -70,7 +66,6 @@ Deeper integration and API documentation:
 - [Service Integration](docs/guides/SERVICE_INTEGRATION.md) - How Heady services connect
 - [HeadyManager API](docs/api/HEADYMANAGER_API.md) - Service endpoints reference
 
-=======
 ## Quick Start
 
 ```bash
@@ -79,7 +74,6 @@ cp .env.example .env
 npm run dev
 ```
 
->>>>>>> a3d7d06c432bf92df85e53f8d0cf1e6c8622ccea
 ## Architecture
 
 ```
@@ -87,19 +81,16 @@ heady-manager.js          # Node.js MCP Server & API Gateway (port 3300)
 ├── src/                  # Core pipeline engine & agents
 ├── backend/              # Python worker & MCP servers
 ├── frontend/             # React UI (Vite + TailwindCSS)
-<<<<<<< HEAD
 ├── HeadyAcademy/         # AI Nodes & Tools (JULES, OBSERVER, BUILDER, ATLAS, PYTHIA)
 ├── configs/              # YAML configuration (pipeline, resources, governance)
 ├── scripts/              # Automation (Sync, Build, Deploy, Checkpoint)
 ├── notebooks/            # Colab notebooks (quick-start, tutorials, examples)
 ├── docs/                 # Documentation & Notion templates
 └── heady-registry.json   # HeadyRegistry — central catalog of the ecosystem
-=======
 ├── HeadyAcademy/         # AI Nodes & Tools
 ├── configs/              # YAML configuration
 ├── scripts/              # Automation (Sync, Build, Deploy)
 └── workers/              # Edge workers
->>>>>>> a3d7d06c432bf92df85e53f8d0cf1e6c8622ccea
 ```
 
 ## API
@@ -112,7 +103,6 @@ heady-manager.js          # Node.js MCP Server & API Gateway (port 3300)
 | `POST /api/pipeline/run` | Trigger pipeline run |
 | `GET /api/pipeline/state` | Current pipeline state |
 | `GET /api/nodes` | List all AI nodes |
-<<<<<<< HEAD
 | `GET /api/registry` | Full HeadyRegistry catalog |
 | `GET /api/registry/component/:id` | Lookup a specific component |
 | `GET /api/registry/environments` | List all environments |
@@ -217,9 +207,7 @@ pip install -r requirements.txt
 - `NOTEBOOK_TEMPLATE.md` - Template for new notebooks
 - `COLAB_WORKFLOW.md` - Google Colab workflow guide
 - `.env.example` - Environment variables template
-=======
 | `POST /api/system/production` | Activate production mode |
->>>>>>> a3d7d06c432bf92df85e53f8d0cf1e6c8622ccea
 
 ## Deployment
 
@@ -228,7 +216,4 @@ Deployed via [Render.com](https://render.com) using `render.yaml`.
 ## License
 
 Proprietary - Heady Systems
-<<<<<<< HEAD
 
-=======
->>>>>>> a3d7d06c432bf92df85e53f8d0cf1e6c8622ccea
