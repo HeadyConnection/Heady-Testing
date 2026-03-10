@@ -1,7 +1,4 @@
-'use strict';
-
-const { AgentManager } = require('./agent-manager');
-
+import { AgentManager } from './agent-manager.js';
 const agentManager = new AgentManager();
 
 function setupAgentRoutes(app) {
@@ -29,4 +26,4 @@ function setupAgentRoutes(app) {
   });
 }
 
-module.exports = { setupAgentRoutes };
+export { setupAgentRoutes };

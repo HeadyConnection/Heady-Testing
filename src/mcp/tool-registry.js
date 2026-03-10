@@ -1,8 +1,7 @@
-'use strict';
-
-const { logger } = require('../utils/logger');
-const { MemoryStore } = require('../memory/memory-store');
-
+import { logger } from '../utils/logger.js';
+import { MemoryStore } from '../memory/memory-store.js';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 const memoryStore = new MemoryStore();
 
 class ToolRegistry {
@@ -78,4 +77,4 @@ class ToolRegistry {
 }
 
 const toolRegistry = new ToolRegistry();
-module.exports = { toolRegistry };
+export { toolRegistry };

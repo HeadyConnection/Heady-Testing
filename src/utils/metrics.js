@@ -1,7 +1,4 @@
-'use strict';
-
-const client = require('prom-client');
-
+import client from 'prom-client';
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
@@ -34,4 +31,4 @@ async function metricsEndpoint(req, res) {
   res.end(await register.metrics());
 }
 
-module.exports = { metricsMiddleware, metricsEndpoint };
+export { metricsMiddleware, metricsEndpoint };

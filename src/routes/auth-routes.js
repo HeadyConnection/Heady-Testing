@@ -14,10 +14,11 @@
    ╚══════════════════════════════════════════════════════════════════╝
    HEADY_BRAND:END */
 
-const express = require('express');
-const crypto = require('crypto');
-const { createLogger } = require('../../packages/structured-logger');
-
+import express from 'express';
+import crypto from 'crypto';
+import { createLogger } from '../../packages/structured-logger.js';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 const router = express.Router();
 const log = createLogger('auth', 'authentication');
 
@@ -656,7 +657,7 @@ router.post('/preferences', requireAuth, async (req, res) => {
 // EXPORTS
 // ═════════════════════════════════════════════════════════════════════════════
 
-module.exports = {
+export {
   router,
   requireAuth,
 };

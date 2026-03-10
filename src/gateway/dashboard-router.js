@@ -1,9 +1,8 @@
-'use strict';
-
-const os = require('os');
-const { AgentManager } = require('../agents/agent-manager');
-const { MemoryStore } = require('../memory/memory-store');
-
+import os from 'os';
+import { AgentManager } from '../agents/agent-manager.js';
+import { MemoryStore } from '../memory/memory-store.js';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 const agentManager = new AgentManager();
 const memoryStore = new MemoryStore();
 const startTime = Date.now();
@@ -76,4 +75,4 @@ function setupDashboardRoutes(app) {
   });
 }
 
-module.exports = { setupDashboardRoutes };
+export { setupDashboardRoutes };

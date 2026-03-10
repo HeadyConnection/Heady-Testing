@@ -1,10 +1,7 @@
-'use strict';
-
-const { logger } = require('../utils/logger');
-const { authenticateMCP } = require('../gateway/auth');
-const { rateLimiter } = require('../gateway/rate-limiter');
-const { toolRegistry } = require('./tool-registry');
-
+import { logger } from '../utils/logger.js';
+import { authenticateMCP } from '../gateway/auth.js';
+import { rateLimiter } from '../gateway/rate-limiter.js';
+import { toolRegistry } from './tool-registry.js';
 function setupMCPRoutes(app) {
   const mcpBase = '/mcp/v1';
 
@@ -39,4 +36,4 @@ function setupMCPRoutes(app) {
   });
 }
 
-module.exports = { setupMCPRoutes };
+export { setupMCPRoutes };

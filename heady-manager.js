@@ -1,27 +1,30 @@
 #!/usr/bin/env node
-'use strict';
-
 require('dotenv').config();
 
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import path from 'path';
 let cookieParser;
 try { cookieParser = require('cookie-parser'); } catch { cookieParser = null; }
 
-const { logger } = require('./src/utils/logger');
-const { validateEnv } = require('./src/utils/env-validator');
-const { setupHealthRoutes } = require('./src/gateway/health');
-const { setupGateway } = require('./src/gateway/ai-gateway');
-const { setupMCPRoutes } = require('./src/mcp/mcp-server');
-const { setupAgentRoutes } = require('./src/agents/agent-router');
-const { setupMemoryRoutes } = require('./src/memory/memory-router');
-const { setupDashboardRoutes } = require('./src/gateway/dashboard-router');
-const { AutoSuccessEngine } = require('./src/services/auto-success');
-const { errorHandler } = require('./src/gateway/error-handler');
-const { metricsMiddleware, metricsEndpoint } = require('./src/utils/metrics');
-
+import { logger } from './src/utils/logger.js';
+import { validateEnv } from './src/utils/env-validator.js';
+import { setupHealthRoutes } from './src/gateway/health.js';
+import { setupGateway } from './src/gateway/ai-gateway.js';
+import { setupMCPRoutes } from './src/mcp/mcp-server.js';
+import { setupAgentRoutes } from './src/agents/agent-router.js';
+import { setupMemoryRoutes } from './src/memory/memory-router.js';
+import { setupDashboardRoutes } from './src/gateway/dashboard-router.js';
+import { AutoSuccessEngine } from './src/services/auto-success.js';
+import { errorHandler } from './src/gateway/error-handler.js';
+import { metricsMiddleware, metricsEndpoint } from './src/utils/metrics.js';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const require = createRequire(import.meta.url);
 // Auth routes
 let authRouter;
 try {

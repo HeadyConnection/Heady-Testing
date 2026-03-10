@@ -1,7 +1,4 @@
-'use strict';
-
-const { MemoryStore } = require('./memory-store');
-
+import { MemoryStore } from './memory-store.js';
 const memoryStore = new MemoryStore();
 
 function setupMemoryRoutes(app) {
@@ -32,4 +29,4 @@ function setupMemoryRoutes(app) {
   });
 }
 
-module.exports = { setupMemoryRoutes };
+export { setupMemoryRoutes };

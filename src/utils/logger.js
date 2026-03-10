@@ -1,7 +1,4 @@
-'use strict';
-
-const winston = require('winston');
-
+import winston from 'winston';
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: winston.format.combine(
@@ -18,4 +15,4 @@ const logger = winston.createLogger({
   ],
 });
 
-module.exports = { logger };
+export { logger };

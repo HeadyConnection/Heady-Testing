@@ -1,7 +1,4 @@
-'use strict';
-
-const rateLimit = require('express-rate-limit');
-
+import rateLimit from 'express-rate-limit';
 const rateLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW) || 60000,
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
@@ -18,4 +15,4 @@ const rateLimiter = rateLimit({
   },
 });
 
-module.exports = { rateLimiter };
+export { rateLimiter };

@@ -1,7 +1,4 @@
-'use strict';
-
-const { logger } = require('../utils/logger');
-
+import { logger } from '../utils/logger.js';
 function errorHandler(err, req, res, _next) {
   logger.error(`[ErrorHandler] ${err.stack || err.message}`);
 
@@ -14,4 +11,4 @@ function errorHandler(err, req, res, _next) {
   });
 }
 
-module.exports = { errorHandler };
+export { errorHandler };

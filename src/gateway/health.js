@@ -1,8 +1,7 @@
-'use strict';
-
-const os = require('os');
-const { logger } = require('../utils/logger');
-
+import os from 'os';
+import { logger } from '../utils/logger.js';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 const startTime = Date.now();
 let startupComplete = false;
 
@@ -86,4 +85,4 @@ async function checkAutoSuccess() {
   return { tasks_running: 135, categories: 9 };
 }
 
-module.exports = { setupHealthRoutes };
+export { setupHealthRoutes };

@@ -1,8 +1,5 @@
-'use strict';
-
-const fs = require('fs');
-const { logger } = require('./logger');
-
+import fs from 'fs';
+import { logger } from './logger.js';
 const REQUIRED = [
   { key: 'PORT', validate: v => !isNaN(v) && v > 0 && v < 65536, default: '3301' },
   { key: 'NODE_ENV', validate: v => ['development', 'staging', 'production'].includes(v), default: 'development' },
@@ -48,4 +45,4 @@ function validateEnv() {
   return valid;
 }
 
-module.exports = { validateEnv };
+export { validateEnv };

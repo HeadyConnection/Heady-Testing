@@ -1,7 +1,4 @@
-'use strict';
-
-const { logger } = require('../utils/logger');
-
+import { logger } from '../utils/logger.js';
 const CATEGORIES = [
   'health_monitoring', 'agent_lifecycle', 'memory_maintenance',
   'security_scanning', 'performance_optimization', 'learning_feedback',
@@ -82,4 +79,4 @@ class AutoSuccessEngine {
   }
 }
 
-module.exports = { AutoSuccessEngine };
+export { AutoSuccessEngine };

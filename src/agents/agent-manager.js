@@ -1,8 +1,7 @@
-'use strict';
-
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 const agentConfig = require('../../config/agents.json');
-const { logger } = require('../utils/logger');
-
+import { logger } from '../utils/logger.js';
 class AgentManager {
   constructor() {
     this.agents = new Map();
@@ -74,4 +73,4 @@ class AgentManager {
   }
 }
 
-module.exports = { AgentManager };
+export { AgentManager };

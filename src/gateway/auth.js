@@ -1,8 +1,5 @@
-'use strict';
-
-const jwt = require('jsonwebtoken');
-const { logger } = require('../utils/logger');
-
+import jwt from 'jsonwebtoken';
+import { logger } from '../utils/logger.js';
 function authenticateJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -33,4 +30,4 @@ function authenticateMCP(req, res, next) {
   next();
 }
 
-module.exports = { authenticateJWT, authenticateMCP };
+export { authenticateJWT, authenticateMCP };

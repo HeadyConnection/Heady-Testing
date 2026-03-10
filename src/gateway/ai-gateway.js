@@ -1,10 +1,9 @@
-'use strict';
-
-const https = require('https');
-const { logger } = require('../utils/logger');
-const { rateLimiter } = require('./rate-limiter');
-const { authenticateJWT } = require('./auth');
-
+import https from 'https';
+import { logger } from '../utils/logger.js';
+import { rateLimiter } from './rate-limiter.js';
+import { authenticateJWT } from './auth.js';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 // Provider-specific API call implementations
 const PROVIDER_DISPATCH = {
   anthropic: async (prompt, options) => {
@@ -158,4 +157,4 @@ function setupGateway(app) {
   });
 }
 
-module.exports = { setupGateway };
+export { setupGateway };
