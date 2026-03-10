@@ -1,13 +1,25 @@
+<<<<<<< HEAD
 name: Heady CI/CD
 
 on:
   push:
     branches: [main, develop]
+=======
+name: Heady CI
+
+on:
+  push:
+    branches: [main]
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
   pull_request:
     branches: [main]
 
 jobs:
+<<<<<<< HEAD
   test:
+=======
+  build:
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +28,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
+<<<<<<< HEAD
       - run: npm test
       - run: npm run lint
 
@@ -60,3 +73,7 @@ jobs:
           service: heady-manager
           region: us-central1
           source: .
+=======
+      - run: npm test -- --passWithNoTests
+      - run: npm run build
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd

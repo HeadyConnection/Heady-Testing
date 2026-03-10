@@ -274,6 +274,7 @@
                 this.updateStats();
             }
 
+<<<<<<< HEAD
             // Load tasks from sessionStorage (persistence)
             loadTasks() {
                 const saved = sessionStorage.getItem('headytasks');
@@ -283,6 +284,17 @@
             // Save tasks to sessionStorage
             saveTasks() {
                 sessionStorage.setItem('headytasks', JSON.stringify(this.tasks));
+=======
+            // Load tasks from localStorage (persistence)
+            loadTasks() {
+                const saved = localStorage.getItem('headytasks');
+                return saved ? JSON.parse(saved) : [];
+            }
+
+            // Save tasks to localStorage
+            saveTasks() {
+                localStorage.setItem('headytasks', JSON.stringify(this.tasks));
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
             }
 
             // Add new task

@@ -1,6 +1,10 @@
 /**
  * Heady Scheduler Service — Port 3315
+<<<<<<< HEAD
  * Job scheduling with DAG deps, concurrent queue, φ-backoff retry, DLQ
+=======
+ * Job scheduling with DAG deps, csl_relevance queue, φ-backoff retry, DLQ
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
  * Author: Eric Haywood | All constants φ-derived | ESM only
  */
 import { createHash, randomBytes } from 'crypto';
@@ -63,6 +67,10 @@ function createJob(spec) {
     type: spec.type || 'one_shot',
     handler: spec.handler || null,
     payload: spec.payload || {},
+<<<<<<< HEAD
+=======
+
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
     state: 'PENDING',
     attempts: 0,
     maxRetries: spec.maxRetries || MAX_RETRIES,

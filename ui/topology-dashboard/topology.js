@@ -13,6 +13,7 @@
   const PSI = 0.6180339887;
   const PSI2 = PSI * PSI;
 
+<<<<<<< HEAD
   // ── Dynamic Topology Data ──────────
 
   let NODES = [];
@@ -101,6 +102,30 @@
       } catch (error) {
           console.error("Failed to load topology data:", error);
       }
+=======
+  // ── Network Topology Data ─────────────────────────────────────────
+  let NODES = [];
+  let CONNECTIONS = [];
+
+  async function fetchTopology() {
+    try {
+      const res = await fetch('/api/topology');
+      const data = await res.json();
+      if (data.nodes) {
+        NODES = data.nodes.map(n => ({
+          ...n,
+          platform: n.pool === 'HOT' ? 'colab' : n.pool === 'WARM' ? 'cloudflare' : 'vertex',
+          vector: n.capabilities ? { x: n.capabilities[0] || PSI, y: n.capabilities[1] || PSI, z: n.capabilities[2] || PSI } : { x: Math.random(), y: Math.random(), z: Math.random() },
+          status: 'active'
+        }));
+      }
+      if (data.edges) {
+        CONNECTIONS = data.edges.map(e => ({ ...e, weight: e.similarity }));
+      }
+    } catch (e) {
+      console.error('Failed to fetch topology:', e);
+    }
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
   }
 
   const PLATFORM_COLORS = {
@@ -322,8 +347,26 @@
   // ── Initialize ───────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', async function () {
+<<<<<<< HEAD
     await fetchTopologyData();
     drawTopology();
     setInterval(fetchTopologyData, 15000); // refresh every 15s
+=======
+    await fetchTopology();
+    populateNodeList();
+    populateLayers();
+    populateConnections();
+    populateRoutingStats();
+    updateClusterHealth();
+    drawTopology();
+    setInterval(async () => {
+      await fetchTopology();
+      populateNodeList();
+      populateLayers();
+      populateConnections();
+      populateRoutingStats();
+      updateClusterHealth();
+    }, 5000);
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
   });
 })();

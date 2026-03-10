@@ -31,7 +31,15 @@ The Heady scripts have been upgraded to a more robust, scalable, and highly func
 
 ### Enhanced Scripts
 - **auto-deploy-orchestrator.ps1**: Now with intelligent safety checks and monitoring
+<<<<<<< HEAD
 - **internal.headyio.com-to-domain.js**: Enhanced with parallel processing and validation
+=======
+<<<<<<< HEAD
+- **internal.headyio.com-to-domain.js**: Enhanced with parallel processing and validation
+=======
+- **localhost-to-domain.js**: Enhanced with parallel processing and validation
+>>>>>>> a3d7d06c432bf92df85e53f8d0cf1e6c8622ccea
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
 
 ## 🔄 Migration Details
 
@@ -90,6 +98,10 @@ The Heady scripts have been upgraded to a more robust, scalable, and highly func
 ### Enhanced Migration
 ```bash
 # Parallel processing for large codebases
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
 node internal.headyio.com-to-domain.js migrate ./src --parallel
 
 # Strict validation mode
@@ -97,6 +109,18 @@ node internal.headyio.com-to-domain.js validate ./docs --strict
 
 # Comprehensive inventory with detailed reporting
 node internal.headyio.com-to-domain.js inventory ./distribution
+<<<<<<< HEAD
+=======
+=======
+node localhost-to-domain.js migrate ./src --parallel
+
+# Strict validation mode
+node localhost-to-domain.js validate ./docs --strict
+
+# Comprehensive inventory with detailed reporting
+node localhost-to-domain.js inventory ./distribution
+>>>>>>> a3d7d06c432bf92df85e53f8d0cf1e6c8622ccea
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
 ```
 
 ## 📊 Performance Gains
@@ -161,7 +185,15 @@ $env:HEADY_LOG_LEVEL = "Debug"
 
 ```bash
 # Node.js debug mode
+<<<<<<< HEAD
 LOG_LEVEL=debug node internal.headyio.com-to-domain.js migrate ./src
+=======
+<<<<<<< HEAD
+LOG_LEVEL=debug node internal.headyio.com-to-domain.js migrate ./src
+=======
+LOG_LEVEL=debug node localhost-to-domain.js migrate ./src
+>>>>>>> a3d7d06c432bf92df85e53f8d0cf1e6c8622ccea
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
 ```
 
 ### Log Analysis

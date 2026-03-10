@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "env": {
     "node": true,
     "es2024": true
@@ -19,3 +20,20 @@
     "no-var": "error"
   }
 }
+=======
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "no-restricted-syntax": ["error", {
+      "selector": "Literal[value=/api.headysystems.com|127\.0\.0\.1/]",
+      "message": "Use internal.headyio.com or api.headyio.com instead of api.headysystems.com/api.headysystems.com"
+    }]
+  }
+}
+
+>>>>>>> f1ab914a56ebb387b9669c4d2f46e3c53f393edd
