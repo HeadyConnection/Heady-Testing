@@ -195,7 +195,8 @@ const SEED_SERVICES = [
     name: 'vector-store',
     domain: null,
     instances: [
-      { url: 'http://localhost:5432', weight: 1.0, tags: ['postgres', 'pgvector'] },
+      { url: 'http://localhost:5432', weight: 1.0, tags: ['postgres', 'pgvector', 'local'] },
+      { url: process.env.DATABASE_URL || 'postgresql://neondb_owner@ep-cold-snow-aesmiwt9.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require', weight: PHI, tags: ['neon', 'production'] },
     ],
     healthPath: null,        // TCP probe only
     version: '16.0',
@@ -205,7 +206,8 @@ const SEED_SERVICES = [
     name: 'redis',
     domain: null,
     instances: [
-      { url: 'redis://localhost:6379', weight: 1.0, tags: ['cache', 'pubsub'] },
+      { url: 'redis://localhost:6379', weight: 1.0, tags: ['cache', 'pubsub', 'local'] },
+      { url: process.env.UPSTASH_REDIS_REST_URL || 'https://finer-sole-64861.upstash.io', weight: PHI, tags: ['upstash', 'production'] },
     ],
     healthPath: null,
     version: '7.0',
