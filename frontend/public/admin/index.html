@@ -276,18 +276,18 @@
       const [gpuEnabled, setGpuEnabled] = useState(false);
 
       const save = useCallback(() => {
-        localStorage.setItem('gpuHost', gpuHost);
-        localStorage.setItem('gpuPort', gpuPort);
-        localStorage.setItem('gpuMemLimit', gpuMemLimit);
-        localStorage.setItem('gpuEnabled', gpuEnabled);
+        sessionStorage.setItem('gpuHost', gpuHost);
+        sessionStorage.setItem('gpuPort', gpuPort);
+        sessionStorage.setItem('gpuMemLimit', gpuMemLimit);
+        sessionStorage.setItem('gpuEnabled', gpuEnabled);
         alert('Settings saved (local only for now)');
       }, [gpuHost, gpuPort, gpuMemLimit, gpuEnabled]);
 
       useEffect(() => {
-        setGpuHost(localStorage.getItem('gpuHost') || '');
-        setGpuPort(localStorage.getItem('gpuPort') || '');
-        setGpuMemLimit(localStorage.getItem('gpuMemLimit') || '');
-        setGpuEnabled(localStorage.getItem('gpuEnabled') === 'true');
+        setGpuHost(sessionStorage.getItem('gpuHost') || '');
+        setGpuPort(sessionStorage.getItem('gpuPort') || '');
+        setGpuMemLimit(sessionStorage.getItem('gpuMemLimit') || '');
+        setGpuEnabled(sessionStorage.getItem('gpuEnabled') === 'true');
       }, []);
 
       return (

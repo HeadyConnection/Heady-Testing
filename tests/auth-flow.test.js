@@ -5,12 +5,12 @@ import path from 'node:path';
 
 const root = process.cwd();
 
-test('auth relay keeps nonce, allowlist, and postMessage flow without localStorage', () => {
+test('auth relay keeps nonce, allowlist, and postMessage flow without sessionStorage', () => {
   const relay = fs.readFileSync(path.join(root, 'apps', 'sites', 'auth-headysystems', 'relay.html'), 'utf8');
   assert.match(relay, /ALLOWED_ORIGINS/);
   assert.match(relay, /postMessage/);
   assert.match(relay, /nonce/);
-  assert.doesNotMatch(relay, /localStorage/);
+  assert.doesNotMatch(relay, /sessionStorage/);
 });
 
 test('platform auth module exposes JWT and service auth layers', () => {

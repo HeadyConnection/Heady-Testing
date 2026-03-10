@@ -1007,7 +1007,7 @@
                 }
 
                 // Store token
-                localStorage.setItem('heady_token', data.token);
+                sessionStorage.setItem('heady_token', data.token);
                 showToast('Welcome! Redirecting...', 'success');
 
                 // Redirect based on isNewUser flag
@@ -1055,7 +1055,7 @@
                 }
 
                 // Store token
-                localStorage.setItem('heady_token', data.token);
+                sessionStorage.setItem('heady_token', data.token);
                 showToast('Account created! Redirecting to onboarding...', 'success');
 
                 // New users always go to onboarding

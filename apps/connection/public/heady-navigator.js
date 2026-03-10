@@ -449,22 +449,22 @@ class HeadyNavigator {
         return this.getState(moduleKey);
     }
 
-    // Persist state to localStorage
+    // Persist state to sessionStorage
     async saveState(module, key, value) {
         const storageKey = `heady:${module}:${key}`;
         try {
-            localStorage.setItem(storageKey, JSON.stringify(value));
+            sessionStorage.setItem(storageKey, JSON.stringify(value));
         } catch (error) {
-            console.warn('Failed to save state to localStorage:', error);
+            console.warn('Failed to save state to sessionStorage:', error);
         }
     }
 
-    // Load state from localStorage
+    // Load state from sessionStorage
     async loadState() {
         for (const moduleId of Object.keys(this.modules)) {
             try {
                 const projectsKey = `heady:${moduleId}:projects`;
-                const projectsData = localStorage.getItem(projectsKey);
+                const projectsData = sessionStorage.getItem(projectsKey);
                 if (projectsData) {
                     this.updateState(moduleId, 'projects', JSON.parse(projectsData));
                 }

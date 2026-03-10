@@ -921,7 +921,7 @@
 
         // ===== AUTH CHECK =====
         function checkAuth() {
-            const token = localStorage.getItem('heady_auth_token');
+            const token = sessionStorage.getItem('heady_auth_token');
             if (!token) {
                 window.location.href = '/auth.html';
                 return false;
@@ -1064,7 +1064,7 @@
         // ===== SAVE PREFERENCES =====
         async function savePreferences() {
             await resolveApi();
-            const token = localStorage.getItem('heady_auth_token');
+            const token = sessionStorage.getItem('heady_auth_token');
 
             try {
                 const response = await fetch(`${HEADY_API}/auth/preferences`, {
@@ -1082,12 +1082,12 @@
                 });
 
                 if (response.ok) {
-                    localStorage.setItem('heady_onboarding_completed', 'true');
+                    sessionStorage.setItem('heady_onboarding_completed', 'true');
                     return true;
                 }
             } catch (err) {
                 console.warn('Could not save preferences (offline ok)', err);
-                localStorage.setItem('heady_onboarding_completed', 'true');
+                sessionStorage.setItem('heady_onboarding_completed', 'true');
                 return true;
             }
         }

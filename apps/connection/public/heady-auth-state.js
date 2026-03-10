@@ -53,10 +53,10 @@ class HeadyAuth {
         this.emit('auth:initialized');
     }
 
-    // Load stored session from localStorage
+    // Load stored session from sessionStorage
     async loadStoredSession() {
         try {
-            const storedSession = localStorage.getItem('heady:session');
+            const storedSession = sessionStorage.getItem('heady:session');
             if (storedSession) {
                 const session = JSON.parse(storedSession);
                 
@@ -214,14 +214,14 @@ class HeadyAuth {
         this.tokens.clear();
         this.permissions.clear();
         
-        localStorage.removeItem('heady:session');
-        localStorage.removeItem('heady:user-preferences');
+        sessionStorage.removeItem('heady:session');
+        sessionStorage.removeItem('heady:user-preferences');
     }
 
-    // Save session to localStorage
+    // Save session to sessionStorage
     saveSession() {
         if (this.session) {
-            localStorage.setItem('heady:session', JSON.stringify(this.session));
+            sessionStorage.setItem('heady:session', JSON.stringify(this.session));
         }
     }
 
@@ -542,12 +542,12 @@ class HeadyStateManager {
         }
     }
 
-    // Persist state to localStorage
+    // Persist state to sessionStorage
     persistState(key, value) {
         try {
             const storageKey = `heady:state:${key}`;
             const serialized = JSON.stringify(value);
-            localStorage.setItem(storageKey, serialized);
+            sessionStorage.setItem(storageKey, serialized);
             this.persistence.set(key, { value, timestamp: Date.now() });
         } catch (error) {
             console.warn('Failed to persist state:', error);
@@ -558,23 +558,23 @@ class HeadyStateManager {
     removePersistedState(key) {
         try {
             const storageKey = `heady:state:${key}`;
-            localStorage.removeItem(storageKey);
+            sessionStorage.removeItem(storageKey);
             this.persistence.delete(key);
         } catch (error) {
             console.warn('Failed to remove persisted state:', error);
         }
     }
 
-    // Load persisted state from localStorage
+    // Load persisted state from sessionStorage
     async loadPersistedState() {
         try {
-            const keys = Object.keys(localStorage).filter(key => 
+            const keys = Object.keys(sessionStorage).filter(key =>
                 key.startsWith('heady:state:')
             );
 
             for (const storageKey of keys) {
                 const stateKey = storageKey.replace('heady:state:', '');
-                const serialized = localStorage.getItem(storageKey);
+                const serialized = sessionStorage.getItem(storageKey);
                 
                 if (serialized) {
                     try {
@@ -623,11 +623,11 @@ class HeadyStateManager {
         this.subscribers.clear();
         this.persistence.clear();
         
-        // Clear localStorage
-        const keys = Object.keys(localStorage).filter(key => 
+        // Clear sessionStorage
+        const keys = Object.keys(sessionStorage).filter(key =>
             key.startsWith('heady:state:')
         );
-        keys.forEach(key => localStorage.removeItem(key));
+        keys.forEach(key => sessionStorage.removeItem(key));
         
         this.emit('state:cleared');
     }
