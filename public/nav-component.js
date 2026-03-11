@@ -9,12 +9,15 @@
 
   // --- Configuration ---
   const NAV_LINKS = [
-    { href: '/',                  icon: '⬡',  label: 'Home'      },
-    { href: '/products.html',     icon: '✦',  label: 'Products'  },
-    { href: '/headyos-desktop.html', icon: '🖥️', label: 'Desktop' },
-    { href: '/api-docs.html',     icon: '📡', label: 'API'       },
-    { href: '/docs.html',         icon: '📖', label: 'Docs'      },
-    { href: '/status.html',       icon: '📊', label: 'Status'    },
+    { href: '/',                     icon: '⬡',  label: 'Home'     },
+    { href: '/products.html',        icon: '✦',  label: 'Products' },
+    { href: '/headyos-desktop.html', icon: '🖥️', label: 'Desktop'  },
+    { href: '/swarm.html',           icon: '🐝',  label: 'Swarm'   },
+    { href: '/colab.html',           icon: '⚡',  label: 'Colab'   },
+    { href: '/vector.html',          icon: '∞',   label: 'Vector'  },
+    { href: '/liquid.html',          icon: '💧',  label: 'Liquid'  },
+    { href: '/docs.html',            icon: '📖',  label: 'Docs'    },
+    { href: '/status.html',          icon: '📊',  label: 'Status'  },
   ];
 
   // --- Determine active link ---
