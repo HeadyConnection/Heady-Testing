@@ -1493,6 +1493,99 @@ try {
   colabLatentOps = null;
 }
 
+// ─── Blueprint Subsystems: PD04, Spatial, Liquid, Resonance ─────────
+let pd04Codec = null;
+let spatialOrchestrator = null;
+let liquidArchitecture = null;
+let resonanceRouter = null;
+
+try {
+  const { PD04Codec, Vec3, TernaryOps, LEVELS } = require('./packages/pd04-codec');
+  const { SpatialOrchestrator, PlatonicArchetype } = require('./packages/spatial-orchestrator');
+  const { LiquidArchitectureService } = require('./packages/liquid-architecture');
+  const { ResonanceRouter, RESONANCE_GROUPS } = require('./packages/resonance-router');
+
+  pd04Codec = new PD04Codec();
+  spatialOrchestrator = new SpatialOrchestrator();
+  liquidArchitecture = new LiquidArchitectureService();
+  resonanceRouter = new ResonanceRouter({ defaultRoute: 'general' });
+
+  log && log.info && log.info('Blueprint subsystems loaded', {
+    pd04Codec: true,
+    spatialOrchestrator: true,
+    liquidArchitecture: true,
+    resonanceRouter: true,
+  });
+} catch (e) {
+  log && log.warn && log.warn('Blueprint subsystems not loaded (non-fatal):', e.message);
+}
+
+// Blueprint subsystem API endpoints
+app.get('/api/blueprint/status', (req, res) => {
+  res.json({
+    pd04Codec: pd04Codec ? 'loaded' : 'not_loaded',
+    spatialOrchestrator: spatialOrchestrator ? spatialOrchestrator.status() : null,
+    liquidArchitecture: liquidArchitecture ? liquidArchitecture.status() : null,
+    resonanceRouter: resonanceRouter ? resonanceRouter.status() : null,
+  });
+});
+
+app.post('/api/blueprint/pd04/encode', (req, res) => {
+  if (!pd04Codec) return res.status(503).json({ error: 'pd04_not_loaded' });
+  try {
+    const packet = pd04Codec.encode(req.body);
+    res.json(packet);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/blueprint/pd04/decode', (req, res) => {
+  if (!pd04Codec) return res.status(503).json({ error: 'pd04_not_loaded' });
+  try {
+    const decoded = pd04Codec.decode(req.body);
+    res.json({ ...decoded, position: decoded.position.toArray(), intentVector: decoded.intentVector.toArray() });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.get('/api/blueprint/spatial/topology', (req, res) => {
+  if (!spatialOrchestrator) return res.status(503).json({ error: 'spatial_not_loaded' });
+  res.json(spatialOrchestrator.cube.snapshot());
+});
+
+app.post('/api/blueprint/resonance/route', (req, res) => {
+  if (!resonanceRouter) return res.status(503).json({ error: 'resonance_not_loaded' });
+  try {
+    const result = resonanceRouter.route(req.body.input || req.body);
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/blueprint/liquid/project', (req, res) => {
+  if (!liquidArchitecture) return res.status(503).json({ error: 'liquid_not_loaded' });
+  try {
+    const { templateId, position, scale } = req.body;
+    const instance = liquidArchitecture.project(templateId, { position, scale });
+    res.json(instance.snapshot());
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/blueprint/liquid/govern', (req, res) => {
+  if (!liquidArchitecture) return res.status(503).json({ error: 'liquid_not_loaded' });
+  try {
+    const result = liquidArchitecture.govern();
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // ─── HCSysOrchestrator — Multi-Brain Task Router ────────────────────
 let orchestratorRoutes = null;
 try {
@@ -2862,6 +2955,10 @@ app.get("/api/health", (req, res) => {
     vectorRouter: vectorRouter ? 'loaded' : 'not_loaded',
     colabLatentOps: colabLatentOps ? 'loaded' : 'not_loaded',
     memoryService: memoryService ? 'loaded' : 'not_loaded',
+    pd04Codec: pd04Codec ? 'loaded' : 'not_loaded',
+    spatialOrchestrator: spatialOrchestrator ? 'loaded' : 'not_loaded',
+    liquidArchitecture: liquidArchitecture ? 'loaded' : 'not_loaded',
+    resonanceRouter: resonanceRouter ? 'loaded' : 'not_loaded',
   });
 });
 
