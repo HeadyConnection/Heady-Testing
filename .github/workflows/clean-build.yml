@@ -392,9 +392,9 @@ jobs:
           
       - name: Setup test environment
         run: |
-          echo "DATABASE_URL=postgresql://postgres:test@api.headysystems.com:5432/heady_test" >> $GITHUB_ENV
-          echo "REDIS_URL=redis://api.headysystems.com:6379" >> $GITHUB_ENV
-          echo "HEADY_MANAGER_URL=http://api.headysystems.com:3300" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgresql://postgres:test@localhost:5432/heady_test" >> $GITHUB_ENV
+          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+          echo "HEADY_MANAGER_URL=http://localhost:3300" >> $GITHUB_ENV
           
       - name: Start services for integration test
         run: |
@@ -404,7 +404,7 @@ jobs:
           
           # Wait for health check
           for i in {1..30}; do
-            if curl -s http://api.headysystems.com:3300/api/health; then
+            if curl -s http://localhost:3300/api/health; then
               echo "Manager is ready"
               break
             fi
