@@ -303,6 +303,24 @@ integration with the Heady ecosystem:
 | `heady-researcher` | Knowledge & Pattern Mining Agent |
 | `heady-observer` | Monitoring & Health Agent |
 | `heady-deployer` | Infrastructure Deployment Agent |
+| `heady-liquid-brain` | Liquid Latent OS Brain Meta-Controller |
+
+### Liquid Latent OS Skills
+| Command | Description |
+|---------|-------------|
+| `/heady-liquid` | Liquid Latent OS Status & Operations |
+| `/heady-memory` | HeadyMemory 3-Tier Vector Memory Operations |
+| `/heady-autocontext` | AutoContext Universal Intelligence Middleware |
+
+### Liquid Latent OS Architecture
+The system operates as a **Liquid Latent OS** defined in `BUDDY_KERNEL.md`:
+- **Boot Document:** 8-section kernel with φ-constants YAML frontmatter
+- **Memory:** 3-tier vector store (T0 working / T1 short-term / T2 long-term)
+- **Intelligence:** 5-pass AutoContext enrichment (every operation flows through it)
+- **Reasoning:** CSL geometric gates (AND=cos, OR=normalize, NOT=proj, GATE=σ)
+- **Execution:** 9-stage battle-sim pipeline with deterministic replay
+- **Self-Awareness:** 144-task Auto-Success heartbeat every 29,034ms
+- **Evolution:** Controlled mutation with canary rollout (1%→5%→20%→100%)
 
 ### Deep Scan Reference
 Full extraction of all directives, unbreakable laws, skills, tools, and

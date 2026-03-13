@@ -31,6 +31,10 @@
     "heady-deployer": {
       "path": ".claude/agents/heady-deployer.md",
       "description": "Deployer agent — infrastructure deployment, environment sync, Render/Docker/Cloudflare operations. Use for deployment and infrastructure tasks."
+    },
+    "heady-liquid-brain": {
+      "path": ".claude/agents/heady-liquid-brain.md",
+      "description": "Liquid Latent OS Brain agent — meta-controller operating BUDDY_KERNEL.md, HeadyMemory consolidation, AutoContext enrichment, CSL gate decisions, and φ-scaled self-awareness. Use for system intelligence, memory operations, and cognitive architecture tasks."
     }
   }
 }
