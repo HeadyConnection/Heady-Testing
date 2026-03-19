@@ -42,7 +42,7 @@ jobs:
         # which may fail in CI without the full monorepo workspace mounted
 
       - name: Cache node_modules
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -63,7 +63,7 @@ jobs:
           cache: npm
 
       - name: Restore node_modules cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -91,7 +91,7 @@ jobs:
           cache: npm
 
       - name: Restore node_modules cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
