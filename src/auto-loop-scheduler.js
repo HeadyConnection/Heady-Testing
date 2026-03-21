@@ -5,8 +5,8 @@
 // PURPOSE: 34 background loops across 8 concentric rings — φ-scheduled
 // HEADY_BRAND:END
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const PHI = 1.618033988749895;
 const PSI = 1 / PHI;
@@ -271,4 +271,5 @@ class AutoLoopScheduler {
   }
 }
 
-module.exports = { AutoLoopScheduler, RINGS, LOOPS };
+export { AutoLoopScheduler, RINGS, LOOPS };
+export default AutoLoopScheduler;

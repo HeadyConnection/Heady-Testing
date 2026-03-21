@@ -355,6 +355,8 @@ class HCFullPipeline extends EventEmitter {
                 return this._stageEvolution(run);
             case "LEARN":
                 return this._stageLearn(run);
+            case "DISTILL":
+                return this._stageDistill(run);
             case "RECEIPT":
                 return this._stageReceipt(run);
             default:
