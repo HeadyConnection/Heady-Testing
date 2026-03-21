@@ -9,6 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
+            --phi: 1.618; --psi: 0.618;
+            --void: #040810; --abyss: #0a0f1e; --deep: #0f172a; --surface: #1e293b;
+            --primary: #00d4aa; --accent: #7c5eff;
+            --primary-dim: #00d4aa22; --accent-dim: #7c5eff22;
+            --text: #e2e8f0; --dim: #94a3b8; --muted: #475569;
+            --glass: rgba(15,23,42,0.75); --glass-border: rgba(124,94,255,0.2);
             --bg-primary: #0a0a0f;
             --bg-secondary: #12121a;
             --bg-card: #16161f;
@@ -55,81 +61,73 @@
             min-height: 100vh;
         }
 
+        canvas#sacred-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.15;}
+
         code, pre {
             font-family: 'JetBrains Mono', monospace;
         }
 
         /* ─── Nav ───────────────────────────────────────── */
-        nav {
+        .heady-nav {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 100;
-            backdrop-filter: blur(20px) saturate(180%);
-            background: rgba(10, 10, 15, 0.82);
-            border-bottom: 1px solid var(--border);
-            padding: 0 2rem;
-            height: 64px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            padding: 0 21px;
+            height: 55px;
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--glass-border);
         }
 
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            letter-spacing: -0.02em;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
+        .hn-brand{display:flex;align-items:center;gap:8px;}
+        .hn-title{font-size:12px;font-weight:600;color:var(--dim);}
+        .hn-links{display:flex;gap:2px;margin-left:21px;overflow-x:auto;}
+        .hn-link{padding:8px 10px;font-size:11px;font-weight:700;font-family:var(--mono);
+          color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;
+          transition:all 0.2s;white-space:nowrap;}
+        .hn-link:hover{color:var(--text);background:rgba(255,255,255,0.03);}
+        .hn-active{color:var(--primary) !important; border-bottom: 2px solid var(--primary) !important;}
+        .hn-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+        .hn-storage-btn,.hn-buddy-btn{padding:5px 13px;border-radius:89px;border:1px solid var(--glass-border);
+          background:rgba(255,255,255,0.03);color:var(--dim);font-size:11px;cursor:pointer;
+          font-family:var(--font);transition:all 0.2s;}
+        .hn-storage-btn:hover,.hn-buddy-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim);}
 
-        .nav-brand img.logo-img {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            object-fit: contain;
-        }
-
-        .nav-brand span {
-            color: var(--accent-bright);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover, .nav-links a.active {
-            color: var(--text-primary);
-        }
-
-        .nav-links .btn-nav {
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            background: var(--accent);
-            color: white;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .nav-links .btn-nav:hover {
-            background: var(--accent-bright);
-            transform: translateY(-1px);
-        }
+        /* Storage Modal */
+        .storage-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.7);
+          backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+        .storage-card{background:var(--deep);border:1px solid var(--glass-border);border-radius:13px;
+          padding:34px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto;position:relative;
+          box-shadow:0 0 89px rgba(124,94,255,0.2);}
+        .storage-close{position:absolute;top:13px;right:13px;background:none;border:none;
+          color:var(--dim);cursor:pointer;font-size:20px;padding:5px;border-radius:8px;}
+        .storage-close:hover{background:rgba(255,255,255,0.06);}
+        .storage-card h2{font-size:20px;font-weight:700;margin-bottom:8px;
+          background:linear-gradient(135deg,#00d4aa,#7c5eff);
+          -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .storage-desc{font-size:13px;color:var(--dim);margin-bottom:21px;}
+        .storage-steps{display:flex;flex-direction:column;gap:13px;margin-bottom:21px;}
+        .storage-step{display:flex;gap:13px;padding:13px;background:rgba(255,255,255,0.02);
+          border-radius:8px;border:1px solid rgba(255,255,255,0.04);}
+        .storage-step-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
+          justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+        .storage-step-title{font-size:14px;font-weight:600;margin-bottom:3px;}
+        .storage-step-desc{font-size:12px;color:var(--dim);line-height:1.618;}
+        .storage-step-desc code{font-size:11px;background:rgba(0,0,0,0.3);padding:1px 5px;border-radius:3px;font-family:var(--mono);}
+        .storage-action-btn{margin-top:8px;padding:8px 21px;background:linear-gradient(135deg,#00d4aa,#00b894);
+          color:#000;border:none;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;font-family:var(--font);}
+        .storage-action-btn:hover{box-shadow:0 0 21px rgba(0,212,170,0.4);}
+        .storage-info{display:flex;flex-direction:column;gap:5px;padding:13px;
+          background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.04);}
+        .storage-info-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;
+          border-bottom:1px solid rgba(255,255,255,0.03);}
+        .storage-info-row span:first-child{color:var(--dim);}
+        .storage-info-row span:last-child{font-family:var(--mono);color:var(--text);}
+        .storage-info-row code{font-size:10px;background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;}
 
         .page-wrapper {
             position: relative;
@@ -500,19 +498,75 @@
     </style>
 </head>
 <body>
-    <nav>
-        <a href="https://admin.headysystems.com" class="nav-brand">
-            <div class="logo-icon">H</div>
-            Heady<span> Admin</span>
-        </a>
-        <div class="nav-links">
-            <a href="#overview" class="active">Overview</a>
-            <a href="#architecture">Architecture</a>
-            <a href="#api">API Reference</a>
-            <a href="#ecosystem">Ecosystem</a>
-            <a href="https://headysystems.com" class="btn-nav">Heady Platform →</a>
-        </div>
+    <canvas id="sacred-bg"></canvas>
+
+    <nav class="heady-nav" data-node="CONDUCTOR">
+      <div class="hn-brand">
+        <svg width="24" height="24" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="15.5" stroke="url(#ng)" stroke-width="1.5"/><circle cx="17" cy="17" r="9" stroke="url(#ng)" stroke-width="1" opacity=".5"/><circle cx="17" cy="17" r="3.5" fill="url(#ng)"/><defs><linearGradient id="ng" x1="0" y1="0" x2="34" y2="34"><stop stop-color="#00d4aa"/><stop offset="1" stop-color="#7c5eff"/></linearGradient></defs></svg>
+        <span class="hn-title">Heady™ Ecosystem</span>
+      </div>
+      <div class="hn-links">
+        <a href="https://headyme.com" class="hn-link " data-node="CONDUCTOR" title="HeadyMe">Me</a><a href="https://headysystems.com" class="hn-link " data-node="CONDUCTOR" title="HeadySystems">Systems</a><a href="https://heady-ai.com" class="hn-link " data-node="CONDUCTOR" title="Heady AI"> AI</a><a href="https://headyos.com" class="hn-link " data-node="CONDUCTOR" title="HeadyOS">OS</a><a href="https://headyconnection.org" class="hn-link " data-node="CONDUCTOR" title="HeadyConnection (Org)">Connection</a><a href="https://headyconnection.com" class="hn-link " data-node="CONDUCTOR" title="HeadyConnection">Connection</a><a href="https://headyex.com" class="hn-link " data-node="CONDUCTOR" title="HeadyEx">Ex</a><a href="https://headyfinance.com" class="hn-link " data-node="CONDUCTOR" title="HeadyFinance">Finance</a><a href="https://admin.headysystems.com" class="hn-link hn-active" data-node="CONDUCTOR" title="Heady Admin"> Admin</a><a href="https://headyio.com" class="hn-link " data-node="CONDUCTOR" title="HeadyIO">IO</a><a href="https://headyweb.com" class="hn-link " data-node="CONDUCTOR" title="HeadyWeb">Web</a>
+      </div>
+      <div class="hn-right">
+        <button class="hn-storage-btn" onclick="document.getElementById('storageModal').style.display='flex'" data-node="CONDUCTOR" title="Connect Storage">🔗 Connect</button>
+        <button class="hn-buddy-btn" onclick="HeadyBuddyEmbed&&HeadyBuddyEmbed.toggle()" data-node="PERSONA" title="HeadyBuddy">💬</button>
+      </div>
     </nav>
+
+    <div id="storageModal" class="storage-overlay" style="display:none;">
+      <div class="storage-card">
+        <button class="storage-close" onclick="this.parentElement.parentElement.style.display='none'">✕</button>
+        <h2>Connect Personal Storage</h2>
+        <p class="storage-desc">One-time setup. Your data follows you across all 11 Heady domains and every device.</p>
+
+        <div class="storage-steps">
+          <div class="storage-step">
+            <div class="storage-step-num" style="background:rgba(0,212,170,0.15);color:#00d4aa;">1</div>
+            <div>
+              <div class="storage-step-title">Authenticate</div>
+              <div class="storage-step-desc">Sign in with Google, GitHub, or Discord via <code>auth.headysystems.com</code>. Firebase Auth sets a cross-domain session cookie shared by all 11 domains.</div>
+              <button class="storage-action-btn" data-node="CONDUCTOR" onclick="handleStorageAuth()">Sign In →</button>
+            </div>
+          </div>
+          <div class="storage-step">
+            <div class="storage-step-num" style="background:rgba(124,94,255,0.15);color:#7c5eff;">2</div>
+            <div>
+              <div class="storage-step-title">T1 Memory Initialized</div>
+              <div class="storage-step-desc">A personal vector space is created in Neon pgvector (384D, all-MiniLM-L6-v2). Namespace: <code>tenant:{your-id}:*</code>. CSL-scored with φ-weighted decay.</div>
+            </div>
+          </div>
+          <div class="storage-step">
+            <div class="storage-step-num" style="background:rgba(240,192,64,0.15);color:#f0c040;">3</div>
+            <div>
+              <div class="storage-step-title">T0 Session Active</div>
+              <div class="storage-step-desc">Upstash Redis working memory starts with 30s SETEX heartbeat (PHI⁷ = 29,034ms). Cross-device sync via WebSocket with CRDT conflict resolution.</div>
+            </div>
+          </div>
+          <div class="storage-step">
+            <div class="storage-step-num" style="background:rgba(34,197,94,0.15);color:#22c55e;">4</div>
+            <div>
+              <div class="storage-step-title">HeadyBuddy Synced</div>
+              <div class="storage-step-desc">Your HeadyBuddy conversation history, preferences, and archetype profile are now persistent and available on every domain and device. Done.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="storage-info">
+          <div class="storage-info-row"><span>Auth Provider</span><span>Firebase (27 OAuth providers)</span></div>
+          <div class="storage-info-row"><span>SSO Domain</span><span><code>auth.headysystems.com</code></span></div>
+          <div class="storage-info-row"><span>T0 Memory</span><span>Upstash Redis (30s SETEX)</span></div>
+          <div class="storage-info-row"><span>T1 Memory</span><span>Neon pgvector (384D HNSW)</span></div>
+          <div class="storage-info-row"><span>Sync</span><span>WebSocket + SSE fallback</span></div>
+          <div class="storage-info-row"><span>Encryption</span><span>TLS 1.3 + PQC-ready</span></div>
+          <div class="storage-info-row"><span>Cross-Device</span><span>Desktop · Mobile · IDE · Extension</span></div>
+        </div>
+
+        <p style="font-size:10px;color:#475569;text-align:center;margin-top:21px;font-family:monospace;">
+          HeadySystems Inc. · All data encrypted in transit and at rest · 60+ patents protect this architecture
+        </p>
+      </div>
+    </div>
 
     <div class="page-wrapper">
         <section class="hero">
@@ -825,6 +879,66 @@ const topology = {
         }, observerOptions);
 
         sections.forEach(section => observer.observe(section));
+    </script>
+    <script src="https://cdn.headysystems.com/buddy/embed.js" data-theme="dark" data-position="bottom-right" data-features="chat,tasks,memory" async></script>
+    <script>
+    // ── Sacred Geometry Background ──
+    (()=>{
+      const c=document.getElementById('sacred-bg');if(!c)return;
+      const x=c.getContext('2d');let w,h,t=0;
+      const PHI=1.618033988749895,PSI=1/PHI,FIB=[1,1,2,3,5,8,13,21,34,55,89];
+      const resize=()=>{w=c.width=innerWidth;h=c.height=innerHeight;};
+      resize();addEventListener('resize',resize);
+      const N=FIB[7],nodes=Array.from({length:N},()=>({
+        x:Math.random()*w,y:Math.random()*h,
+        vx:(Math.random()-.5)*PSI,vy:(Math.random()-.5)*PSI,
+        r:FIB[2+~~(Math.random()*4)]*PSI
+      }));
+      function draw(){
+        x.clearRect(0,0,w,h);t+=0.002;
+        nodes.forEach(n=>{
+          n.x+=n.vx+Math.sin(t*PHI+n.y*0.001)*0.2;
+          n.y+=n.vy+Math.cos(t*PSI+n.x*0.001)*0.2;
+          if(n.x<0)n.x=w;if(n.x>w)n.x=0;if(n.y<0)n.y=h;if(n.y>h)n.y=0;
+        });
+        const md=FIB[8]*PHI;x.lineWidth=0.4;
+        for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+          const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);
+          if(d<md){x.globalAlpha=(1-d/md)*0.25;x.strokeStyle=i%2?'rgba(124,94,255,0.4)':'rgba(0,212,170,0.4)';
+            x.beginPath();x.moveTo(nodes[i].x,nodes[i].y);x.lineTo(nodes[j].x,nodes[j].y);x.stroke();}
+        }
+        nodes.forEach((n,i)=>{
+          x.globalAlpha=0.2+Math.sin(t*PHI+i)*0.1;
+          x.fillStyle=i%2?'rgba(124,94,255,0.5)':'rgba(0,212,170,0.5)';
+          x.beginPath();x.arc(n.x,n.y,n.r,0,Math.PI*2);x.fill();
+        });
+        x.globalAlpha=1;requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ── Storage Auth Handler ──
+    async function handleStorageAuth() {
+      try {
+        const resp = await fetch('https://auth.headysystems.com/api/auth/init', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: 'google',
+            returnUrl: window.location.origin,
+            scopes: ['buddy', 'memory', 'sync'],
+            domain: window.location.hostname
+          }),
+          signal: AbortSignal.timeout(4236)
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.authUrl) window.location.href = data.authUrl;
+        }
+      } catch (e) {
+        alert('Auth service connecting... Please try again in a moment.');
+      }
+    }
     </script>
 </body>
 </html>
