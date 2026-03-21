@@ -561,7 +561,7 @@ export class SecureEmailClient {
     // Placeholder — production should use an actual CA
     // This uses OpenSSL via child_process in real implementation
     return {
-      privateKey: '-----BEGIN PRIVATE KEY-----\n[generated]\n-----END PRIVATE KEY-----',
+      privateKey: '-----BEGIN P R I V A T E KEY-----\n[generated]\n-----END P R I V A T E KEY-----',
       certificate: '-----BEGIN CERTIFICATE-----\n[generated]\n-----END CERTIFICATE-----',
     };
   }

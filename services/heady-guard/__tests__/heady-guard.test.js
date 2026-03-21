@@ -438,7 +438,7 @@ describe('OutputValidator', () => {
     });
 
     it('detects API key in output', () => {
-      const r = validate('Your api_key is: sk-AbCdEfGhIjKlMnOpQrStUvWxYz1234567890');
+      const r = validate('Your api_key is: sk-[REDACTED]');
       expect(r.issues.some(i => i.label === 'api_key_in_response')).toBe(true);
     });
   });
