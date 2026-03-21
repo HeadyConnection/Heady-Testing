@@ -126,7 +126,7 @@ jobs:
 
       - name: Run OWASP ZAP Baseline Scan
         if: env.SCAN_MODE == 'baseline'
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: ${{ needs.setup.outputs.target_url }}
           rules_file_name: zap-config/zap-rules.conf
