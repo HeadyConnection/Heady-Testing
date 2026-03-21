@@ -10,11 +10,12 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
     "build": "webpack --config webpack.config.js --env host",
     "build:shell": "bash scripts/build-shell.sh",
     "build:remotes": "bash scripts/build-all-remotes.sh",
     "build:all": "npm run build:shell && npm run build:remotes",
-    "dev": "bash scripts/dev-server.sh",
     "dev:shell": "webpack serve --config webpack.config.js --env host --open",
     "lint": "eslint src/ remotes/",
     "clean": "rm -rf dist/"

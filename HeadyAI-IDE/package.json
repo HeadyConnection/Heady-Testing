@@ -8,10 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "electron .",
+    "start:dev": "set NODE_ENV=development&& electron .",
     "start:web": "vite --host",
-    "package:win": "electron-builder --win",
-    "package:linux": "electron-builder --linux",
-    "package:mac": "electron-builder --mac"
+    "dist": "vite build && electron-builder --win",
+    "package:win": "vite build && electron-builder --win",
+    "package:linux": "vite build && electron-builder --linux",
+    "package:mac": "vite build && electron-builder --mac"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",

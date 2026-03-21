@@ -18,7 +18,7 @@ import React, { useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // State management
-import { IDEProvider, useIDE, useIDEActions, VIEWS, PANELS } from './stores/ideStore';
+import { IDEProvider, useIDE, useIDEActions, VIEWS, PANELS } from './stores/ideStore.jsx';
 
 // Components
 import ActivityBar from './components/ActivityBar';

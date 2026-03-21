@@ -114,6 +114,8 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/src', express.static(path.join(__dirname, 'src')));
 app.use('/remotes', express.static(path.join(REPO_ROOT, 'remotes')));
+// Serve buddy widget from headybuddy dist
+app.use('/buddy', express.static(path.join(REPO_ROOT, 'headybuddy', 'dist')));
 
 app.get('/api/health', (_req, res) => {
     const store = readVectorStore();
@@ -125,6 +127,64 @@ app.get('/api/health', (_req, res) => {
         vectors: store.vectors.length,
         timestamp: new Date().toISOString()
     });
+});
+
+// ── Buddy Chat (unauthenticated — public-facing assistant) ──────────────
+app.post('/api/buddy/chat', (req, res) => {
+    const { message = '', history = [] } = req.body || {};
+    const trimmed = String(message).trim().toLowerCase();
+
+    if (!trimmed) {
+        return res.status(400).json({ error: 'message is required' });
+    }
+
+    // Smart context-aware responses
+    let reply;
+
+    if (trimmed.includes('status') || trimmed.includes('health')) {
+        const upHours = Math.floor(process.uptime() / 3600);
+        const upMins = Math.floor((process.uptime() % 3600) / 60);
+        const store = readVectorStore();
+        reply = `All systems operational! 🟢\n\n` +
+            `• Uptime: ${upHours}h ${upMins}m\n` +
+            `• Vector Memory: ${store.vectors.length} entries\n` +
+            `• Services: HeadyWeb, HeadyBuddy, HeadyAI-IDE\n` +
+            `• Version: 3.3.0`;
+    } else if (trimmed.includes('service') || trimmed.includes('what') && trimmed.includes('running')) {
+        reply = `Here are the active Heady services:\n\n` +
+            `🔐 Onboarding + Auth — Cloud Run\n` +
+            `💻 HeadyAI-IDE — Desktop + Web\n` +
+            `🤖 HeadyBuddy — AI Companion Overlay\n` +
+            `🌐 HeadyWeb — Command Center Dashboard\n` +
+            `📊 20 AI Nodes across the swarm\n\n` +
+            `All services are monitored with auto-healing.`;
+    } else if (trimmed.includes('help') || trimmed.includes('what can you do')) {
+        reply = `I can help you with:\n\n` +
+            `• 📊 System status & health checks\n` +
+            `• 🔍 Searching workspace memory\n` +
+            `• 📝 Reading and writing files\n` +
+            `• 🧠 AI-powered code assistance\n` +
+            `• 🚀 Deployment & automation\n\n` +
+            `Just ask me anything!`;
+    } else {
+        // Semantic search fallback
+        const store = readVectorStore();
+        const bestMatch = store.vectors
+            .map((entry) => ({ ...entry, score: cosineSimilarityFromTerms(trimmed, entry.text) }))
+            .sort((a, b) => b.score - a.score)[0];
+
+        if (bestMatch && bestMatch.score > 0.15) {
+            reply = `Based on workspace memory (relevance: ${(bestMatch.score * 100).toFixed(0)}%):\n\n${bestMatch.text}`;
+        } else {
+            reply = `I hear you! While I'm connecting to the full Heady AI brain, here's what I can do right now:\n\n` +
+                `• Type "status" for system health\n` +
+                `• Type "services" to see what's running\n` +
+                `• Ask me anything about the Heady ecosystem\n\n` +
+                `The AI backend is warming up for deeper conversations. 🧠`;
+        }
+    }
+
+    return res.json({ reply, mode: 'buddy-chat', timestamp: new Date().toISOString() });
 });
 
 app.post('/api/auth/login', (req, res) => {

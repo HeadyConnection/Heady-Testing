@@ -44,6 +44,8 @@ const AIChat = ({ model, onClose, activeFile }) => {
     ]);
   }, [model]);
 
+  const HEADY_API = import.meta.env?.VITE_HEADY_API || 'https://headysystems.com';
+
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
@@ -59,18 +61,37 @@ const AIChat = ({ model, onClose, activeFile }) => {
     setIsLoading(true);
 
     try {
-      // Call Heady AI service
-      const response = await window.electronAPI?.invoke('heady-ai-chat', input, {
-        model,
-        activeFile: activeFile?.content,
-        fileName: activeFile?.name,
-        filePath: activeFile?.path
-      });
+      let aiContent;
+
+      // Try Electron IPC first, fall back to HTTP for web mode
+      if (window.electronAPI?.invoke) {
+        const response = await window.electronAPI.invoke('heady-ai-chat', input, {
+          model,
+          activeFile: activeFile?.content,
+          fileName: activeFile?.name,
+          filePath: activeFile?.path
+        });
+        aiContent = response?.response;
+      } else {
+        // HTTP fallback for web mode
+        const response = await fetch(`${HEADY_API}/api/buddy/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: input,
+            context: { model, fileName: activeFile?.name },
+            history: messages.slice(-10).map(m => ({ role: m.type, content: m.content }))
+          }),
+        });
+        if (!response.ok) throw new Error(`API ${response.status}`);
+        const data = await response.json();
+        aiContent = data.reply || data.response || data.message;
+      }
 
       const aiMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: response?.response || 'I apologize, but I encountered an error processing your request.',
+        content: aiContent || 'I apologize, but I encountered an error processing your request.',
         timestamp: new Date()
       };
 
