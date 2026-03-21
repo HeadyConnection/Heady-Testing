@@ -83,8 +83,24 @@ pipeline:
     costBudgetDaily: 50.00
     rateLimitPerMinute: 120
     proxyPolicy: direct-for-internal
-    monteCarloEnabled: true                    # Standalone MONTE_CARLO stage (8)
+    monteCarloEnabled: true                    # Standalone MONTE_CARLO stage (9)
     speedPriority: "on"                        # off | on | max
+    commands:
+      max:
+        speedPriority: "max"
+        costBudgetDaily: 999.99
+        rateLimitPerMinute: 9999
+        maxConcurrentTasks: 21
+        maxRetries: 8
+        modelPolicy: all-top-tier
+        modelRouting:
+          primary: claude-sonnet-4
+          secondary: gpt-4o
+          tertiary: gemini-2.5-pro
+          fallback: groq-llama-70b
+          parallel: true
+        effort: unlimited
+        description: "Max effort — all top models, no limits, full swarm"
     selfCritiqueEnabled: true                  # Post-run self-critique loop (stage 15)
     patternEngineEnabled: true                 # Feed stage/task timing into pattern engine
     publicDomainMining: true                   # Mine best-practice patterns from public tools
@@ -202,10 +218,10 @@ pipeline:
           syncItems: [preferences, active_project, last_workspace, theme, role]
           resumeBehavior: "suggest_last_context"
 
-    # ── STAGE 1: Reconnaissance & Deep Scan ────────────────────────────────────
+    # ── STAGE 2: Reconnaissance & Deep Scan ────────────────────────────────────
     - id: recon
       name: Reconnaissance & Deep Scan
-      order: 1
+      order: 2
       description: >
         Pre-action environment reconnaissance. Maps the full landscape before
         any planning or execution begins: code state, config drift, service
@@ -376,10 +392,10 @@ pipeline:
         candidatesPerTask: 6                     # fib(5) + 1
         rabbitLayerEnabled: true                 # idea proliferation + contingency breeding
 
-    # ── STAGE 6: Trial & Error Sandbox ───────────────────────────────────────
+    # ── STAGE 7: Trial & Error Sandbox ───────────────────────────────────────
     - id: trial-and-error
       name: Trial & Error Sandbox
-      order: 6
+      order: 7
       description: >
         Safe sandboxed execution of candidate solutions before committing.
         Multiple approaches are tested in isolated environments with automatic
@@ -643,10 +659,10 @@ pipeline:
           failureThreshold: 5                    # fib(5)
           resetTimeoutMs: 30000
 
-    # ── STAGE 14: Self-Awareness Assessment ───────────────────────────────────
+    # ── STAGE 15: Self-Awareness Assessment ───────────────────────────────────
     - id: self-awareness
       name: Self-Awareness Assessment
-      order: 14
+      order: 15
       description: >
         The system evaluates its own cognitive state. How confident am I?
         Where are my blind spots? Am I calibrated correctly? What do I NOT
@@ -934,7 +950,7 @@ pipeline:
     # ── STAGE 19: Evolution & Mutation ────────────────────────────────────────
     - id: evolution
       name: Evolution & Mutation
-      order: 19
+      order: 20
       description: >
         Controlled evolution of the system itself. Proposes and tests
         mutations to pipeline parameters, service configurations, CSL
