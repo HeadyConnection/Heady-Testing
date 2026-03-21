@@ -1,0 +1,43 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: docker-compose.headyide.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+#
+# HeadyIDE — Vite-based frontend dev environment.
+# Usage: docker compose -f docker-compose.headyide.yml up -d
+
+services:
+  headyide:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - headyide-node-modules:/app/node_modules
+    ports:
+      - "3400:3400"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - API_BASE=http://heady-manager:3300
+    command: npm run dev
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+networks:
+  heady-net:
+    driver: bridge
+
+volumes:
+  headyide-node-modules:
+    driver: local

@@ -1,0 +1,2 @@
+*.vhdx !text !filter !merge !diff
+*.ZIP !text !filter !merge !diff

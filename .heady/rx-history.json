@@ -1,0 +1,53 @@
+{
+  "patterns": [
+    {
+      "match": "finish incomplete tasks and when ready auto-deploy",
+      "fix": "node scripts/auto-deploy.js",
+      "hits": 0,
+      "created": "2026-02-14T17:13:48.057Z",
+      "lastUsed": null
+    },
+    {
+      "match": "HeadyAI-IDE doesn't work",
+      "fix": "node scripts/fix-headyai-ide.js",
+      "hits": 1,
+      "created": "2026-02-14T17:59:22.382Z",
+      "lastUsed": "2026-02-15T03:32:57.936Z"
+    }
+  ],
+  "shortcuts": {},
+  "unmatched": [
+    {
+      "input": "HeadyMe clouds only",
+      "ts": "2026-02-14T16:59:07.289Z"
+    },
+    {
+      "input": "Orchestration seems not optimized considering the resources available",
+      "ts": "2026-02-14T17:01:23.037Z"
+    },
+    {
+      "input": "finish incomplete tasks and when ready auto-deploy",
+      "ts": "2026-02-14T17:06:49.644Z"
+    },
+    {
+      "input": "HeadyAI-IDE isn't functional",
+      "ts": "2026-02-14T17:15:06.863Z"
+    },
+    {
+      "input": "HeadyMe clouds only",
+      "ts": "2026-02-14T17:23:02.087Z"
+    },
+    {
+      "input": "HeadyAI-IDE doesn't work",
+      "ts": "2026-02-14T17:49:33.368Z"
+    },
+    {
+      "input": "never internal.headyio.com or similiar type of reference, only custom branded domains, no headysystems.com",
+      "ts": "2026-02-15T03:16:07.656Z"
+    },
+    {
+      "input": "hcautoflow auto-deploy non-interactive",
+      "ts": "2026-02-15T03:54:48.603Z"
+    }
+  ]
+}

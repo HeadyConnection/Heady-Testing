@@ -1,0 +1,32 @@
+@startuml Heady_Memory_Components
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Heady™ Platform — Level 3: Memory Domain Components
+footer Eric Haywood | HeadySystems Inc. | 384-dim Vector Memory
+
+Container_Boundary(memory_domain, "Memory Domain") {
+  Component(embed_pipeline, "EmbeddingPipeline", "embedding-pipeline.js", "Multi-provider embedding with circuit breaker failover (Nomic → Jina → Voyage)")
+  Component(vector_store, "VectorStore", "vector-store.js", "pgvector HNSW interface: upsert, search, delete with φ-batch sizes")
+  Component(projection_eng, "ProjectionEngine", "projection-engine.js", "Dimensionality reduction via MRL truncation (1536 → 384)")
+  Component(mem_cache, "MemoryCache", "memory-cache.js", "LRU cache with Fibonacci capacity (fib(16)=987 entries)")
+  Component(hybrid_search, "HybridSearch", "Built into VectorStore", "BM25 + dense vector fusion via Reciprocal Rank Fusion")
+  Component(csl_ops, "CSL Operations", "shared/csl-engine-v2.js", "AND (cosine), OR (superposition), NOT (orthogonal projection), GATE (sigmoid)")
+}
+
+ComponentDb(pgvector_db, "pgvector", "PostgreSQL", "HNSW: ef_construction=144, m=21, ef_search=89")
+Component_Ext(nomic, "Nomic Embed v1.5", "Primary embedding provider")
+Component_Ext(jina, "Jina Embeddings v3", "Fallback embedding provider")
+Component_Ext(voyage, "Voyage 3 Lite", "Tertiary embedding provider")
+
+Rel(embed_pipeline, nomic, "Primary: 384-dim embeddings")
+Rel(embed_pipeline, jina, "Failover (circuit breaker)")
+Rel(embed_pipeline, voyage, "Tertiary failover")
+Rel(embed_pipeline, projection_eng, "Reduce dimensions if needed")
+Rel(embed_pipeline, vector_store, "Store embedding")
+Rel(vector_store, pgvector_db, "HNSW upsert/search")
+Rel(vector_store, mem_cache, "Cache frequent queries")
+Rel(vector_store, csl_ops, "CSL-gated relevance filtering")
+Rel(hybrid_search, pgvector_db, "BM25 full-text query")
+Rel(hybrid_search, csl_ops, "RRF score fusion")
+
+@enduml

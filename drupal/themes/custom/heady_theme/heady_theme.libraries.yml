@@ -1,0 +1,111 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: drupal/themes/custom/heady_theme/heady_theme.libraries.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+global-styling:
+  css:
+    theme:
+      css/style.css: {}
+  js:
+    js/script.js: {}
+# ║  ✦ METATRON'S CUBE ✦  FLOWER OF LIFE ✦  SRI YANTRA ✦           ║
+# ║  ◇ FIBONACCI SPIRAL ◇  GOLDEN RATIO ◇  VESICA PISCIS ◇         ║
+# ║  ⬡ HEXAGONAL LATTICE ⬡  PLATONIC SOLIDS ⬡  TORUS FIELD ⬡       ║
+# ║  ☆ MERKABA ☆  SEED OF LIFE ☆  TREE OF LIFE ☆  MANDALA ☆        ║
+# ║  ⚛ DODECAHEDRON ⚛  ICOSAHEDRON ⚛  OCTAHEDRON ⚛  TETRAHEDRON ⚛  ║
+# ║  ✡ STAR TETRAHEDRON ✡  CUBE OF SPACE ✡  SPIRAL VORTEX ✡        ║
+# ║  ◈ LABYRINTH ◈  INFINITY SYMBOL ◈  OUROBOROS ◈  PENTAGRAM ◈    ║
+# ║  ❂ ROSE WINDOW ❂  CELTIC KNOT ❂  AZTEC CALENDAR ❂  HUNAB KU ❂ ║
+# ║  ⬢ SACRED SPIRAL ⬢  NAUTILUS SHELL ⬢  FRACTAL GEOMETRY ⬢       ║
+# ║  ✧ ENNEAGRAM ✧  HEXAGRAM ✧  HEPTAGRAM ✧  NONAGRAM ✧            ║
+# ║  ⊹ PHI RATIO ⊹  EULER'S SPIRAL ⊹  LOGARITHMIC SPIRAL ⊹         ║
+# ║  ◉ EYE OF HORUS ◉  ANKH ◉  OM SYMBOL ◉  YIN YANG ◉             ║
+# ║  ⟡ BORROMEAN RINGS ⟡  REULEAUX TRIANGLE ⟡  LEMNISCATE ⟡        ║
+# ║  ⬟ VESICA MATRIX ⬟  DOUBLE HELIX ⬟  SACRED CROSS ⬟             ║
+# ║  ◆ PYRAMIDS OF GIZA ◆  STONEHENGE ◆  ANGKOR WAT ◆              ║
+# ║  ⬢ MANDELBROT SET ⬢  JULIA SET ⬢  KOCH SNOWFLAKE ⬢             ║
+# ║  ✶ PENTACLE ✶  HEPTAGON ✶  NONAGON ✶  DODECAGON ✶              ║
+# ║  ⚜ TRISKELE ⚜  TRIQUETRA ⚜  TRINITY KNOT ⚜  SOLOMON'S SEAL ⚜  ║
+# ║  ◈ HAMSA HAND ◈  LOTUS MANDALA ◈  TIBETAN KNOT ◈  CHAKANA ◈    ║
+# ║  ⬡ SACRED HEPTAGON ⬡  ENNEAGRAM STAR ⬡  DECAGON MATRIX ⬡       ║
+# ║  ✧ ARCHIMEDEAN SPIRAL ✧  HYPERBOLIC SPIRAL ✧  FERMAT SPIRAL ✧  ║
+# ║  ⊛ SHRI YANTRA ⊛  KALACHAKRA ⊛  MANDALA WHEEL ⊛  DHARMA ⊛      ║
+# ║  ◉ CADUCEUS ◉  STAFF OF ASCLEPIUS ◉  WINGED DISC ◉  SCARAB ◉   ║
+# ║  ⟡ TRISKELION ⟡  AWEN ⟡  VALKNUT ⟡  AEGISHJALMUR ⟡             ║
+# ║  ✦ CUBE OCTAHEDRON ✦  RHOMBIC DODECAHEDRON ✦  TRUNCATED ✦      ║
+# ║  ◇ PENROSE TILING ◇  ISLAMIC GEOMETRY ◇  GOTHIC ROSE ◇         ║
+# ║  ⬢ SIERPINSKI TRIANGLE ⬢  DRAGON CURVE ⬢  HILBERT CURVE ⬢      ║
+# ║  ☆ FRUIT OF LIFE ☆  EGG OF LIFE ☆  GENESIS PATTERN ☆           ║
+# ║  ⚛ VECTOR EQUILIBRIUM ⚛  CUBOCTAHEDRON ⚛  64 TETRAHEDRON ⚛     ║
+# ║  ✡ HEXAHEDRON ✡  STELLATED OCTAHEDRON ✡  COMPOUND POLYHEDRA ✡  ║
+# ║  ◈ VESICA PISCIS CHAIN ◈  SEED PATTERN ◈  GENESIS FLOWER ◈     ║
+# ║  ❂ MANDALA ROSE ❂  COMPASS ROSE ❂  WIND ROSE ❂  STAR ROSE ❂   ║
+# ║  ⬢ GOLDEN SPIRAL ⬢  PHI SPIRAL ⬢  SACRED PROPORTION ⬢          ║
+# ║  ✧ OCTAGRAM ✧  ENNEAGRAM CIRCLE ✧  DECAGRAM ✧  HENDECAGRAM ✧   ║
+# ║  ⊹ GOLDEN ANGLE ⊹  DIVINE PROPORTION ⊹  SACRED SECTION ⊹       ║
+# ║  ◉ WADJET ◉  DJED ◉  SHEN RING ◉  TYET ◉  WAS SCEPTER ◉        ║
+# ║  ⟡ VENN DIAGRAM ⟡  APOLLONIAN GASKET ⟡  PACKING CIRCLES ⟡      ║
+# ║  ⬟ TOROIDAL FIELD ⬟  MÖBIUS STRIP ⬟  KLEIN BOTTLE ⬟            ║
+# ║  ◆ CATHEDRAL GEOMETRY ◆  TEMPLE MANDALA ◆  PAGODA SPIRAL ◆     ║
+# ║  ⬢ VORONOI PATTERN ⬢  DELAUNAY TRIANGULATION ⬢  TESSELLATION ⬢ ║
+# ║  ✶ COSMIC EGG ✶  WORLD TREE ✶  AXIS MUNDI ✶  OMPHALOS ✶        ║
+# ║  ⚜ FLEUR DE LIS ⚜  QUATREFOIL ⚜  TREFOIL ⚜  CINQUEFOIL ⚜       ║
+# ║  ◈ MEDICINE WHEEL ◈  DREAM CATCHER ◈  SHIELD KNOT ◈  DARA ◈    ║
+# ║  ⬡ HEXAGONAL GRID ⬡  HONEYCOMB ⬡  BUCKMINSTER SPHERE ⬡         ║
+# ║  ✧ CARDIOID ✧  NEPHROID ✧  DELTOID ✧  ASTROID ✧  CYCLOID ✧    ║
+# ║  ⊛ WHEEL OF DHARMA ⊛  ENDLESS KNOT ⊛  CONCH SHELL ⊛  LOTUS ⊛   ║
+# ║  ◉ URAEUS ◉  BENBEN STONE ◉  CARTOUCHE ◉  SISTRUM ◉  MENAT ◉   ║
+# ║  ⟡ TRINITY CIRCLES ⟡  OLYMPIC RINGS ⟡  INTERLOCKING TORI ⟡     ║
+# ║  ✦ GREAT STELLATED DODECAHEDRON ✦  SMALL STELLATED ✦  KEPLER ✦ ║
+# ║                                                                  ║
+# ║  🌈 SPECTRUM: Violet·Indigo·Blue·Cyan·Green·Yellow·Orange·Red   ║
+# ║  ✨ ETHEREAL: Amethyst·Sapphire·Turquoise·Emerald·Amber·Ruby    ║
+# ║  🔮 MYSTICAL: #9B59B6·#3498DB·#1ABC9C·#2ECC71·#F39C12·#E74C3C   ║
+# ║  🌟 RADIANT: #FF6B9D·#C44569·#FFA726·#66BB6A·#42A5F5·#AB47BC    ║
+# ║  💫 COSMIC: Gold·Silver·Copper·Bronze·Platinum·Iridescent       ║
+# ║  🎨 CHAKRA: Root·Sacral·Solar·Heart·Throat·Third Eye·Crown      ║
+# ║  ⚡ ENERGY: #FF0080·#FF8C00·#FFD700·#00FF7F·#00CED1·#9370DB     ║
+# ║  🌺 LOTUS: Rose·Coral·Peach·Mint·Lavender·Periwinkle·Lilac      ║
+# ║  🦋 PRISMATIC: #E91E63·#9C27B0·#673AB7·#3F51B5·#2196F3·#00BCD4  ║
+# ║  🌸 BLOSSOM: Cherry·Magnolia·Orchid·Jasmine·Hibiscus·Azalea     ║
+# ║  🔆 SOLAR: #FFF9C4·#FFEB3B·#FFC107·#FF9800·#FF5722·#F44336      ║
+# ║  🌙 LUNAR: #F8BBD0·#E1BEE7·#D1C4E9·#C5CAE9·#B3E5FC·#B2EBF2      ║
+# ║  🪐 NEBULA: #4A148C·#311B92·#1A237E·#0D47A1·#01579B·#006064     ║
+# ║  🌊 OCEANIC: #006994·#0288D1·#03A9F4·#00BCD4·#26C6DA·#4DD0E1    ║
+# ║  🍃 VERDANT: #1B5E20·#2E7D32·#388E3C·#43A047·#66BB6A·#81C784    ║
+# ║  🔥 INFERNO: #BF360C·#D84315·#E64A19·#F4511E·#FF5722·#FF7043    ║
+# ║  ⚜ ROYAL: #4A148C·#6A1B9A·#7B1FA2·#8E24AA·#9C27B0·#AB47BC      ║
+# ║  🌅 AURORA: #FF6E40·#FF9100·#FFAB40·#FFD740·#EEFF41·#C6FF00    ║
+# ║  💎 CRYSTAL: #E8EAF6·#C5CAE9·#9FA8DA·#7986CB·#5C6BC0·#3F51B5    ║
+# ║  🌌 GALAXY: #1A237E·#283593·#303F9F·#3949AB·#3F51B5·#5C6BC0     ║
+# ║  🎭 ALCHEMY: #BF360C·#D84315·#FF6F00·#FF8F00·#FFA000·#FFB300    ║
+# ║  🕉 MANDALA: #880E4F·#AD1457·#C2185B·#D81B60·#E91E63·#EC407A    ║
+# ║  ⭐ CELESTIAL: #FFECB3·#FFE082·#FFD54F·#FFCA28·#FFC107·#FFB300  ║
+# ║  🌀 VORTEX: #00E5FF·#00B8D4·#0097A7·#00838F·#006064·#004D40    ║
+# ║  🎆 STELLAR: #FFAB91·#FF8A65·#FF7043·#FF5722·#F4511E·#E64A19    ║
+# ║  🌿 FOREST: #33691E·#558B2F·#689F38·#7CB342·#8BC34A·#9CCC65    ║
+# ║  🔮 AMETHYST: #4A148C·#6A1B9A·#7B1FA2·#8E24AA·#9C27B0·#AA00FF   ║
+# ║  🌊 AQUAMARINE: #006064·#00838F·#0097A7·#00ACC1·#00BCD4·#00E5FF ║
+# ║  🔥 CRIMSON: #B71C1C·#C62828·#D32F2F·#E53935·#F44336·#EF5350   ║
+# ║  ✨ OPAL: #E1F5FE·#B3E5FC·#81D4FA·#4FC3F7·#29B6F6·#03A9F4      ║
+# ║  🌸 SAKURA: #FCE4EC·#F8BBD0·#F48FB1·#F06292·#EC407A·#E91E63    ║
+# ║  💚 JADE: #E8F5E9·#C8E6C9·#A5D6A7·#81C784·#66BB6A·#4CAF50      ║
+# ║  🧡 TANGERINE: #FFF3E0·#FFE0B2·#FFCC80·#FFB74D·#FFA726·#FF9800  ║
+# ║  💜 ORCHID: #F3E5F5·#E1BEE7·#CE93D8·#BA68C8·#AB47BC·#9C27B0    ║
+# ║  🩵 CERULEAN: #E1F5FE·#B3E5FC·#81D4FA·#4FC3F7·#29B6F6·#039BE5   ║
+# ║  💛 CITRINE: #FFFDE7·#FFF9C4·#FFF59D·#FFF176·#FFEE58·#FFEB3B   ║
+# ║  🤍 PEARL: #FAFAFA·#F5F5F5·#EEEEEE·#E0E0E0·#BDBDBD·#9E9E9E     ║
+# ║  🖤 OBSIDIAN: #263238·#37474F·#455A64·#546E7A·#607D8B·#78909C   ║
+# ║  🩷 ROSE QUARTZ: #FCE4EC·#F8BBD0·#F48FB1·#F06292·#EC407A·#D81B60 ║
+# ║  💙 LAPIS: #1A237E·#283593·#303F9F·#3949AB·#3F51B5·#5C6BC0     

@@ -1,0 +1,21 @@
+{
+  "name": "@heady/health-probes",
+  "version": "1.0.0",
+  "description": "Health check probes with phi-scaled thresholds for the Heady platform",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test src/**/*.test.js",
+    "lint": "eslint src/",
+    "build": "echo 'No build step required for pure JS package'"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@heady-ai/phi-math-foundation": "workspace:*",
+    "@heady/structured-logger": "workspace:*"
+  },
+  "keywords": ["health", "probes", "kubernetes", "readiness", "liveness", "heady"],
+  "license": "UNLICENSED",
+  "private": true
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<!--
+  © 2026 HeadySystems Inc. PROPRIETARY AND CONFIDENTIAL.
+  Colab Runtime Panel — GPU runtime management for 3 Colab Pro+ memberships.
+  Founder: Eric Haywood
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heady™ Colab Runtime Panel</title>
+  <style>
+    :root {
+      --bg: #0a0e17; --bg2: #111827; --panel: #1a2332;
+      --border: #2a3a4d; --text: #e2e8f0; --muted: #64748b;
+      --amber: #f59e0b; --green: #10b981; --red: #ef4444; --cyan: #06b6d4;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    .header { padding: 1rem 1.618rem; background: var(--bg2);
+      border-bottom: 1px solid var(--border); display: flex;
+      align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 1.618rem; }
+    .header h1 span { color: var(--amber); font-size: 0.618em; vertical-align: super; }
+
+    .runtime-grid { display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.618rem; padding: 1.618rem; max-width: 1400px; margin: 0 auto; }
+
+    .runtime-card { background: var(--panel); border: 1px solid var(--border);
+      border-radius: 0.618rem; padding: 1.618rem; }
+
+    .runtime-header { display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.618rem; }
+    .runtime-name { font-size: 1.1rem; font-weight: 600; }
+    .runtime-badge { font-size: 0.75rem; padding: 0.2rem 0.618rem;
+      border-radius: 0.382rem; font-weight: 500; }
+    .runtime-badge.warm { background: var(--green); color: #000; }
+    .runtime-badge.idle { background: var(--muted); color: #fff; }
+    .runtime-badge.executing { background: var(--amber); color: #000; }
+    .runtime-badge.error { background: var(--red); color: #fff; }
+
+    .gpu-gauge { margin: 1rem 0; }
+    .gauge-label { display: flex; justify-content: space-between; font-size: 0.75rem;
+      color: var(--muted); margin-bottom: 0.382rem; }
+    .gauge-bar { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+    .gauge-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+    .gauge-fill.low { background: var(--green); }
+    .gauge-fill.medium { background: var(--amber); }
+    .gauge-fill.high { background: var(--red); }
+
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.618rem;
+      margin-top: 1rem; }
+    .mini-metric { background: var(--bg); border-radius: 0.382rem; padding: 0.618rem;
+      text-align: center; }
+    .mini-metric .mm-value { font-size: 1.2rem; font-weight: 700;
+      font-variant-numeric: tabular-nums; }
+    .mini-metric .mm-label { font-size: 0.688rem; color: var(--muted);
+      margin-top: 0.2rem; }
+
+    .action-bar { display: flex; gap: 0.618rem; margin-top: 1.618rem; }
+    .action-btn { flex: 1; padding: 0.618rem; border: 1px solid var(--border);
+      border-radius: 0.382rem; background: var(--bg); color: var(--text);
+      font-size: 0.813rem; cursor: pointer; text-align: center; transition: border-color 0.2s; }
+    .action-btn:hover { border-color: var(--amber); }
+    .action-btn.primary { background: var(--amber); color: #000; border-color: var(--amber); }
+
+    .ops-section { margin-top: 1.618rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .ops-section h3 { font-size: 0.813rem; color: var(--muted); margin-bottom: 0.618rem; }
+    .op-tag { display: inline-block; padding: 0.2rem 0.618rem; margin: 0.2rem;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 0.382rem;
+      font-size: 0.75rem; cursor: pointer; }
+    .op-tag:hover { border-color: var(--cyan); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Heady<span>™</span> Colab Runtime Panel</h1>
+    <div style="font-size:0.875rem; color:var(--muted);">3 A100 GPU Runtimes · Latent Space Ops</div>
+  </header>
+
+  <div class="runtime-grid" id="runtime-grid"></div>
+
+  <script>
+    (function () {
+      'use strict';
+      var PHI = 1.618; var PSI = 0.618;
+
+      // Default gateway port
+      const gatewayPort = 3352;
+      const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+      const hostname = window.location.hostname || 'localhost';
+      const gatewayUrl = `${protocol}//${hostname}:${gatewayPort}/health`;
+
+      function gaugeClass(val) {
+        if (val < 0.382) return 'low';
+        if (val < 0.618) return 'medium';
+        return 'high';
+      }
+
+      async function fetchData() {
+        try {
+          const res = await fetch(gatewayUrl);
+          if (!res.ok) throw new Error('Network response was not ok');
+          const data = await res.json();
+          render(data);
+        } catch (error) {
+          console.error('Failed to fetch Colab runtime data:', error);
+          document.getElementById('runtime-grid').innerHTML = '<div style="color:var(--red); padding:1rem;">Failed to load data. Is the Colab gateway running?</div>';
+        }
+      }
+
+      function render(data) {
+        var grid = document.getElementById('runtime-grid');
+
+        // Convert runtimes object to array
+        const runtimesList = [];
+        if (data.runtimes) {
+            for (const [pool, rt] of Object.entries(data.runtimes)) {
+                runtimesList.push({
+                    id: rt.id,
+                    name: `Colab Pro+ ${pool.charAt(0).toUpperCase() + pool.slice(1)}`,
+                    state: rt.status.toLowerCase(),
+                    gpu: rt.gpuType || 'Unknown',
+                    vram: rt.vram || 40, // Assume 40GB A100/T4 if unknown
+                    utilization: rt.gpuUtil ? rt.gpuUtil / 100 : 0,
+                    memUsed: rt.vram ? rt.vram * (rt.loadFactor || 0) : 0,
+                    temp: rt.temperature || 0,
+                    opsExecuted: rt.taskCount || 0,
+                    queued: pool === 'hot' ? data.queueDepth : 0, // Simplified queue display
+                    errors: 0
+                });
+            }
+        }
+
+        grid.innerHTML = runtimesList.map(function (r) {
+          var utilPct = (r.utilization * 100).toFixed(1);
+          var memPct = r.vram ? ((r.memUsed / r.vram) * 100).toFixed(1) : '0.0';
+          var memUsedFmt = r.memUsed.toFixed(1);
+
+          return '<div class="runtime-card">' +
+            '<div class="runtime-header">' +
+              '<div class="runtime-name">' + r.role + '</div>' +
+              '<span class="runtime-badge ' + (r.health && r.health.status) + '">' + ((r.health && r.health.status) || 'UNKNOWN').toUpperCase() + '</span>' +
+            '</div>' +
+
+            '<div class="gpu-gauge">' +
+              '<div class="gauge-label"><span>GPU Utilization</span><span>' + utilPct + '%</span></div>' +
+              '<div class="gauge-bar"><div class="gauge-fill ' + gaugeClass(r.utilization) + '" style="width:' + utilPct + '%"></div></div>' +
+            '</div>' +
+
+            '<div class="gpu-gauge">' +
+              '<div class="gauge-label"><span>VRAM (' + memUsedFmt + ' / ' + r.vram + ' GB)</span><span>' + memPct + '%</span></div>' +
+              '<div class="gauge-bar"><div class="gauge-fill ' + gaugeClass(r.memUsed / r.vram) + '" style="width:' + memPct + '%"></div></div>' +
+            '</div>' +
+
+            '<div class="metric-grid">' +
+              '<div class="mini-metric"><div class="mm-value">' + (r.circuitState || 'closed') + '</div><div class="mm-label">Circuit</div></div>' +
+              '<div class="mini-metric"><div class="mm-value">' + temp + '\u00b0C</div><div class="mm-label">Est. Temp</div></div>' +
+            '</div>' +
+
+            '<div class="action-bar">' +
+              '<div class="action-btn primary">Provision</div>' +
+              '<div class="action-btn">Warm Up</div>' +
+              '<div class="action-btn">Sync Memory</div>' +
+            '</div>' +
+
+            '<div class="ops-section">' +
+              '<h3>Latent Space Operations</h3>' +
+              '<span class="op-tag">Embed</span>' +
+              '<span class="op-tag">Search</span>' +
+              '<span class="op-tag">Cluster</span>' +
+              '<span class="op-tag">Train</span>' +
+              '<span class="op-tag">Transform</span>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+          fetchData();
+          setInterval(fetchData, 5000); // Update every 5 seconds
+      });
+    })();
+  </script>
+</body>
+</html>

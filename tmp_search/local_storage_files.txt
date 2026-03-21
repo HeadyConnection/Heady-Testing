@@ -1,0 +1,6 @@
+./training/heady-task-manager.html
+./docs/HEADY_CROSS_PLATFORM_PROTOCOL.md
+./configs/service-contracts.yaml
+./configs/hcfullpipeline.yaml
+./public/auth.html
+./public/onboarding.html

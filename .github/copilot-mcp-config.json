@@ -1,0 +1,420 @@
+{
+  "mcpServers": {
+    "heady-manager": {
+      "type": "local",
+      "command": "node",
+      "args": ["heady-manager.js"],
+      "tools": ["*"],
+      "description": "HeadySystems MCP Manager - Node.js server providing system pulse and Docker integration"
+    },
+    "filesystem": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspaces", "/shared"],
+      "tools": ["*"],
+      "_comment": "Local filesystem server for accessing workspace files."
+    },
+    "git": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-git"],
+      "tools": ["*"],
+      "_comment": "Local git server for repository operations."
+    },
+    "postgres": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "${{ secrets.COPILOT_MCP_DATABASE_URL }}"
+      },
+      "tools": ["*"],
+      "_comment": "Postgres server using DATABASE_URL from secrets."
+    },
+    "cloudflare": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-cloudflare"],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${{ secrets.COPILOT_MCP_CLOUDFLARE_API_TOKEN }}",
+        "CLOUDFLARE_ACCOUNT_ID": "${{ secrets.COPILOT_MCP_CLOUDFLARE_ACCOUNT_ID }}"
+      },
+      "tools": ["*"],
+      "_comment": "Cloudflare server using API token and Account ID from secrets."
+    }
+  }
+}
+{
+  "mcpServers": {
+    "heady-manager": {
+      "type": "local",
+      "command": "node",
+      "args": ["heady-manager.js"],
+      "tools": ["*"],
+      "description": "HeadySystems MCP Manager - Node.js server providing system pulse and Docker integration"
+    },
+    "filesystem": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspaces", "/shared"],
+      "tools": ["*"],
+      "description": "Local filesystem server for accessing workspace files"
+    },
+    "git": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-git"],
+      "tools": ["*"],
+      "description": "Git repository operations"
+    },
+    "postgres": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "${{ secrets.COPILOT_MCP_DATABASE_URL }}"
+      },
+      "tools": ["*"],
+      "description": "PostgreSQL database operations"
+    },
+    "cloudflare": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-cloudflare"],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${{ secrets.COPILOT_MCP_CLOUDFLARE_API_TOKEN }}",
+        "CLOUDFLARE_ACCOUNT_ID": "${{ secrets.COPILOT_MCP_CLOUDFLARE_ACCOUNT_ID }}"
+      },
+      "tools": ["*"],
+      "description": "Cloudflare DNS, Workers, and edge services"
+    },
+    "docker": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-docker"],
+      "tools": ["*"],
+      "description": "Docker container management"
+    },
+    "browser": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "tools": ["*"],
+      "description": "Browser automation for HeadyBrowser integration"
+    },
+    "memory": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "tools": ["*"],
+      "description": "Persistent memory for agent context"
+    },
+    "fetch": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "tools": ["*"],
+      "description": "HTTP fetch for API integrations"
+    },
+    "slack": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${{ secrets.SLACK_BOT_TOKEN }}",
+        "SLACK_TEAM_ID": "${{ secrets.SLACK_TEAM_ID }}"
+      },
+      "tools": ["*"],
+      "description": "Slack workspace integration"
+    },
+    "google-drive": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-gdrive"],
+      "env": {
+        "GOOGLE_CREDENTIALS": "${{ secrets.GOOGLE_CREDENTIALS }}"
+      },
+      "tools": ["*"],
+      "description": "Google Drive for document store integration"
+    },
+    "dropbox": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/document-stores.js", "--provider", "dropbox"],
+      "env": {
+        "DROPBOX_TOKEN": "${{ secrets.DROPBOX_TOKEN }}"
+      },
+      "tools": ["*"],
+      "description": "Dropbox document store integration"
+    },
+    "notion": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "env": {
+        "NOTION_TOKEN": "${{ secrets.NOTION_TOKEN }}"
+      },
+      "tools": ["*"],
+      "description": "Notion workspace integration"
+    },
+    "obsidian": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/document-stores.js", "--provider", "obsidian"],
+      "env": {
+        "OBSIDIAN_VAULT_PATH": "${{ secrets.OBSIDIAN_VAULT_PATH }}"
+      },
+      "tools": ["*"],
+      "description": "Obsidian vault integration for knowledge graphs"
+    },
+    "hubspot": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/crm-connector.js", "--provider", "hubspot"],
+      "env": {
+        "HUBSPOT_API_KEY": "${{ secrets.HUBSPOT_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "HubSpot CRM integration"
+    },
+    "salesforce": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/crm-connector.js", "--provider", "salesforce"],
+      "env": {
+        "SF_CLIENT_ID": "${{ secrets.SF_CLIENT_ID }}",
+        "SF_CLIENT_SECRET": "${{ secrets.SF_CLIENT_SECRET }}"
+      },
+      "tools": ["*"],
+      "description": "Salesforce CRM integration"
+    },
+    "github": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+      },
+      "tools": ["*"],
+      "description": "GitHub repository and issue management"
+    },
+    "linear": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-linear"],
+      "env": {
+        "LINEAR_API_KEY": "${{ secrets.LINEAR_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "Linear issue tracking integration"
+    },
+    "sentry": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sentry"],
+      "env": {
+        "SENTRY_AUTH_TOKEN": "${{ secrets.SENTRY_AUTH_TOKEN }}",
+        "SENTRY_ORG": "${{ secrets.SENTRY_ORG }}"
+      },
+      "tools": ["*"],
+      "description": "Sentry error monitoring integration"
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "tools": ["*"],
+      "description": "Sequential thinking for complex reasoning tasks"
+    },
+    "brave-search": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${{ secrets.BRAVE_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "Brave Search for web research"
+    },
+    "exa": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-exa"],
+      "env": {
+        "EXA_API_KEY": "${{ secrets.EXA_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "Exa semantic search for research"
+    },
+    "time": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-time"],
+      "tools": ["*"],
+      "description": "Time and timezone utilities"
+    },
+    "everart": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-everart"],
+      "env": {
+        "EVERART_API_KEY": "${{ secrets.EVERART_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "AI image generation for sacred geometry visuals"
+    },
+    "aws": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-aws-kb-retrieval"],
+      "env": {
+        "AWS_ACCESS_KEY_ID": "${{ secrets.AWS_ACCESS_KEY_ID }}",
+        "AWS_SECRET_ACCESS_KEY": "${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+        "AWS_REGION": "${{ secrets.AWS_REGION }}"
+      },
+      "tools": ["*"],
+      "description": "AWS Bedrock knowledge base retrieval"
+    },
+    "redis": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-redis"],
+      "env": {
+        "REDIS_URL": "${{ secrets.REDIS_URL }}"
+      },
+      "tools": ["*"],
+      "description": "Redis cache and pub/sub operations"
+    },
+    "sqlite": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "/workspaces/data/heady.db"],
+      "tools": ["*"],
+      "description": "SQLite database for local data persistence"
+    },
+    "playwright": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-playwright"],
+      "tools": ["*"],
+      "description": "Playwright browser automation for E2E testing"
+    },
+    "google-maps": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-google-maps"],
+      "env": {
+        "GOOGLE_MAPS_API_KEY": "${{ secrets.GOOGLE_MAPS_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "Google Maps for location-based services"
+    },
+    "stripe": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/payment-connector.js", "--provider", "stripe"],
+      "env": {
+        "STRIPE_SECRET_KEY": "${{ secrets.STRIPE_SECRET_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "Stripe payment processing integration"
+    },
+    "twilio": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/communication-connector.js", "--provider", "twilio"],
+      "env": {
+        "TWILIO_ACCOUNT_SID": "${{ secrets.TWILIO_ACCOUNT_SID }}",
+        "TWILIO_AUTH_TOKEN": "${{ secrets.TWILIO_AUTH_TOKEN }}"
+      },
+      "tools": ["*"],
+      "description": "Twilio SMS and voice communication"
+    },
+    "sendgrid": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/communication-connector.js", "--provider", "sendgrid"],
+      "env": {
+        "SENDGRID_API_KEY": "${{ secrets.SENDGRID_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "SendGrid email delivery service"
+    },
+    "openai": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/ai-connector.js", "--provider", "openai"],
+      "env": {
+        "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "OpenAI API for GPT models and embeddings"
+    },
+    "anthropic": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/ai-connector.js", "--provider", "anthropic"],
+      "env": {
+        "ANTHROPIC_API_KEY": "${{ secrets.ANTHROPIC_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "Anthropic Claude API integration"
+    },
+    "pinecone": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/vector-db-connector.js", "--provider", "pinecone"],
+      "env": {
+        "PINECONE_API_KEY": "${{ secrets.PINECONE_API_KEY }}",
+        "PINECONE_ENVIRONMENT": "${{ secrets.PINECONE_ENVIRONMENT }}"
+      },
+      "tools": ["*"],
+      "description": "Pinecone vector database for embeddings"
+    },
+    "weaviate": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/vector-db-connector.js", "--provider", "weaviate"],
+      "env": {
+        "WEAVIATE_URL": "${{ secrets.WEAVIATE_URL }}",
+        "WEAVIATE_API_KEY": "${{ secrets.WEAVIATE_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "Weaviate vector database for semantic search"
+    },
+    "elasticsearch": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/search-connector.js", "--provider", "elasticsearch"],
+      "env": {
+        "ELASTICSEARCH_URL": "${{ secrets.ELASTICSEARCH_URL }}",
+        "ELASTICSEARCH_API_KEY": "${{ secrets.ELASTICSEARCH_API_KEY }}"
+      },
+      "tools": ["*"],
+      "description": "Elasticsearch for full-text search and analytics"
+    },
+    "jira": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/project-connector.js", "--provider", "jira"],
+      "env": {
+        "JIRA_URL": "${{ secrets.JIRA_URL }}",
+        "JIRA_EMAIL": "${{ secrets.JIRA_EMAIL }}",
+        "JIRA_API_TOKEN": "${{ secrets.JIRA_API_TOKEN }}"
+      },
+      "tools": ["*"],
+      "description": "Jira project and issue management"
+    },
+    "confluence": {
+      "type": "local",
+      "command": "node",
+      "args": ["mcp-servers/docs-connector.js", "--provider", "confluence"],
+      "env": {
+        "CONFLUENCE_URL": "${{ secrets.CONFLUENCE_URL }}",
+        "CONFLUENCE_EMAIL": "${{ secrets.CONFLUENCE_EMAIL }}",
+        "CONFLUENCE_API_TOKEN": "${{ secrets.CONFLUENCE_API_TOKEN
+
+
+
+
+

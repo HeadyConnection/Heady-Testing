@@ -1,0 +1,33 @@
+@startuml Heady_System_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Heady™ Platform — Level 1: System Context
+footer Eric Haywood | HeadySystems Inc. | φ-Scaled Architecture
+
+Person(user, "User", "End user accessing Heady via web, API, or CLI")
+Person(developer, "Developer", "Third-party developer integrating via API or SDK")
+Person(admin, "Admin", "Platform administrator managing services and content")
+
+System(heady, "Heady™ Platform", "Sovereign AI operating system with 50 microservices, 9 websites, φ-scaled vector memory, and CSL geometric logic")
+
+System_Ext(firebase, "Firebase Auth", "Identity provider: Google OAuth, email/password, anonymous auth")
+System_Ext(gcp, "Google Cloud Platform", "Cloud Run, Cloud SQL (pgvector), Secret Manager, Cloud Storage")
+System_Ext(cloudflare, "Cloudflare", "CDN, Workers, KV, D1, DDoS protection, DNS")
+System_Ext(stripe, "Stripe", "Payment processing for HeadyEX marketplace and subscriptions")
+System_Ext(llm_providers, "LLM Providers", "Claude (Anthropic), GPT-4o (OpenAI), Gemini (Google), Groq, Perplexity Sonar")
+System_Ext(github, "GitHub", "Source control, CI/CD via Actions, container registry")
+System_Ext(drupal, "Drupal CMS", "Headless content management for 13 content types with VectorIndexer webhook")
+
+Rel(user, heady, "Uses", "HTTPS / WSS")
+Rel(developer, heady, "Integrates", "REST API / gRPC / MCP")
+Rel(admin, heady, "Manages", "Admin dashboard")
+
+Rel(heady, firebase, "Authenticates users", "Firebase Admin SDK")
+Rel(heady, gcp, "Runs on", "Cloud Run + Cloud SQL")
+Rel(heady, cloudflare, "Edge caching + CDN", "Workers + KV + D1")
+Rel(heady, stripe, "Processes payments", "Stripe API")
+Rel(heady, llm_providers, "Routes inference", "φ-weighted model selection")
+Rel(heady, github, "CI/CD", "GitHub Actions")
+Rel(heady, drupal, "Content API", "JSON:API + VectorIndexer webhook")
+
+@enduml

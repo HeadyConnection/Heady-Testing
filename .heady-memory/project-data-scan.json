@@ -1,0 +1,39 @@
+{
+    "data":  [
+                 {
+                     "id":  "proj-001",
+                     "structure_score":  100,
+                     "path":  "C:\\Users\\erich\\Heady\\scripts",
+                     "files_indexed":  null,
+                     "directories_indexed":  null,
+                     "category":  "project_structure",
+                     "status":  "optimized"
+                 }
+             ],
+    "insights":  {
+                     "recent_files":  {
+
+                                      },
+                     "total_size":  null,
+                     "largest_files":  {
+
+                                       },
+                     "file_types":  {
+
+                                    }
+                 },
+    "type":  "project_data",
+    "file_count":  null,
+    "categories":  [
+                       "project_structure",
+                       "code_patterns",
+                       "configuration",
+                       "documentation",
+                       "user_preferences",
+                       "workflows",
+                       "dependencies",
+                       "assets",
+                       "secrets"
+                   ],
+    "scan_timestamp":  "2026-02-14T08:14:58Z"
+}

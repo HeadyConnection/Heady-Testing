@@ -1,0 +1,181 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/subdomain-domains.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  HEADY SYSTEMS — SUBDOMAIN ARCHITECTURE                                         ║
+# ║  Uses Cloudflare DNS → Cloud Run for every component                        ║
+# ║  NO localhost • NO 127.0.0.1 • NO internal • NO .local                       ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLOUD RUN — Branded subdomains via Cloudflare DNS → Cloud Run
+# ═══════════════════════════════════════════════════════════════════════════════
+cloud_me:
+  base: headyio.com
+  provider: cloudrun
+  
+  services:
+    manager: api.headyio.com
+    buddy: buddy.headyio.com
+    web: app.headyio.com
+    
+    # AI Nodes
+    jules: jules.headyio.com
+    observer: observer.headyio.com
+    builder: builder.headyio.com
+    atlas: atlas.headyio.com
+    pythia: pythia.headyio.com
+    
+    # Intelligence
+    monte-carlo: montecarlo.headyio.com
+    patterns: patterns.headyio.com
+    critique: critique.headyio.com
+    imagination: imagine.headyio.com
+    stories: stories.headyio.com
+    
+    # Data
+    postgres: db.headyio.com
+    redis: cache.headyio.com
+    events: events.headyio.com
+    
+    # Observability
+    lens: lens.headyio.com
+    metrics: metrics.headyio.com
+    logs: logs.headyio.com
+    traces: traces.headyio.com
+    alerts: alerts.headyio.com
+    
+    # Browsers
+    chrome: chrome.headyio.com
+    firefox: firefox.headyio.com
+    edge: edge.headyio.com
+    safari: safari.headyio.com
+    bridge: bridge.headyio.com
+    
+    # IDEs
+    vscode: vscode.headyio.com
+    jetbrains: jetbrains.headyio.com
+    neovim: neovim.headyio.com
+    sublime: sublime.headyio.com
+    emacs: emacs.headyio.com
+    
+    # Integrations
+    slack: slack.headyio.com
+    discord: discord.headyio.com
+    teams: teams.headyio.com
+    email: mail.headyio.com
+    calendar: calendar.headyio.com
+    github: github.headyio.com
+    notion: notion.headyio.com
+    
+    # MCP
+    mcp: mcp.headyio.com
+    fs: fs.headyio.com
+    shell: shell.headyio.com
+    browser-tools: browser.headyio.com
+    search: search.headyio.com
+    
+    # Business
+    billing: billing.headyio.com
+    telemetry: telemetry.headyio.com
+    
+    # HeadyOS
+    docker: docker.headyio.com
+    metal: metal.headyio.com
+    linux: linux.headyio.com
+    android: android.headyio.com
+    embedded: embedded.headyio.com
+    
+    # Security
+    vault: vault.headyio.com
+    cdn: cdn.headyio.com
+    dns: dns.headyio.com
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLOUDFLARE DNS SETUP
+# ═══════════════════════════════════════════════════════════════════════════════
+cloudflare_setup: |
+  1. Go to https://dash.cloudflare.com
+  2. Select your headyio.com zone
+  3. Add CNAME records pointing subdomains to Cloud Run:
+     
+     CNAME Records (all proxied via Cloudflare):
+     api.headyio.com → heady-manager-bf4q4zywhq-uc.a.run.app
+     buddy.headyio.com → heady-manager-bf4q4zywhq-uc.a.run.app
+     app.headyio.com → heady-edge-gateway-bf4q4zywhq-uc.a.run.app
+     jules.headyio.com → heady-manager-bf4q4zywhq-uc.a.run.app
+     observer.headyio.com → heady-manager-bf4q4zywhq-uc.a.run.app
+     ... (all 50+ subdomains)
+     
+  4. Cloudflare proxy handles SSL termination
+  5. Cloud Run services handle actual traffic
+  6. HeadyManager routes based on Host header
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ROUTING LOGIC — HeadyManager uses Host header to route
+# ═══════════════════════════════════════════════════════════════════════════════
+routing:
+  strategy: host_header
+  
+  rules:
+    - host: api.headyio.com
+      service: heady-manager
+      port: 3300
+      
+    - host: jules.headyio.com
+      service: ai-node
+      node: jules
+      port: 8001
+      
+    - host: observer.headyio.com
+      service: ai-node
+      node: observer
+      port: 8002
+      
+    - host: buddy.headyio.com
+      service: heady-buddy
+      port: 5174
+      
+    - host: app.headyio.com
+      service: frontend
+      port: 5173
+      
+    - host: db.headyio.com
+      service: postgres
+      port: 5432
+      protocol: postgresql
+      
+    - host: cache.headyio.com
+      service: redis
+      port: 6379
+      protocol: redis
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TOTAL: 50+ Custom Branded Subdomains
+# ═══════════════════════════════════════════════════════════════════════════════
+# Every component gets: {component}.headyio.com
+# 
+# Examples:
+#   - jules.headyio.com → 🔪 Code Surgeon
+#   - observer.headyio.com → 👁️ All-Seeing Eye
+#   - buddy.headyio.com → 💜 Perfect Day AI
+#   - api.headyio.com → 🎛️ Sacred Gateway
+#   - app.headyio.com → 🌐 Sacred Portal
+#   - chrome.headyio.com → 🌟 Chrome Companion
+#   - vscode.headyio.com → 💙 VS Code Soul
+#   - slack.headyio.com → 💬 Slack Sage
+# 
+# NO localhost • NO 127.0.0.1 • NO .local • NO .internal
+# NO onrender.com — Render has been decommissioned

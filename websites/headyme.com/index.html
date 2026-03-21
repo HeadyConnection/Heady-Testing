@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeadyMe — Sovereign AI Command Center</title>
+  <meta name="description" content="Your personal AI command center. Orchestrate intelligence, manage vector memory, and deploy autonomous agents across the Heady ecosystem.">
+  <meta name="author" content="Eric Haywood / HeadySystems Inc.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./shared/css/heady-design-system.css">
+  <style>
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--space-8);
+    }
+    .nav-toggle span {
+      display: block;
+      width: 21px;
+      height: 2px;
+      background: var(--color-cloud);
+      margin: 5px 0;
+      transition: all var(--duration-base) var(--ease-phi);
+    }
+    @media (max-width: 987px) {
+      .nav-toggle { display: block; }
+      .nav-links.nav-open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: var(--space-89);
+        left: 0;
+        right: 0;
+        background: rgba(9,9,11,0.95);
+        padding: var(--space-21);
+        border-bottom: 1px solid var(--glass-border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="sacred-bg" class="sacred-bg"></canvas>
+  <header class="nav-header">
+    <nav class="nav-inner">
+      <a href="/" class="nav-logo">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Heady">
+      <circle cx="17" cy="17" r="15" stroke="currentColor" stroke-width="1.5" opacity="0.382"/>
+      <circle cx="17" cy="17" r="9.27" stroke="#d4a843" stroke-width="1.5"/>
+      <circle cx="17" cy="17" r="5.73" fill="#d4a843" opacity="0.618"/>
+      <path d="M17 2 L17 32 M2 17 L32 17" stroke="currentColor" stroke-width="0.5" opacity="0.236"/>
+    </svg>
+        <span>HeadyMe</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#agents">Agents</a></li>
+        <li><a href="#memory">Memory</a></li>
+        <li><a href="#deploy">Deploy</a></li>
+        <li><a href="https://docs.headysystems.com">Docs</a></li>
+        <li><button id="nav-signin-btn" class="btn btn-primary" style="padding: var(--space-8) var(--space-21);" onclick="openAuth('signin')">Sign In</button></li>
+      </ul>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="hero-content fade-in">
+        <span class="badge badge-gold">Sovereign AI Platform</span>
+        <h1 class="hero-title">Your Intelligence,<br>Your Control</h1>
+        <p class="hero-subtitle">HeadyMe is your personal AI command center. Orchestrate 17 swarms, manage 384-dimensional vector memory, and deploy autonomous agents — all from one unified interface.</p>
+        <div style="display: flex; gap: var(--space-21); justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="openAuth('signup')">Get Started</button>
+          <a href="#features" class="btn btn-secondary">Explore Features</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="dashboard">
+      <div class="container">
+        <div class="stats-bar fade-in">
+          <div class="stat-item">
+            <div class="stat-value" data-count="17">0</div>
+            <div class="stat-label">Active Swarms</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" data-count="384" data-suffix="D">0</div>
+            <div class="stat-label">Vector Dimensions</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" data-count="67">0</div>
+            <div class="stat-label">Services Online</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" data-count="51">0</div>
+            <div class="stat-label">Provisional Patents</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="container">
+        <span class="section-label fade-in">Core Capabilities</span>
+        <h2 class="section-title fade-in">Everything You Need to Command Intelligence</h2>
+        <p class="section-desc fade-in">Built on Sacred Geometry principles with phi-scaled architecture. Every constant derived from the golden ratio.</p>
+
+        <div class="sacred-grid sacred-grid-3">
+          <div class="feature-card fade-in">
+            <div class="feature-icon feature-icon-gold">&#x2726;</div>
+            <h4 class="feature-title">17-Swarm Orchestration</h4>
+            <p class="feature-desc">Coordinate specialized agent swarms across research, coding, deployment, security, and creative domains simultaneously.</p>
+          </div>
+          <div class="feature-card fade-in">
+            <div class="feature-icon feature-icon-violet">&#x29C8;</div>
+            <h4 class="feature-title">3D Vector Memory</h4>
+            <p class="feature-desc">384-dimensional embeddings projected into navigable 3D space. Explore your knowledge graphically with semantic clustering.</p>
+          </div>
+          <div class="feature-card fade-in">
+            <div class="feature-icon feature-icon-teal">&#x2B21;</div>
+            <h4 class="feature-title">CSL Logic Engine</h4>
+            <p class="feature-desc">Continuous Semantic Logic gates using geometric vector operations. AND via cosine, OR via superposition, NOT via orthogonal projection.</p>
+          </div>
+          <div class="feature-card fade-in">
+            <div class="feature-icon feature-icon-blue">&#x2B22;</div>
+            <h4 class="feature-title">Liquid Gateway</h4>
+            <p class="feature-desc">Race multiple AI providers simultaneously. Fastest response wins. Automatic failover with phi-exponential backoff.</p>
+          </div>
+          <div class="feature-card fade-in">
+            <div class="feature-icon feature-icon-emerald">&#x2B23;</div>
+            <h4 class="feature-title">Auto-Success Engine</h4>
+            <p class="feature-desc">Self-improving pipeline that continuously discovers, builds, and optimizes. Zero human intervention required for routine operations.</p>
+          </div>
+          <div class="feature-card fade-in">
+            <div class="feature-icon feature-icon-rose">&#x2756;</div>
+            <h4 class="feature-title">Sacred Geometry UI</h4>
+            <p class="feature-desc">Every spacing value is Fibonacci. Every proportion follows phi. Zero magic numbers in the entire codebase.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="agents" style="background: var(--gradient-void);">
+      <div class="container">
+        <span class="section-label fade-in">Agent Architecture</span>
+        <h2 class="section-title fade-in">The Heady Ecosystem</h2>
+        <div class="sacred-grid sacred-grid-phi fade-in">
+          <div>
+            <p class="section-desc">Nine interconnected platforms forming a complete sovereign AI operating system. Each domain serves a specialized function while sharing the same vector memory backbone.</p>
+            <div class="code-block" style="margin-top: var(--space-34);">
+<span style="color:var(--color-phi-gold);">const</span> ecosystem = {
+  command:   <span style="color:var(--color-heady-teal);">'headyme.com'</span>,
+  engine:    <span style="color:var(--color-heady-teal);">'headysystems.com'</span>,
+  intel:     <span style="color:var(--color-heady-teal);">'heady-ai.com'</span>,
+  os:        <span style="color:var(--color-heady-teal);">'headyos.com'</span>,
+  nonprofit: <span style="color:var(--color-heady-teal);">'headyconnection.org'</span>,
+  community: <span style="color:var(--color-heady-teal);">'headyconnection.com'</span>,
+  exchange:  <span style="color:var(--color-heady-teal);">'headyex.com'</span>,
+  finance:   <span style="color:var(--color-heady-teal);">'headyfinance.com'</span>,
+  admin:     <span style="color:var(--color-heady-teal);">'admin.headysystems.com'</span>
+};
+            </div>
+          </div>
+          <div class="glass-card">
+            <h4 style="margin-bottom: var(--space-21);">Service Health</h4>
+            <div id="health-monitor" style="display:flex;flex-direction:column;gap:var(--space-13);">
+              <div data-service="api-gateway" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-8) 0;border-bottom:1px solid var(--glass-border);">
+                <span style="font-size:var(--text-sm);">API Gateway :3316</span>
+                <span class="status-dot status-healthy"></span>
+              </div>
+              <div data-service="auth-server" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-8) 0;border-bottom:1px solid var(--glass-border);">
+                <span style="font-size:var(--text-sm);">Auth Server :3338</span>
+                <span class="status-dot status-healthy"></span>
+              </div>
+              <div data-service="vector-memory" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-8) 0;border-bottom:1px solid var(--glass-border);">
+                <span style="font-size:var(--text-sm);">Vector Memory :3320</span>
+                <span class="status-dot status-healthy"></span>
+              </div>
+              <div data-service="csl-engine" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-8) 0;border-bottom:1px solid var(--glass-border);">
+                <span style="font-size:var(--text-sm);">CSL Engine :3322</span>
+                <span class="status-dot status-healthy"></span>
+              </div>
+              <div data-service="conductor" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-8) 0;border-bottom:1px solid var(--glass-border);">
+                <span style="font-size:var(--text-sm);">Conductor :3324</span>
+                <span class="status-dot status-healthy"></span>
+              </div>
+              <div data-service="search" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-8) 0;border-bottom:1px solid var(--glass-border);">
+                <span style="font-size:var(--text-sm);">Search Service :3326</span>
+                <span class="status-dot status-healthy"></span>
+              </div>
+              <div data-service="billing" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-8) 0;">
+                <span style="font-size:var(--text-sm);">Billing Service :3353</span>
+                <span class="status-dot status-healthy"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="memory">
+      <div class="container">
+        <span class="section-label fade-in">Vector Memory</span>
+        <h2 class="section-title fade-in">Explore Your Knowledge in 3D Space</h2>
+        <div class="glass-card fade-in" style="min-height: 377px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+          <canvas id="vector-viz" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+          <div style="position:relative;z-index:2;text-align:center;">
+            <div class="stat-value" style="font-size:var(--text-4xl);">384D</div>
+            <p style="color:var(--color-fog);margin:var(--space-8) 0 0;">Vector dimensions projected to 3D navigable space</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="deploy" style="background: var(--gradient-void);">
+      <div class="container" style="text-align:center;">
+        <span class="section-label fade-in">Get Started</span>
+        <h2 class="section-title fade-in" style="max-width:none;">Deploy Your Sovereign AI Today</h2>
+        <p class="section-desc fade-in" style="margin:0 auto var(--space-55);">No vendor lock-in. Your data stays yours. Your models, your rules, your intelligence.</p>
+        <div style="display:flex;gap:var(--space-21);justify-content:center;flex-wrap:wrap;" class="fade-in">
+          <button class="btn btn-primary" onclick="openAuth('signup')">Start Free</button>
+          <a href="https://docs.headysystems.com" class="btn btn-secondary">Read Documentation</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo" style="margin-bottom: var(--space-21);">
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Heady">
+      <circle cx="17" cy="17" r="15" stroke="currentColor" stroke-width="1.5" opacity="0.382"/>
+      <circle cx="17" cy="17" r="9.27" stroke="#d4a843" stroke-width="1.5"/>
+      <circle cx="17" cy="17" r="5.73" fill="#d4a843" opacity="0.618"/>
+      <path d="M17 2 L17 32 M2 17 L32 17" stroke="currentColor" stroke-width="0.5" opacity="0.236"/>
+    </svg>
+            <span>HeadyMe</span>
+          </div>
+          <p>Your sovereign AI command center. Built on Sacred Geometry.</p>
+        </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <ul>
+          <li><a href="#dashboard">Dashboard</a></li>
+          <li><a href="#agents">Agents</a></li>
+          <li><a href="#memory">Memory</a></li>
+          <li><a href="#deploy">Deploy</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Ecosystem</h5>
+        <ul>
+          <li><a href="https://headysystems.com">HeadySystems</a></li>
+          <li><a href="https://heady-ai.com">HeadyAI</a></li>
+          <li><a href="https://headyos.com">HeadyOS</a></li>
+          <li><a href="https://headyconnection.org">HeadyConnection</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">Status</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 HeadySystems Inc. All rights reserved. 51 Provisional Patents.</span>
+        <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" style="color: var(--color-fog);">
+          Created with Perplexity Computer
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ AUTH MODAL ═══ -->
+  <div id="auth-overlay" class="auth-overlay" onclick="if(event.target===this)closeAuth()">
+    <div class="auth-modal">
+      <button class="auth-close" onclick="closeAuth()" aria-label="Close">✕</button>
+
+      <!-- Sign In / Sign Up Tabs -->
+      <div id="auth-panel" class="auth-panel">
+        <div class="auth-tabs">
+          <button id="tab-signin" class="auth-tab active" onclick="switchAuthTab('signin')">Sign In</button>
+          <button id="tab-signup" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+        </div>
+
+        <div id="auth-signin" class="auth-content active">
+          <h3 style="margin-bottom:var(--space-21);text-align:center;">Welcome back</h3>
+          <form onsubmit="handleSignIn(event)">
+            <div class="auth-field">
+              <label for="signin-email">Email</label>
+              <input type="email" id="signin-email" required placeholder="you@example.com">
+            </div>
+            <div class="auth-field">
+              <label for="signin-pass">Password</label>
+              <input type="password" id="signin-pass" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:var(--space-13);">Sign In</button>
+          </form>
+          <div class="auth-divider"><span>or continue with</span></div>
+          <div class="oauth-grid">
+            <button class="oauth-btn" onclick="oauthSignIn('google')">🔵 Google</button>
+            <button class="oauth-btn" onclick="oauthSignIn('github')">⚫ GitHub</button>
+            <button class="oauth-btn" onclick="oauthSignIn('microsoft')">🟦 Microsoft</button>
+            <button class="oauth-btn" onclick="oauthSignIn('discord')">🟣 Discord</button>
+          </div>
+          <p style="text-align:center;margin-top:var(--space-13);color:var(--color-fog);font-size:var(--text-sm);">Don't have an account? <a href="#" onclick="switchAuthTab('signup');return false" style="color:var(--color-phi-gold);">Sign up free</a></p>
+        </div>
+
+        <div id="auth-signup" class="auth-content">
+          <h3 style="margin-bottom:var(--space-21);text-align:center;">Create your account</h3>
+          <form onsubmit="handleSignUp(event)">
+            <div class="auth-field">
+              <label for="signup-name">Full Name</label>
+              <input type="text" id="signup-name" required placeholder="Eric Haywood">
+            </div>
+            <div class="auth-field">
+              <label for="signup-email">Email</label>
+              <input type="email" id="signup-email" required placeholder="you@example.com">
+            </div>
+            <div class="auth-field">
+              <label for="signup-pass">Password</label>
+              <input type="password" id="signup-pass" required minlength="8" placeholder="Min 8 characters">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:var(--space-13);">Create Account</button>
+          </form>
+          <div class="auth-divider"><span>or continue with</span></div>
+          <div class="oauth-grid">
+            <button class="oauth-btn" onclick="oauthSignIn('google')">🔵 Google</button>
+            <button class="oauth-btn" onclick="oauthSignIn('github')">⚫ GitHub</button>
+            <button class="oauth-btn" onclick="oauthSignIn('microsoft')">🟦 Microsoft</button>
+            <button class="oauth-btn" onclick="oauthSignIn('discord')">🟣 Discord</button>
+          </div>
+          <p style="text-align:center;margin-top:var(--space-13);color:var(--color-fog);font-size:var(--text-sm);">Already have an account? <a href="#" onclick="switchAuthTab('signin');return false" style="color:var(--color-phi-gold);">Sign in</a></p>
+        </div>
+      </div>
+
+      <!-- 3-Step Onboarding (shown after signup) -->
+      <div id="onboarding-panel" class="auth-panel" style="display:none;">
+        <div class="onboarding-progress">
+          <div class="onboarding-step active" data-step="1"><span>1</span> Welcome</div>
+          <div class="onboarding-step" data-step="2"><span>2</span> Choose Plan</div>
+          <div class="onboarding-step" data-step="3"><span>3</span> Connect</div>
+        </div>
+
+        <!-- Step 1: Welcome -->
+        <div id="ob-step-1" class="ob-step active">
+          <div style="text-align:center;">
+            <div style="font-size:var(--text-4xl);margin-bottom:var(--space-13);">✦</div>
+            <h3>Welcome to HeadyMe</h3>
+            <p style="color:var(--color-silver);margin:var(--space-13) 0 var(--space-34);max-width:380px;margin-left:auto;margin-right:auto;">Your sovereign AI command center. Orchestrate 17 swarms, manage vector memory, and deploy autonomous agents.</p>
+            <div class="ob-features">
+              <div class="ob-feature"><span class="ob-icon">⬡</span> 17-Swarm Orchestration</div>
+              <div class="ob-feature"><span class="ob-icon">◈</span> 384D Vector Memory</div>
+              <div class="ob-feature"><span class="ob-icon">✧</span> CSL Logic Engine</div>
+              <div class="ob-feature"><span class="ob-icon">◇</span> Auto-Success Engine</div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:var(--space-34);" onclick="goOnboardingStep(2)">Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Choose Plan -->
+        <div id="ob-step-2" class="ob-step">
+          <h3 style="text-align:center;margin-bottom:var(--space-21);">Choose Your Plan</h3>
+          <div class="plan-grid">
+            <div class="plan-card" onclick="selectPlan(this,'free')">
+              <div class="plan-name">Explorer</div>
+              <div class="plan-price">Free</div>
+              <ul class="plan-features">
+                <li>3 Active Agents</li>
+                <li>1K Vector Embeddings</li>
+                <li>Community Support</li>
+              </ul>
+            </div>
+            <div class="plan-card plan-featured" onclick="selectPlan(this,'pro')">
+              <div class="plan-badge">Most Popular</div>
+              <div class="plan-name">Sovereign</div>
+              <div class="plan-price">$21<span>/mo</span></div>
+              <ul class="plan-features">
+                <li>Unlimited Agents</li>
+                <li>100K Vector Embeddings</li>
+                <li>4× Colab GPU Access</li>
+                <li>Priority Support</li>
+              </ul>
+            </div>
+            <div class="plan-card" onclick="selectPlan(this,'enterprise')">
+              <div class="plan-name">Enterprise</div>
+              <div class="plan-price">Custom</div>
+              <ul class="plan-features">
+                <li>Dedicated Infrastructure</li>
+                <li>Unlimited Everything</li>
+                <li>SLA + White Glove</li>
+              </ul>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:var(--space-21);" onclick="goOnboardingStep(3)">Continue</button>
+        </div>
+
+        <!-- Step 3: Connect -->
+        <div id="ob-step-3" class="ob-step">
+          <h3 style="text-align:center;margin-bottom:var(--space-8);">Connect Your Tools</h3>
+          <p style="text-align:center;color:var(--color-fog);margin-bottom:var(--space-21);font-size:var(--text-sm);">Optional — connect now or later from settings</p>
+          <div class="connect-grid">
+            <button class="connect-btn" onclick="toggleConnect(this)"><span>⚫</span> GitHub</button>
+            <button class="connect-btn" onclick="toggleConnect(this)"><span>🟠</span> OpenAI API</button>
+            <button class="connect-btn" onclick="toggleConnect(this)"><span>🟤</span> Anthropic API</button>
+            <button class="connect-btn" onclick="toggleConnect(this)"><span>🔵</span> Google AI</button>
+            <button class="connect-btn" onclick="toggleConnect(this)"><span>⬛</span> VS Code</button>
+            <button class="connect-btn" onclick="toggleConnect(this)"><span>🟣</span> Discord Bot</button>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:var(--space-34);" onclick="completeOnboarding()">Launch Dashboard →</button>
+          <button class="btn btn-secondary" style="width:100%;margin-top:var(--space-8);" onclick="completeOnboarding()">Skip for Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AUTH + ONBOARDING STYLES ═══ -->
+  <style>
+    .auth-overlay {
+      display:none; position:fixed; inset:0; z-index:9999;
+      background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);
+      align-items:center; justify-content:center;
+    }
+    .auth-overlay.open { display:flex; animation: fadeIn 0.2s ease; }
+    .auth-modal {
+      background:var(--color-obsidian); border:1px solid var(--glass-border);
+      border-radius:var(--space-13); padding:var(--space-34);
+      width:min(480px,92vw); max-height:90vh; overflow-y:auto;
+      position:relative; box-shadow:0 var(--space-34) var(--space-89) rgba(0,0,0,0.5);
+      animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .auth-close {
+      position:absolute; top:var(--space-13); right:var(--space-13);
+      background:none; border:none; color:var(--color-fog); font-size:var(--text-lg);
+      cursor:pointer; padding:var(--space-5); line-height:1;
+    }
+    .auth-close:hover { color:var(--color-white); }
+    .auth-tabs {
+      display:flex; gap:var(--space-3); margin-bottom:var(--space-21);
+      background:var(--color-void); border-radius:var(--space-8); padding:var(--space-3);
+    }
+    .auth-tab {
+      flex:1; padding:var(--space-8) var(--space-13); border:none;
+      background:transparent; color:var(--color-fog); border-radius:var(--space-5);
+      cursor:pointer; font-size:var(--text-sm); font-weight:500; transition:all 0.2s;
+    }
+    .auth-tab.active { background:var(--color-graphite); color:var(--color-white); }
+    .auth-content { display:none; }
+    .auth-content.active { display:block; animation: fadeIn 0.2s ease; }
+    .auth-field { margin-bottom:var(--space-13); }
+    .auth-field label {
+      display:block; font-size:var(--text-sm); color:var(--color-silver);
+      margin-bottom:var(--space-5);
+    }
+    .auth-field input {
+      width:100%; padding:var(--space-8) var(--space-13);
+      background:var(--color-void); border:1px solid var(--color-ash);
+      border-radius:var(--space-5); color:var(--color-white);
+      font-size:var(--text-base); outline:none; transition:border-color 0.2s;
+      box-sizing:border-box;
+    }
+    .auth-field input:focus { border-color:var(--color-phi-gold); }
+    .auth-divider {
+      display:flex; align-items:center; gap:var(--space-13);
+      margin:var(--space-21) 0; color:var(--color-fog); font-size:var(--text-sm);
+    }
+    .auth-divider::before, .auth-divider::after {
+      content:''; flex:1; height:1px; background:var(--color-ash);
+    }
+    .oauth-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-8); }
+    .oauth-btn {
+      padding:var(--space-8) var(--space-13); background:var(--color-void);
+      border:1px solid var(--color-ash); border-radius:var(--space-5);
+      color:var(--color-cloud); font-size:var(--text-sm); cursor:pointer;
+      transition:all 0.2s;
+    }
+    .oauth-btn:hover { border-color:var(--color-phi-gold); background:var(--color-graphite); }
+
+    /* Onboarding */
+    .onboarding-progress {
+      display:flex; justify-content:center; gap:var(--space-21);
+      margin-bottom:var(--space-34);
+    }
+    .onboarding-step {
+      display:flex; align-items:center; gap:var(--space-5);
+      color:var(--color-fog); font-size:var(--text-sm);
+    }
+    .onboarding-step span {
+      width:24px; height:24px; border-radius:50%; display:inline-flex;
+      align-items:center; justify-content:center;
+      background:var(--color-graphite); font-size:var(--text-xs); font-weight:600;
+    }
+    .onboarding-step.active { color:var(--color-phi-gold); }
+    .onboarding-step.active span { background:var(--color-phi-gold); color:var(--color-void); }
+    .onboarding-step.done span { background:var(--color-heady-emerald); color:var(--color-void); }
+    .ob-step { display:none; }
+    .ob-step.active { display:block; animation: fadeIn 0.3s ease; }
+    .ob-features {
+      display:grid; grid-template-columns:1fr 1fr; gap:var(--space-8);
+      text-align:left;
+    }
+    .ob-feature {
+      padding:var(--space-13); background:var(--color-void);
+      border:1px solid var(--glass-border); border-radius:var(--space-8);
+      font-size:var(--text-sm); color:var(--color-silver);
+    }
+    .ob-icon { margin-right:var(--space-5); }
+    .plan-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-13); }
+    @media(max-width:600px) { .plan-grid { grid-template-columns:1fr; } }
+    .plan-card {
+      padding:var(--space-21); background:var(--color-void);
+      border:1px solid var(--color-ash); border-radius:var(--space-8);
+      cursor:pointer; transition:all 0.2s; text-align:center; position:relative;
+    }
+    .plan-card:hover, .plan-card.selected { border-color:var(--color-phi-gold); }
+    .plan-card.selected { background:rgba(212,168,67,0.05); }
+    .plan-featured { border-color:var(--color-phi-gold); }
+    .plan-badge {
+      position:absolute; top:calc(-1 * var(--space-8)); left:50%; transform:translateX(-50%);
+      background:var(--gradient-gold); color:var(--color-void);
+      padding:var(--space-2) var(--space-13); border-radius:var(--space-13);
+      font-size:var(--text-xs); font-weight:600;
+    }
+    .plan-name { font-weight:600; margin-bottom:var(--space-5); color:var(--color-white); }
+    .plan-price {
+      font-size:var(--text-2xl); font-weight:700; color:var(--color-phi-gold);
+      margin-bottom:var(--space-13);
+    }
+    .plan-price span { font-size:var(--text-sm); color:var(--color-fog); font-weight:400; }
+    .plan-features {
+      list-style:none; padding:0; text-align:left; font-size:var(--text-sm);
+      color:var(--color-silver);
+    }
+    .plan-features li { padding:var(--space-3) 0; }
+    .plan-features li::before { content:'✓ '; color:var(--color-heady-emerald); }
+    .connect-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-8); }
+    .connect-btn {
+      padding:var(--space-13); background:var(--color-void);
+      border:1px solid var(--color-ash); border-radius:var(--space-8);
+      color:var(--color-cloud); cursor:pointer; transition:all 0.2s;
+      font-size:var(--text-sm);
+    }
+    .connect-btn:hover { border-color:var(--color-heady-teal); }
+    .connect-btn.connected { border-color:var(--color-heady-emerald); background:rgba(52,211,153,0.05); }
+    .connect-btn.connected::after { content:' ✓'; color:var(--color-heady-emerald); }
+
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp { from{opacity:0;transform:translateY(21px)} to{opacity:1;transform:translateY(0)} }
+  </style>
+
+  <!-- ═══ AUTH + ONBOARDING LOGIC ═══ -->
+  <script>
+    function openAuth(mode) {
+      document.getElementById('auth-overlay').classList.add('open');
+      document.getElementById('auth-panel').style.display = '';
+      document.getElementById('onboarding-panel').style.display = 'none';
+      switchAuthTab(mode || 'signin');
+    }
+    function closeAuth() {
+      document.getElementById('auth-overlay').classList.remove('open');
+    }
+    function switchAuthTab(tab) {
+      document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+      document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+      document.getElementById('auth-signin').classList.toggle('active', tab === 'signin');
+      document.getElementById('auth-signup').classList.toggle('active', tab === 'signup');
+    }
+    function handleSignIn(e) {
+      e.preventDefault();
+      /* Wire to real auth endpoint here */
+      window.location.href = '#dashboard';
+      closeAuth();
+    }
+    function handleSignUp(e) {
+      e.preventDefault();
+      /* After signup, show onboarding */
+      document.getElementById('auth-panel').style.display = 'none';
+      document.getElementById('onboarding-panel').style.display = '';
+      goOnboardingStep(1);
+    }
+    function oauthSignIn(provider) {
+      /* Wire to real OAuth endpoint here — for now, start onboarding */
+      document.getElementById('auth-panel').style.display = 'none';
+      document.getElementById('onboarding-panel').style.display = '';
+      goOnboardingStep(1);
+    }
+    function goOnboardingStep(n) {
+      document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.onboarding-step').forEach((s, i) => {
+        const step = i + 1;
+        s.classList.toggle('active', step === n);
+        s.classList.toggle('done', step < n);
+      });
+      const el = document.getElementById('ob-step-' + n);
+      if (el) el.classList.add('active');
+    }
+    function selectPlan(el, plan) {
+      document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    function toggleConnect(el) {
+      el.classList.toggle('connected');
+    }
+    function completeOnboarding() {
+      closeAuth();
+      document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+    }
+    /* Keyboard: Escape closes modal */
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
+  </script>
+
+  <script>
+    (function() {
+      const canvas = document.getElementById('vector-viz');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const points = [];
+      const PHI = 1.618033988749895;
+      const count = 89;
+
+      function resize() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      for (let i = 0; i < count; i++) {
+        const angle = i * PHI * Math.PI * 2;
+        const r = Math.sqrt(i) * 13;
+        points.push({
+          x: Math.cos(angle) * r,
+          y: Math.sin(angle) * r,
+          z: (Math.random() - 0.5) * 144,
+          hue: (i / count) * 60 + 30
+        });
+      }
+
+      let t = 0;
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        t += 0.003;
+
+        const sorted = points.map((p, i) => {
+          const cos = Math.cos(t);
+          const sin = Math.sin(t);
+          const rx = p.x * cos - p.z * sin;
+          const rz = p.x * sin + p.z * cos;
+          const scale = 300 / (300 + rz);
+          return { sx: cx + rx * scale, sy: cy + p.y * scale, scale, hue: p.hue, idx: i };
+        }).sort((a, b) => a.scale - b.scale);
+
+        for (let i = 0; i < sorted.length; i++) {
+          const p = sorted[i];
+          const r = Math.max(1, p.scale * 3);
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+          ctx.fillStyle = 'hsla(' + p.hue + ', 70%, 60%, ' + (p.scale * 0.618) + ')';
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+  </script>
+  <script src="./shared/js/heady-core.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+name = "heady-edge"
+main = "index.js"
+compatibility_date = "2024-12-01"
+
+[vars]
+ENVIRONMENT = "production"
+
+[[kv_namespaces]]
+binding = "HEADY_KV"
+id = "YOUR_KV_NAMESPACE_ID"

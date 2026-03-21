@@ -1,0 +1,149 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Heady™ Universal Dockerfile — Multi-Stage Build
+# Founded by Eric Haywood — HeadySystems Inc.
+#
+# Multi-stage from node:22-alpine. HEADY_ROLE morphs behavior at runtime.
+# Target: < 100MB production image.
+# ALL numeric constants from Fibonacci/φ.
+#
+# FIB references:
+#   FIB[4]=5 (max retries), FIB[5]=8 (health interval),
+#   FIB[8]=34 (health timeout), FIB[7]=21 (start period)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE 1: Builder — install dependencies, compile TypeScript if present
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FROM node:22-alpine AS builder
+
+# System dependencies for native modules (sharp, bcrypt, etc.)
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    curl \
+    git
+
+WORKDIR /build
+
+# Copy package manifests first for layer caching
+COPY package.json package-lock.json* ./
+
+# Install ALL dependencies (including devDependencies for build)
+RUN npm ci --ignore-scripts && \
+    npm rebuild && \
+    npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Run build if build script exists (TypeScript, bundling, etc.)
+RUN if [ -f "tsconfig.json" ]; then \
+      npx tsc --noEmit || true; \
+    fi && \
+    if npm run build --if-present 2>/dev/null; then \
+      echo "Build completed"; \
+    else \
+      echo "No build step required"; \
+    fi
+
+# Prune devDependencies for production
+RUN npm prune --production && \
+    npm cache clean --force
+
+# Remove unnecessary files to shrink image
+RUN rm -rf \
+    .git \
+    .github \
+    .husky \
+    test \
+    tests \
+    __tests__ \
+    *.test.js \
+    *.spec.js \
+    docs \
+    .eslintrc* \
+    .prettierrc* \
+    tsconfig.json \
+    jest.config* \
+    .nyc_output \
+    coverage
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE 2: Production — minimal runtime image
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FROM node:22-alpine AS production
+
+# Security: run as non-root, UID 1618 (derived from PHI * 1000)
+RUN addgroup -g 1618 -S heady && \
+    adduser -u 1618 -S heady -G heady -h /app -s /bin/false
+
+# Minimal runtime dependencies
+RUN apk add --no-cache \
+    curl \
+    tini \
+    dumb-init
+
+WORKDIR /app
+
+# Copy built artifacts from builder
+COPY --from=builder --chown=heady:heady /build/node_modules ./node_modules
+COPY --from=builder --chown=heady:heady /build/package.json ./package.json
+COPY --from=builder --chown=heady:heady /build/ ./
+
+# ─── PHI-MATH ENVIRONMENT CONSTANTS ─────────────────────────────────────────
+# All derived from φ = 1.6180339887498948 and Fibonacci sequence
+ENV NODE_ENV=production \
+    PHI=1.6180339887498948 \
+    SEED=42 \
+    TEMPERATURE=0 \
+    FOUNDER="Eric Haywood" \
+    HEADY_ROLE=default \
+    HEADY_PORT=3310 \
+    HEADY_DOMAIN=general \
+    HEADY_RING=outer \
+    HEADY_MAX_RETRIES=5 \
+    HEADY_BACKOFF_BASE_MS=1618 \
+    HEADY_HEALTH_INTERVAL_S=8 \
+    HEADY_CIRCUIT_BREAKER_THRESHOLD=89 \
+    HEADY_POOL_SIZE=34 \
+    HEADY_RATE_LIMIT=233 \
+    HEADY_SESSION_TTL_S=2584 \
+    GCP_PROJECT=gen-lang-client-0920560496 \
+    GCP_REGION=us-east1
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/tmp /app/data && \
+    chown -R heady:heady /app
+
+# Switch to non-root user
+USER heady
+
+# Expose the configurable port (overridden per service via HEADY_PORT)
+EXPOSE ${HEADY_PORT}
+
+# Health check: interval=8s (FIB[5]), timeout=5s (FIB[4]),
+# retries=5 (FIB[4]), start_period=21s (FIB[7])
+HEALTHCHECK --interval=8s --timeout=5s --retries=5 --start-period=21s \
+    CMD curl -sf http://localhost:${HEADY_PORT}/health || exit 1
+
+# Use tini for proper PID 1 signal handling
+ENTRYPOINT ["tini", "--"]
+
+# Default command — uses HEADY_ROLE to determine which service to start
+# max-old-space-size=34 (FIB[8])
+CMD ["node", "--experimental-vm-modules", "--max-old-space-size=34", "server.js"]
+
+# ─── LABELS ──────────────────────────────────────────────────────────────────
+LABEL org.opencontainers.image.title="Heady Universal Service" \
+      org.opencontainers.image.description="Phi-scaled universal service container — morphs via HEADY_ROLE" \
+      org.opencontainers.image.vendor="HeadySystems Inc." \
+      org.opencontainers.image.authors="Eric Haywood <eric@headysystems.com>" \
+      org.opencontainers.image.source="https://github.com/HeadyMe/heady-max-potential" \
+      org.opencontainers.image.version="1.0.0" \
+      com.heady.phi="1.6180339887498948" \
+      com.heady.seed="42" \
+      com.heady.temperature="0" \
+      com.heady.founder="Eric Haywood"

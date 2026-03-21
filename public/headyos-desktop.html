@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeadyOS Desktop</title>
+  <link rel="stylesheet" href="/sacred-geometry.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--heady-void);
+      color: var(--heady-white);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ==================== TOP MENU BAR ==================== */
+    #menuBar {
+      height: 40px;
+      background: rgba(10, 10, 26, 0.95);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .menu-left, .menu-center, .menu-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .menu-logo {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--heady-gold);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .workspace-label {
+      font-size: 12px;
+      color: var(--heady-cyan);
+      font-weight: 500;
+    }
+
+    .menu-clock {
+      font-size: 11px;
+      color: var(--heady-gray);
+      font-family: 'Monaco', monospace;
+    }
+
+    .connection-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00FF00;
+      box-shadow: 0 0 8px #00FF00;
+    }
+
+    .menu-right a {
+      color: var(--heady-gold);
+      text-decoration: none;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-right a:hover {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: var(--heady-gold);
+    }
+
+    /* ==================== MAIN LAYOUT ==================== */
+    .desktop-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* LEFT SIDEBAR */
+    #sidebar {
+      width: 260px;
+      background: rgba(10, 10, 26, 0.8);
+      border-right: 1px solid rgba(212, 175, 55, 0.2);
+      overflow-y: auto;
+      flex-shrink: 0;
+      transition: width 0.3s ease;
+    }
+
+    #sidebar.collapsed {
+      width: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-section {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .sidebar-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--heady-gold);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .sidebar-item {
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      background: rgba(0, 217, 255, 0.05);
+      color: var(--heady-white);
+    }
+
+    .sidebar-item:hover {
+      background: rgba(0, 217, 255, 0.15);
+      border-color: var(--heady-cyan);
+      transform: translateX(4px);
+    }
+
+    .sidebar-item.active {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--heady-gold);
+      color: var(--heady-gold);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+    }
+
+    /* CENTER MAIN AREA */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Tab Navigation */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      background: rgba(10, 10, 26, 0.7);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 0;
+      height: 44px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .tab-button {
+      padding: 0 20px;
+      height: 100%;
+      border: none;
+      background: transparent;
+      color: var(--heady-gray);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      text-transform: capitalize;
+    }
+
+    .tab-button:hover {
+      color: var(--heady-white);
+      background: rgba(0, 217, 255, 0.05);
+    }
+
+    .tab-button.active {
+      color: var(--heady-gold);
+      border-bottom-color: var(--heady-gold);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Chat Panel */
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      gap: 15px;
+    }
+
+    .chat-history {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .chat-message {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .chat-message.user {
+      justify-content: flex-end;
+    }
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    .chat-message.user .message-bubble {
+      background: rgba(212, 175, 55, 0.2);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--heady-gold);
+    }
+
+    .chat-message.assistant .message-bubble {
+      background: rgba(0, 217, 255, 0.1);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      color: var(--heady-cyan);
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--heady-cyan);
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-8px); }
+    }
+
+    /* Suggestions */
+    .suggestions-area {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .suggestion-chip {
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: rgba(0, 217, 255, 0.1);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      color: var(--heady-cyan);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .suggestion-chip:hover {
+      background: rgba(0, 217, 255, 0.2);
+      border-color: var(--heady-cyan);
+      box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+    }
+
+    /* Chat Input */
+    .chat-input-area {
+      display: flex;
+      gap: 10px;
+    }
+
+    #chatInput {
+      flex: 1;
+      background: rgba(26, 26, 62, 0.6);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 16px;
+      padding: 12px 16px;
+      color: var(--heady-white);
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      max-height: 100px;
+    }
+
+    #chatInput::placeholder {
+      color: var(--heady-gray);
+    }
+
+    #chatInput:focus {
+      outline: none;
+      border-color: var(--heady-cyan);
+      box-shadow: 0 0 12px rgba(0, 217, 255, 0.2);
+      background: rgba(26, 26, 62, 0.8);
+    }
+
+    #sendButton {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(0, 217, 255, 0.2));
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 16px;
+      color: var(--heady-gold);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    #sendButton:hover {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.5), rgba(0, 217, 255, 0.3));
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+    }
+
+    /* Dashboard View */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .dashboard-card {
+      background: rgba(26, 26, 62, 0.6);
+      border: 1px solid rgba(0, 217, 255, 0.2);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--heady-cyan);
+      box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+    }
+
+    .card-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--heady-gold);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .card-value {
+      font-size: 28px;
+      color: var(--heady-cyan);
+      font-weight: 300;
+      margin-bottom: 12px;
+    }
+
+    .card-label {
+      font-size: 11px;
+      color: var(--heady-gray);
+      margin-bottom: 12px;
+    }
+
+    .health-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #00FF00;
+      box-shadow: 0 0 8px #00FF00;
+      margin-right: 8px;
+    }
+
+    .health-indicator.warning {
+      background: #FFD700;
+      box-shadow: 0 0 8px #FFD700;
+    }
+
+    .health-indicator.critical {
+      background: #FF0000;
+      box-shadow: 0 0 8px #FF0000;
+    }
+
+    /* Resource Gauge */
+    .gauge-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 217, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .gauge-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--heady-cyan), var(--heady-magenta));
+      transition: width 0.3s ease;
+    }
+
+    /* Pipeline View */
+    .pipeline-list {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .pipeline-stage {
+      background: rgba(26, 26, 62, 0.6);
+      border-left: 4px solid rgba(0, 217, 255, 0.4);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+
+    .pipeline-stage:hover {
+      background: rgba(26, 26, 62, 0.8);
+      border-left-color: var(--heady-cyan);
+    }
+
+    .stage-name {
+      font-weight: 600;
+      color: var(--heady-gold);
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .stage-description {
+      font-size: 12px;
+      color: var(--heady-gray);
+      margin-bottom: 8px;
+    }
+
+    .stage-deps {
+      font-size: 11px;
+      color: var(--heady-cyan);
+    }
+
+    /* Nodes View */
+    .nodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .node-card {
+      background: rgba(26, 26, 62, 0.6);
+      border: 1px solid rgba(0, 217, 255, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+      transition: all 0.2s;
+    }
+
+    .node-card:hover {
+      border-color: var(--heady-cyan);
+      box-shadow: 0 0 16px rgba(0, 217, 255, 0.2);
+    }
+
+    .node-name {
+      font-weight: 600;
+      color: var(--heady-gold);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .node-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--heady-cyan);
+      margin-bottom: 10px;
+    }
+
+    .node-stat {
+      font-size: 11px;
+      color: var(--heady-gray);
+      margin: 4px 0;
+    }
+
+    /* RIGHT PANEL */
+    #rightPanel {
+      width: 300px;
+      background: rgba(10, 10, 26, 0.8);
+      border-left: 1px solid rgba(212, 175, 55, 0.2);
+      overflow-y: auto;
+      flex-shrink: 0;
+      padding: 16px;
+      transition: width 0.3s ease;
+    }
+
+    #rightPanel.collapsed {
+      width: 0;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .panel-section {
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--heady-gold);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .monitor-value {
+      font-size: 14px;
+      color: var(--heady-cyan);
+      margin: 8px 0;
+    }
+
+    .monitor-label {
+      font-size: 10px;
+      color: var(--heady-gray);
+    }
+
+    /* BOTTOM STATUS BAR */
+    #statusBar {
+      height: 32px;
+      background: rgba(10, 10, 26, 0.95);
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: var(--heady-gray);
+      font-family: 'Monaco', monospace;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* FLOATING ORB */
+    #floatingOrb {
+      position: fixed;
+      bottom: 40px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--heady-cyan), var(--heady-magenta), var(--heady-gold), var(--heady-cyan));
+      box-shadow: 0 0 50px rgba(0, 217, 255, 0.4), 0 0 80px rgba(255, 0, 160, 0.2);
+      cursor: pointer;
+      animation: float-gentle 3s ease-in-out infinite;
+      transition: all 0.3s;
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    #floatingOrb::before {
+      content: '';
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      border-radius: 50%;
+      background: var(--heady-void);
+    }
+
+    #floatingOrb::after {
+      content: '';
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, var(--heady-cyan), transparent 60%);
+      z-index: 2;
+    }
+
+    #floatingOrb:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 60px rgba(0, 217, 255, 0.6), 0 0 100px rgba(255, 0, 160, 0.3);
+    }
+
+    .hidden { display: none; }
+    .loading { opacity: 0.6; pointer-events: none; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(rgba(212, 175, 55, 0.5), rgba(0, 217, 255, 0.5)); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(rgba(212, 175, 55, 0.7), rgba(0, 217, 255, 0.7)); }
+
+    @media (max-width: 1200px) {
+      #sidebar { width: 200px; }
+      #rightPanel { width: 250px; }
+    }
+
+    @media (max-width: 768px) {
+      #sidebar, #rightPanel { position: absolute; height: 100%; z-index: 50; }
+      #sidebar { left: 0; }
+      #rightPanel { right: 0; }
+    }
+  </style>
+</head>
+<body class="sacred-bg">
+  <script src="/nav-component.js"></script>
+  <div id="menuBar">
+    <div class="menu-left">
+      <div class="menu-logo">HeadyOS</div>
+      <div class="workspace-label">Workspace: <span id="workspaceLabel">Personal</span></div>
+    </div>
+    <div class="menu-center"></div>
+    <div class="menu-right">
+      <div class="menu-clock" id="menuClock">--:--:--</div>
+      <div class="connection-status" id="connStatus"></div>
+      <a href="/" title="Back to home">Home</a>
+    </div>
+  </div>
+
+  <div class="desktop-container">
+    <div id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Workspaces</div>
+        <div class="sidebar-item active" data-workspace="Personal">Personal</div>
+        <div class="sidebar-item" data-workspace="HeadySystems">HeadySystems</div>
+        <div class="sidebar-item" data-workspace="HeadyConnection">HeadyConnection</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Agents</div>
+        <div class="sidebar-item active" data-agent="researcher">Researcher</div>
+        <div class="sidebar-item" data-agent="code-assistant">Code Assistant</div>
+        <div class="sidebar-item" data-agent="grant-writer">Grant Writer</div>
+        <div class="sidebar-item" data-agent="creative-director">Creative Director</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Quick Actions</div>
+        <div class="sidebar-item" id="action-pipeline">Run Pipeline</div>
+        <div class="sidebar-item" id="action-health">Check Health</div>
+        <div class="sidebar-item" id="action-diagnose">Diagnose System</div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="tab-bar">
+        <button class="tab-button active" data-tab="chat">Chat</button>
+        <button class="tab-button" data-tab="dashboard">Dashboard</button>
+        <button class="tab-button" data-tab="pipeline">Pipeline</button>
+        <button class="tab-button" data-tab="nodes">Nodes</button>
+      </div>
+
+      <div id="chat" class="tab-content active chat-panel">
+        <div class="chat-history" id="chatHistory"></div>
+        <div class="suggestions-area" id="suggestionsArea"></div>
+        <div class="chat-input-area">
+          <textarea id="chatInput" placeholder="Ask me anything... (Ctrl+Enter to send)" rows="1"></textarea>
+          <button id="sendButton">Send</button>
+        </div>
+      </div>
+
+      <div id="dashboard" class="tab-content">
+        <div class="dashboard-grid" id="dashboardGrid">
+          <div class="dashboard-card">
+            <div class="card-title">System Status</div>
+            <div class="card-value"><span class="health-indicator" id="systemHealthIndicator"></span></div>
+            <div class="card-label" id="systemStatusLabel">Loading...</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-title">CPU Usage</div>
+            <div class="card-value" id="cpuValue">--</div>
+            <div class="gauge-container"><div class="gauge-fill" id="cpuGauge" style="width: 0%"></div></div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-title">Memory Usage</div>
+            <div class="card-value" id="ramValue">--</div>
+            <div class="gauge-container"><div class="gauge-fill" id="ramGauge" style="width: 0%"></div></div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-title">Disk Usage</div>
+            <div class="card-value" id="diskValue">--</div>
+            <div class="gauge-container"><div class="gauge-fill" id="diskGauge" style="width: 0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="pipeline" class="tab-content">
+        <div class="pipeline-list" id="pipelineList">
+          <div style="padding: 20px; color: var(--heady-gray); text-align: center;">Loading pipeline...</div>
+        </div>
+      </div>
+
+      <div id="nodes" class="tab-content">
+        <div class="nodes-grid" id="nodesGrid">
+          <div style="padding: 20px; color: var(--heady-gray); text-align: center; grid-column: 1/-1;">Loading nodes...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="rightPanel">
+      <div class="panel-section">
+        <div class="panel-title">System Monitor</div>
+        <div class="monitor-label">CPU</div>
+        <div class="monitor-value" id="panelCpuValue">-- %</div>
+        <div class="gauge-container"><div class="gauge-fill" id="panelCpuGauge" style="width: 0%"></div></div>
+
+        <div class="monitor-label" style="margin-top: 12px;">Memory</div>
+        <div class="monitor-value" id="panelRamValue">-- %</div>
+        <div class="gauge-container"><div class="gauge-fill" id="panelRamGauge" style="width: 0%"></div></div>
+
+        <div class="monitor-label" style="margin-top: 12px;">Disk</div>
+        <div class="monitor-value" id="panelDiskValue">-- %</div>
+        <div class="gauge-container"><div class="gauge-fill" id="panelDiskGauge" style="width: 0%"></div></div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Active Agent</div>
+        <div class="monitor-value" id="agentNameDisplay">Researcher</div>
+        <div class="monitor-label" id="agentDescDisplay">Specialized in research and analysis</div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Patterns</div>
+        <div class="monitor-label" id="patternsSummary">Loading...</div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Narrative</div>
+        <div class="monitor-label" id="narrativeSummary">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="statusBar">
+    <div class="status-item">Connection: <span id="connStatusText">Connecting...</span></div>
+    <div class="status-item">Layer: <span id="layerDisplay">--</span></div>
+    <div class="status-item">Nodes: <span id="nodeCountDisplay">0</span></div>
+    <div class="status-item">Uptime: <span id="uptimeDisplay">00:00:00</span></div>
+  </div>
+
+  <div id="floatingOrb" title="Toggle right panel"></div>
+
+  <script>
+    const config = {
+      apiBaseUrls: [
+        window.location.origin,
+        'https://api.headysystems.com',
+        'https://heady-manager.onrender.com',
+        'http://localhost:3300'
+      ],
+      refreshIntervals: { resources: 15000, systemStatus: 30000, suggestions: 30000 }
+    };
+
+    const state = {
+      currentWorkspace: 'Personal',
+      currentAgent: 'researcher',
+      currentTab: 'chat',
+      chatHistory: [],
+      apiBase: null,
+      isOnline: false,
+      startTime: Date.now()
+    };
+
+    const agents = {
+      researcher: { name: 'Researcher', desc: 'Specialized in research and analysis' },
+      'code-assistant': { name: 'Code Assistant', desc: 'Expert in code generation and debugging' },
+      'grant-writer': { name: 'Grant Writer', desc: 'Helps with grant writing and proposals' },
+      'creative-director': { name: 'Creative Director', desc: 'Creative content and design direction' }
+    };
+
+    async function resolveApi() {
+      for (const url of config.apiBaseUrls) {
+        try {
+          const response = await fetch(`${url}/api/health`, {
+            method: 'GET',
+            signal: AbortSignal.timeout(2000)
+          });
+          if (response.ok) {
+            state.apiBase = url;
+            updateConnectionStatus(true);
+            console.log(`Connected to API at: ${url}`);
+            return url;
+          }
+        } catch (e) { continue; }
+      }
+      updateConnectionStatus(false);
+      console.warn('Could not connect to any API endpoint');
+      return null;
+    }
+
+    async function apiCall(endpoint, options = {}) {
+      if (!state.apiBase) await resolveApi();
+      if (!state.apiBase) throw new Error('No API connection available');
+      const url = `${state.apiBase}${endpoint}`;
+      return fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } });
+    }
+
+    function updateConnectionStatus(isOnline) {
+      state.isOnline = isOnline;
+      const indicator = document.getElementById('connStatus');
+      const text = document.getElementById('connStatusText');
+      if (isOnline) {
+        indicator.style.background = '#00FF00';
+        indicator.style.boxShadow = '0 0 8px #00FF00';
+        text.textContent = 'Connected';
+      } else {
+        indicator.style.background = '#FF6B00';
+        indicator.style.boxShadow = '0 0 8px #FF6B00';
+        text.textContent = 'Offline';
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('menuClock').textContent =
+        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    }
+
+    function updateUptime() {
+      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+      const hours = Math.floor(elapsed / 3600);
+      const minutes = Math.floor((elapsed % 3600) / 60);
+      const seconds = elapsed % 60;
+      document.getElementById('uptimeDisplay').textContent =
+        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    async function loadSystemStatus() {
+      try {
+        const response = await apiCall('/api/system/status');
+        if (!response.ok) return;
+        const data = await response.json();
+        const indicator = document.getElementById('systemHealthIndicator');
+        const label = document.getElementById('systemStatusLabel');
+        if (data.healthy) {
+          indicator.className = 'health-indicator';
+          label.textContent = 'Operational';
+        } else {
+          indicator.className = 'health-indicator warning';
+          label.textContent = 'Issues Detected';
+        }
+      } catch (e) { console.error('Failed to load system status:', e); }
+    }
+
+    async function loadResources() {
+      try {
+        const response = await apiCall('/api/resources/health');
+        if (!response.ok) return;
+        const data = await response.json();
+        const cpu = Math.round(data.cpu || 0);
+        const ram = Math.round(data.memory || 0);
+        const disk = Math.round(data.disk || 0);
+
+        document.getElementById('cpuValue').textContent = `${cpu}%`;
+        document.getElementById('cpuGauge').style.width = `${cpu}%`;
+        document.getElementById('panelCpuValue').textContent = `${cpu}%`;
+        document.getElementById('panelCpuGauge').style.width = `${cpu}%`;
+
+        document.getElementById('ramValue').textContent = `${ram}%`;
+        document.getElementById('ramGauge').style.width = `${ram}%`;
+        document.getElementById('panelRamValue').textContent = `${ram}%`;
+        document.getElementById('panelRamGauge').style.width = `${ram}%`;
+
+        document.getElementById('diskValue').textContent = `${disk}%`;
+        document.getElementById('diskGauge').style.width = `${disk}%`;
+        document.getElementById('panelDiskValue').textContent = `${disk}%`;
+        document.getElementById('panelDiskGauge').style.width = `${disk}%`;
+      } catch (e) { console.error('Failed to load resources:', e); }
+    }
+
+    async function loadNodes() {
+      try {
+        const response = await apiCall('/api/nodes');
+        if (!response.ok) return;
+        const nodes = await response.json();
+        document.getElementById('nodeCountDisplay').textContent = nodes.length;
+        const grid = document.getElementById('nodesGrid');
+        grid.innerHTML = '';
+        nodes.forEach(node => {
+          const card = document.createElement('div');
+          card.className = 'node-card';
+          card.innerHTML = `
+            <div class="node-name">${node.name || 'Unknown'}</div>
+            <div class="node-status">
+              <span class="health-indicator" style="background: ${node.healthy ? '#00FF00' : '#FF6B00'}; box-shadow: 0 0 8px ${node.healthy ? '#00FF00' : '#FF6B00'};"></span>
+              ${node.healthy ? 'Healthy' : 'Issues'}
+            </div>
+            <div class="node-stat">CPU: ${node.cpu || '--'}%</div>
+            <div class="node-stat">Memory: ${node.memory || '--'}%</div>
+            <div class="node-stat">Role: ${node.role || 'Worker'}</div>
+          `;
+          grid.appendChild(card);
+        });
+        if (nodes.length === 0) {
+          grid.innerHTML = '<div style="padding: 20px; color: var(--heady-gray); text-align: center; grid-column: 1/-1;">No nodes available</div>';
+        }
+      } catch (e) { console.error('Failed to load nodes:', e); }
+    }
+
+    async function loadPipeline() {
+      try {
+        const response = await apiCall('/api/pipeline/config');
+        if (!response.ok) return;
+        const config = await response.json();
+        const list = document.getElementById('pipelineList');
+        list.innerHTML = '';
+        if (config.stages && Array.isArray(config.stages)) {
+          config.stages.forEach(stage => {
+            const stageEl = document.createElement('div');
+            stageEl.className = 'pipeline-stage';
+            stageEl.innerHTML = `
+              <div class="stage-name">${stage.name || 'Unnamed Stage'}</div>
+              <div class="stage-description">${stage.description || ''}</div>
+              <div class="stage-deps">Dependencies: ${stage.dependencies?.join(', ') || 'None'}</div>
+            `;
+            list.appendChild(stageEl);
+          });
+        } else {
+          list.innerHTML = '<div style="padding: 20px; color: var(--heady-gray);">No pipeline stages configured</div>';
+        }
+      } catch (e) { console.error('Failed to load pipeline:', e); }
+    }
+
+    async function loadSuggestions() {
+      try {
+        const response = await apiCall('/api/buddy/suggestions');
+        if (!response.ok) return;
+        const suggestions = await response.json();
+        const area = document.getElementById('suggestionsArea');
+        area.innerHTML = '';
+        if (Array.isArray(suggestions) && suggestions.length > 0) {
+          suggestions.slice(0, 4).forEach(suggestion => {
+            const chip = document.createElement('div');
+            chip.className = 'suggestion-chip';
+            chip.textContent = suggestion;
+            chip.addEventListener('click', () => { document.getElementById('chatInput').value = suggestion; });
+            area.appendChild(chip);
+          });
+        }
+      } catch (e) { console.error('Failed to load suggestions:', e); }
+    }
+
+    async function loadPatterns() {
+      try {
+        const response = await apiCall('/api/patterns/summary');
+        if (!response.ok) return;
+        const data = await response.json();
+        document.getElementById('patternsSummary').textContent = data.summary || 'No patterns loaded';
+      } catch (e) { document.getElementById('patternsSummary').textContent = 'Unable to load'; }
+    }
+
+    async function loadNarrative() {
+      try {
+        const response = await apiCall('/api/stories/summary');
+        if (!response.ok) return;
+        const data = await response.json();
+        document.getElementById('narrativeSummary').textContent = data.summary || 'No narrative available';
+      } catch (e) { document.getElementById('narrativeSummary').textContent = 'Unable to load'; }
+    }
+
+    async function loadLayer() {
+      try {
+        const response = await apiCall('/api/layer');
+        if (!response.ok) return;
+        const data = await response.json();
+        document.getElementById('layerDisplay').textContent = data.layer || '--';
+      } catch (e) { document.getElementById('layerDisplay').textContent = 'N/A'; }
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      state.chatHistory.push({ role: 'user', content: message });
+      addMessageToChat('user', message);
+      input.value = '';
+      input.style.height = 'auto';
+
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'chat-message';
+      typingDiv.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+      document.getElementById('chatHistory').appendChild(typingDiv);
+      document.getElementById('chatHistory').scrollTop = document.getElementById('chatHistory').scrollHeight;
+
+      try {
+        const response = await apiCall('/api/buddy/chat', {
+          method: 'POST',
+          body: JSON.stringify({
+            message: message,
+            history: state.chatHistory.slice(0, -1),
+            agent: state.currentAgent,
+            workspace: state.currentWorkspace
+          })
+        });
+
+        typingDiv.remove();
+
+        if (response.ok) {
+          const data = await response.json();
+          const assistantMessage = data.response || 'No response received';
+          state.chatHistory.push({ role: 'assistant', content: assistantMessage });
+          addMessageToChat('assistant', assistantMessage);
+        } else {
+          addMessageToChat('assistant', 'Sorry, I encountered an error processing your request.');
+        }
+      } catch (e) {
+        typingDiv.remove();
+        addMessageToChat('assistant', `Error: ${e.message}`);
+      }
+
+      document.getElementById('chatHistory').scrollTop = document.getElementById('chatHistory').scrollHeight;
+    }
+
+    function addMessageToChat(role, content) {
+      const history = document.getElementById('chatHistory');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${role}`;
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.textContent = content;
+      messageDiv.appendChild(bubble);
+      history.appendChild(messageDiv);
+      history.scrollTop = history.scrollHeight;
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await resolveApi();
+      loadSystemStatus();
+      loadResources();
+      loadNodes();
+      loadPipeline();
+      loadSuggestions();
+      loadPatterns();
+      loadNarrative();
+      loadLayer();
+
+      setInterval(updateClock, 1000);
+      setInterval(updateUptime, 1000);
+      setInterval(loadResources, config.refreshIntervals.resources);
+      setInterval(loadSystemStatus, config.refreshIntervals.systemStatus);
+      setInterval(loadSuggestions, config.refreshIntervals.suggestions);
+
+      const chatInput = document.getElementById('chatInput');
+      const sendButton = document.getElementById('sendButton');
+
+      chatInput.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') sendChatMessage();
+      });
+
+      sendButton.addEventListener('click', sendChatMessage);
+
+      chatInput.addEventListener('input', () => {
+        chatInput.style.height = 'auto';
+        chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+      });
+
+      document.querySelectorAll('[data-workspace]').forEach(el => {
+        el.addEventListener('click', () => {
+          document.querySelectorAll('[data-workspace]').forEach(e => e.classList.remove('active'));
+          el.classList.add('active');
+          state.currentWorkspace = el.getAttribute('data-workspace');
+          document.getElementById('workspaceLabel').textContent = state.currentWorkspace;
+        });
+      });
+
+      document.querySelectorAll('[data-agent]').forEach(el => {
+        el.addEventListener('click', () => {
+          document.querySelectorAll('[data-agent]').forEach(e => e.classList.remove('active'));
+          el.classList.add('active');
+          state.currentAgent = el.getAttribute('data-agent');
+          const agent = agents[state.currentAgent] || { name: 'Unknown', desc: 'No description' };
+          document.getElementById('agentNameDisplay').textContent = agent.name;
+          document.getElementById('agentDescDisplay').textContent = agent.desc;
+        });
+      });
+
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const tabName = button.getAttribute('data-tab');
+          document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+          button.classList.add('active');
+          document.getElementById(tabName).classList.add('active');
+          state.currentTab = tabName;
+          if (tabName === 'dashboard') loadSystemStatus();
+          if (tabName === 'pipeline') loadPipeline();
+          if (tabName === 'nodes') loadNodes();
+        });
+      });
+
+      document.getElementById('action-pipeline').addEventListener('click', () => {
+        addMessageToChat('user', 'Run pipeline');
+        addMessageToChat('assistant', 'Pipeline execution initiated. Monitoring progress...');
+      });
+
+      document.getElementById('action-health').addEventListener('click', () => {
+        addMessageToChat('user', 'Check health');
+        loadSystemStatus();
+        loadResources();
+        addMessageToChat('assistant', 'Health check completed. All systems operational.');
+      });
+
+      document.getElementById('action-diagnose').addEventListener('click', () => {
+        addMessageToChat('user', 'Diagnose system');
+        addMessageToChat('assistant', 'Running comprehensive diagnostics...');
+      });
+
+      document.getElementById('floatingOrb').addEventListener('click', () => {
+        const panel = document.getElementById('rightPanel');
+        panel.classList.toggle('collapsed');
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+          document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+        if (e.ctrlKey && e.key === '\\') {
+          document.getElementById('rightPanel').classList.toggle('collapsed');
+        }
+      });
+
+      console.log('HeadyOS Desktop initialized');
+    });
+
+    updateClock();
+    updateUptime();
+  </script>
+</body>
+</html>

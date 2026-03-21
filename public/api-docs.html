@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Heady Systems API Documentation - Complete API Reference">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>Heady Systems - API Documentation</title>
+    <link rel="stylesheet" href="/sacred-geometry.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a3e 50%, #0a1f2e 100%);
+            color: var(--heady-white);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Animated background orbs */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 10%;
+            left: 5%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(78, 205, 196, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(40px);
+            animation: float-1 20s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 10%;
+            right: 5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(196, 78, 137, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            animation: float-2 25s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes float-1 {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(20px, -20px); }
+            50% { transform: translate(-10px, 30px); }
+            75% { transform: translate(-30px, -10px); }
+        }
+
+        @keyframes float-2 {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-30px, 20px); }
+            50% { transform: translate(20px, -20px); }
+            75% { transform: translate(10px, 30px); }
+        }
+
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(78, 205, 196, 0.3), var(--shadow-sacred); }
+            50% { box-shadow: 0 0 40px rgba(78, 205, 196, 0.5), var(--shadow-sacred); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: slide-up 0.8s ease-out;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #D4AF37 0%, #4ecdc4 50%, #c44e89 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: var(--heady-gray);
+            margin-bottom: 30px;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(78, 205, 196, 0.1);
+            border-radius: var(--radius-sacred);
+            animation: slide-up 0.8s ease-out 0.1s backwards;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            color: var(--heady-white);
+            text-decoration: none;
+            border-radius: var(--radius-button);
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(78, 205, 196, 0.1);
+            color: #4ecdc4;
+            transform: translateY(-2px);
+        }
+
+        .api-status {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            border-radius: var(--radius-pill);
+            font-size: 0.9rem;
+            color: #4ecdc4;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ecdc4;
+            border-radius: 50%;
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+
+        .api-groups {
+            display: grid;
+            gap: 50px;
+            animation: slide-up 0.8s ease-out 0.2s backwards;
+        }
+
+        .api-group {
+            animation: slide-up 0.8s ease-out backwards;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+        }
+
+        .group-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            border-radius: var(--radius-button);
+            font-size: 1.5rem;
+        }
+
+        .group-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #4ecdc4;
+            letter-spacing: -0.5px;
+        }
+
+        .endpoints {
+            display: grid;
+            gap: 20px;
+        }
+
+        .endpoint-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(78, 205, 196, 0.15);
+            border-radius: var(--radius-card);
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .endpoint-card:hover {
+            border-color: rgba(78, 205, 196, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(78, 205, 196, 0.15);
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .method-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 35px;
+            border-radius: var(--radius-button);
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .method-get {
+            background: rgba(78, 205, 196, 0.2);
+            border: 1px solid rgba(78, 205, 196, 0.4);
+            color: #4ecdc4;
+        }
+
+        .method-post {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #D4AF37;
+        }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: var(--heady-white);
+            font-weight: 500;
+            flex: 1;
+            min-width: 250px;
+            word-break: break-all;
+        }
+
+        .endpoint-description {
+            color: var(--heady-gray);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .endpoint-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .endpoint-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .detail-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .detail-label {
+            color: #4ecdc4;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .detail-value {
+            color: var(--heady-gray);
+            font-family: 'Courier New', monospace;
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-button);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            background: rgba(78, 205, 196, 0.1);
+            color: #4ecdc4;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(78, 205, 196, 0.2);
+            border-color: rgba(78, 205, 196, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.2) 0%, rgba(78, 205, 196, 0.1) 100%);
+            border-color: rgba(78, 205, 196, 0.4);
+        }
+
+        .response-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(10, 10, 15, 0.8);
+            border: 1px solid rgba(78, 205, 196, 0.2);
+            border-radius: var(--radius-button);
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        .response-box.active {
+            display: block;
+        }
+
+        .response-title {
+            color: #4ecdc4;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .response-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--heady-gray);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .response-error {
+            color: #FF6B6B;
+        }
+
+        .response-success {
+            color: #4ecdc4;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(78, 205, 196, 0.3);
+            border-top: 2px solid #4ecdc4;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            margin-top: 100px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(78, 205, 196, 0.15);
+            text-align: center;
+            color: var(--heady-gray);
+            font-size: 0.9rem;
+        }
+
+        .footer-link {
+            color: #4ecdc4;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-link:hover {
+            opacity: 0.8;
+        }
+
+        .scrollbar-style::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar-style::-webkit-scrollbar-track {
+            background: rgba(78, 205, 196, 0.05);
+            border-radius: 4px;
+        }
+
+        .scrollbar-style::-webkit-scrollbar-thumb {
+            background: rgba(78, 205, 196, 0.3);
+            border-radius: 4px;
+        }
+
+        .scrollbar-style::-webkit-scrollbar-thumb:hover {
+            background: rgba(78, 205, 196, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .endpoint-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .api-status {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script src="/nav-component.js"></script>
+    <div class="container">
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <a href="/" class="nav-link">← Back to Home</a>
+            <div class="api-status">
+                <span class="status-badge">
+                    <span class="status-dot"></span>
+                    API Status: Operational
+                </span>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header>
+            <h1>Heady Systems API</h1>
+            <p>Complete API Reference & Interactive Explorer</p>
+        </header>
+
+        <!-- API Groups -->
+        <div class="api-groups">
+            <!-- System APIs -->
+            <div class="api-group">
+                <div class="group-header">
+                    <div class="group-icon">🔧</div>
+                    <h2 class="group-title">System</h2>
+                </div>
+                <div class="endpoints">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/health</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Basic health check endpoint. Returns 200 OK if the system is operational.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">None</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">{ status: "ok" }</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/health', 'GET')">
+                                Try It <span class="api-icon">→</span>
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/health">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/system/status</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Get comprehensive system status including all subsystems, resource usage, and operational metrics.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Optional</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">JSON Object</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/system/status', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/system/status">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/nodes</span>
+                        </div>
+                        <div class="endpoint-description">
+                            List all active nodes in the system with their status, resource metrics, and capabilities.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Optional</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Array of nodes</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/nodes', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/nodes">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/pulse</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Get real-time system heartbeat with active metrics, throughput, and latency data.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">None</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Metrics object</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/pulse', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/pulse">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authentication APIs -->
+            <div class="api-group">
+                <div class="group-header">
+                    <div class="group-icon">🔐</div>
+                    <h2 class="group-title">Authentication</h2>
+                </div>
+                <div class="endpoints">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/auth/login</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Authenticate a user and receive an access token for subsequent API calls.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ email, password }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">{ token, user }</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="alert('Use your own credentials')">
+                                Try It
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/auth/register</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Register a new user account in the system.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ email, password, name }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">{ user, token }</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="alert('Use your own credentials')">
+                                Try It
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/auth/me</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Get information about the currently authenticated user.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Required</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">User object</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/auth/me', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/auth/me">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/auth/logout</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Invalidate the current authentication token and logout the user.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Required</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">{ status: "logged_out" }</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/auth/logout', 'POST')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/auth/logout">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline APIs -->
+            <div class="api-group">
+                <div class="group-header">
+                    <div class="group-icon">⚙️</div>
+                    <h2 class="group-title">Pipeline</h2>
+                </div>
+                <div class="endpoints">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/pipeline/run</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Trigger a new pipeline execution with optional configuration overrides.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ stages, config }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">{ runId, status }</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/pipeline/run', 'POST')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/pipeline/run">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/pipeline/state</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Get the current state of the last pipeline execution including completed and pending stages.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Optional</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Pipeline state object</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/pipeline/state', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/pipeline/state">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/pipeline/config</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Retrieve the current pipeline configuration including all stage definitions and parameters.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Optional</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Configuration object</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/pipeline/config', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/pipeline/config">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brain APIs -->
+            <div class="api-group">
+                <div class="group-header">
+                    <div class="group-icon">🧠</div>
+                    <h2 class="group-title">Brain</h2>
+                </div>
+                <div class="endpoints">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/brain/status</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Get the current status of the System Brain including operational readiness score and active patterns.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Optional</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Brain status object</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/brain/status', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/brain/status">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/brain/tune</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Manually tune system parameters like concurrency, error thresholds, and resource allocation.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ concurrency, errorRate, ... }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Updated configuration</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="alert('Requires proper authorization')">
+                                Try It
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buddy (Chat) APIs -->
+            <div class="api-group">
+                <div class="group-header">
+                    <div class="group-icon">💬</div>
+                    <h2 class="group-title">Buddy (Chat)</h2>
+                </div>
+                <div class="endpoints">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/buddy/chat</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Send a message to the Buddy AI assistant and receive intelligent, context-aware responses.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ message, context }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">{ reply, metadata }</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="alert('Requires WebSocket for streaming')">
+                                Try It
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/buddy/health</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Check the health and availability status of the Buddy service.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">None</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Health status</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/buddy/health', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/buddy/health">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/buddy/suggestions</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Get smart suggestions based on current system state and context.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Optional</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Array of suggestions</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/buddy/suggestions', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/buddy/suggestions">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registry APIs -->
+            <div class="api-group">
+                <div class="group-header">
+                    <div class="group-icon">📚</div>
+                    <h2 class="group-title">Registry</h2>
+                </div>
+                <div class="endpoints">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/registry</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Get the complete registry catalog including all components, services, workflows, and patterns.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Optional</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Registry object</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/registry', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/registry">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/registry/component/:id</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Lookup a specific component by ID to get its metadata, endpoints, and dependencies.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Params:</span>
+                                <span class="detail-value">id (component ID)</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Component details</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/registry/component/heady-manager', 'GET')">
+                                Try It (Example)
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/registry/component/:id">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claude APIs -->
+            <div class="api-group">
+                <div class="group-header">
+                    <div class="group-icon">🤖</div>
+                    <h2 class="group-title">Claude</h2>
+                </div>
+                <div class="endpoints">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/claude</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Execute a Claude code generation or analysis task with optional context and constraints.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ prompt, context }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">{ result, tokens }</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="alert('Requires API key and prompt')">
+                                Try It
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/claude/analyze</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Analyze code or files using Claude's code analysis capabilities with detailed insights.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ paths, type }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Analysis results</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="alert('Requires valid code paths')">
+                                Try It
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/claude/security</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Run a comprehensive security audit on the codebase or specific components.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ scope, depth }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Security findings</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/claude/security', 'POST')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/claude/security">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Imagination APIs -->
+            <div class="api-group">
+                <div class="group-header">
+                    <div class="group-icon">✨</div>
+                    <h2 class="group-title">Imagination</h2>
+                </div>
+                <div class="endpoints">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/imagination/status</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Get the current status of the Imagination engine including active generators and queue depth.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Auth:</span>
+                                <span class="detail-value">Optional</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Status object</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="tryApi('/api/imagination/status', 'GET')">
+                                Try It
+                            </button>
+                        </div>
+                        <div class="response-box scrollbar-style" data-endpoint="/api/imagination/status">
+                            <div class="response-title">Response:</div>
+                            <div class="response-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-path">/api/imagination/generate</span>
+                        </div>
+                        <div class="endpoint-description">
+                            Generate creative content, configurations, or solutions using the Imagination engine.
+                        </div>
+                        <div class="endpoint-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Body:</span>
+                                <span class="detail-value">{ prompt, constraints }</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Response:</span>
+                                <span class="detail-value">Generated content</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="alert('Requires prompt and constraints')">
+                                Try It
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>
+                Heady Systems API v1.0 •
+                <a href="/" class="footer-link">Home</a> •
+                <a href="#" class="footer-link">Documentation</a> •
+                <a href="#" class="footer-link">Issues</a>
+            </p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">
+                Status: <span style="color: #4ecdc4;">Operational</span> •
+                Last Updated: 2026-03-10
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Resolve API base URL
+        async function resolveApi() {
+            // Try same-origin first
+            try {
+                const response = await fetch('/health', {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(3000)
+                });
+                if (response.ok) {
+                    return window.location.origin;
+                }
+            } catch (e) {
+                // Timeout or network error
+            }
+
+            // Try Render cloud URLs with timeout
+            const renderUrls = [
+                'https://heady-api.onrender.com',
+                'https://api.headysystems.com',
+                'http://localhost:3300'
+            ];
+
+            for (const url of renderUrls) {
+                try {
+                    const response = await fetch(url + '/health', {
+                        method: 'GET',
+                        signal: AbortSignal.timeout(3000)
+                    });
+                    if (response.ok) {
+                        return url;
+                    }
+                } catch (e) {
+                    // Continue to next URL
+                }
+            }
+
+            // Fallback to current origin
+            return window.location.origin;
+        }
+
+        let apiBase = window.location.origin;
+
+        // Initialize API base on page load
+        resolveApi().then(base => {
+            apiBase = base;
+            console.log('API Base URL resolved to:', apiBase);
+        });
+
+        // Try API endpoint
+        async function tryApi(endpoint, method = 'GET') {
+            const responseBox = document.querySelector(`.response-box[data-endpoint="${endpoint}"]`);
+            if (!responseBox) return;
+
+            responseBox.classList.add('active');
+            const responseContent = responseBox.querySelector('.response-content');
+            responseContent.innerHTML = '<span class="loading-spinner"></span> Loading...';
+
+            try {
+                const url = apiBase + endpoint;
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    signal: AbortSignal.timeout(10000)
+                });
+
+                const data = await response.json();
+                const formattedData = JSON.stringify(data, null, 2);
+
+                if (response.ok) {
+                    responseContent.innerHTML = `<span class="response-success">${formattedData}</span>`;
+                } else {
+                    responseContent.innerHTML = `<span class="response-error">Error ${response.status}:\n${formattedData}</span>`;
+                }
+            } catch (error) {
+                responseContent.innerHTML = `<span class="response-error">Error: ${error.message}\n\nTip: Check that the API server is running at ${apiBase}</span>`;
+            }
+        }
+
+        // Smooth animations on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const apiGroups = document.querySelectorAll('.api-group');
+            apiGroups.forEach((group, index) => {
+                group.style.animationDelay = `${0.3 + index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

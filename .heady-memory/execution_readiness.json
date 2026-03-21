@@ -1,0 +1,44 @@
+{
+    "headycloud_connected":  true,
+    "optimizations":  [
+                          "cloud_offload",
+                          "pattern_optimization",
+                          "parallel_execution",
+                          "cache_preloading",
+                          "lazy_loading",
+                          "connection_pooling",
+                          "request_batching",
+                          "predictive_prefetch",
+                          "memory_compression",
+                          "query_optimization",
+                          "asset_minification",
+                          "code_splitting",
+                          "tree_shaking",
+                          "hot_module_replacement"
+                      ],
+    "system_ready":  true,
+    "timestamp":  "2026-02-14T08:15:02Z",
+    "mcp_servers":  {
+                        "pending_initialization":  [
+                                                       "heady-manager",
+                                                       "filesystem",
+                                                       "git",
+                                                       "memory",
+                                                       "docker",
+                                                       "postgres",
+                                                       "fetch",
+                                                       "browser",
+                                                       "cloudflare",
+                                                       "render"
+                                                   ],
+                        "connected":  1,
+                        "priority_order":  [
+                                               "heady-manager",
+                                               "memory",
+                                               "filesystem",
+                                               "git"
+                                           ],
+                        "available":  30
+                    },
+    "memory_scanned":  true
+}

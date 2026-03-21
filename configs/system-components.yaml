@@ -1,0 +1,352 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/system-components.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+#
+# System Components Map - Canonical registry of ALL system components.
+# Orchestrator and System Brain use this as the definitive source of truth.
+
+version: "2.0.0"
+
+# ─── SERVICES ─────────────────────────────────────────────────────────────
+services:
+  - name: heady-manager
+    type: web-server
+    role: Central API Gateway & MCP Server
+    location: heady-manager.js
+    port: 3300
+    criticality: critical
+    healthCheck: { method: http, path: /api/health }
+    operationalReadiness:
+      - process-running
+      - health-endpoint-200
+      - api-key-configured
+
+  - name: python-conductor
+    type: worker
+    role: Python Orchestration & Audit Worker
+    location: src/heady_project/heady_conductor.py
+    criticality: critical
+    healthCheck: { method: process-alive }
+    operationalReadiness:
+      - python-binary-available
+      - conductor-script-exists
+      - database-url-configured
+
+  - name: hc-supervisor
+    type: internal-module
+    role: Multi-Agent Direct-Routing Supervisor
+    location: packages/hc-supervisor/
+    criticality: critical
+    healthCheck: { method: module-loaded }
+    operationalReadiness:
+      - agents-registered
+      - networking-client-ready
+
+  - name: hc-brain
+    type: internal-module
+    role: System Brain Meta-Controller
+    location: packages/hc-brain/
+    criticality: critical
+    healthCheck: { method: module-loaded }
+    operationalReadiness:
+      - configs-loaded
+      - concept-index-valid
+      - readiness-evaluator-ready
+
+  - name: hc-checkpoint
+    type: internal-module
+    role: Checkpoint Protocol Analyzer
+    location: packages/hc-checkpoint/
+    criticality: critical
+    healthCheck: { method: module-loaded }
+    operationalReadiness:
+      - config-hashes-computed
+      - checkpoint-store-accessible
+
+  - name: hc-readiness
+    type: internal-module
+    role: Operational Readiness Evaluator
+    location: packages/hc-readiness/
+    criticality: critical
+    healthCheck: { method: module-loaded }
+    operationalReadiness:
+      - health-sources-configured
+      - slo-thresholds-defined
+
+  - name: hc-health
+    type: internal-module
+    role: Node Health Check Runner & Cron
+    location: packages/hc-health/
+    criticality: high
+    healthCheck: { method: module-loaded }
+    operationalReadiness:
+      - cron-schedules-active
+      - health-scripts-available
+
+  - name: networking-client
+    type: internal-module
+    role: Direct No-Proxy HTTP Client for Heady Internal
+    location: packages/networking/
+    criticality: critical
+    healthCheck: { method: module-loaded }
+    operationalReadiness:
+      - internal-domains-configured
+      - proxy-bypass-active
+
+  - name: sync-server
+    type: websocket
+    role: Cross-device state synchronization
+    location: src/sync-server.js
+    port: 3306
+    criticality: high
+    healthCheck: { method: http, path: /health }
+
+# ─── APPS ─────────────────────────────────────────────────────────────────
+apps:
+  - name: heady-frontend
+    type: web-app
+    role: Sacred Geometry React UI
+    location: frontend/
+    buildCommand: npm run build --prefix frontend
+    servedBy: heady-manager
+    servePath: /
+    criticality: high
+    healthCheck: { method: http, path: / }
+    operationalReadiness:
+      - build-artifact-exists
+      - static-serving-configured
+
+  - name: heady-admin
+    type: web-app
+    role: Admin IDE Dashboard
+    location: public/admin.html
+    servedBy: heady-manager
+    servePath: /admin.html
+    criticality: medium
+    healthCheck: { method: http, path: /admin.html }
+
+  - name: heady-academy
+    type: web-app
+    role: Learning & Documentation Platform
+    location: HeadyAcademy/
+    criticality: medium
+
+  - name: headybuddy
+    type: mobile-app
+    role: Mobile Companion App
+    location: headybuddy/
+    criticality: medium
+
+  - name: headybuddy-mobile
+    type: mobile-app
+    role: HeadyBuddy Mobile Native
+    location: headybuddy-mobile/
+    criticality: medium
+
+  - name: desktop-overlay
+    type: desktop-app
+    role: Desktop Overlay Widget
+    location: desktop-overlay/
+    criticality: low
+
+# ─── WEBSITES ─────────────────────────────────────────────────────────────
+websites:
+  - name: heady-systems-site
+    role: Primary marketing & docs website
+    domain: headysystems.com
+    deployment: render-com
+    criticality: high
+    healthCheck: { method: http, url: https://headysystems.com }
+    operationalReadiness:
+      - dns-resolves
+      - tls-valid
+      - homepage-200
+
+  - name: heady-dashboard
+    role: Operations dashboard
+    endpoint: https://manager.headysystems.com
+    deployment: local + render
+    criticality: high
+    healthCheck: { method: http, path: /health/ready }
+
+  - name: headybuddy-widget
+    role: HeadyBuddy overlay widget
+    endpoint: https://buddy.headysystems.com
+    deployment: cloudflare-pages
+    criticality: medium
+    healthCheck: { method: http, path: /health/ready }
+
+  - name: python-worker
+    role: ML inference and background tasks
+    endpoint: http://worker-python.dev.local.heady.internal:5000
+    deployment: cloud-run
+    criticality: high
+    healthCheck: { method: http, path: /health/ready }
+
+# ─── DATA STORES ──────────────────────────────────────────────────────────
+dataStores:
+  - name: postgres-primary
+    type: relational-db
+    engine: postgresql
+    connectionVar: DATABASE_URL
+    role: OLTP - pipeline runs, concepts, health, audit
+    criticality: critical
+    healthCheck: { method: connection-test }
+    operationalReadiness:
+      - connection-string-valid
+      - migrations-applied
+      - backup-configured
+
+  - name: in-memory-cache
+    type: cache
+    engine: node-map
+    role: API response cache, dedup windows, rate counters
+    criticality: medium
+    healthCheck: { method: always-ok }
+
+  - name: file-system-store
+    type: file-storage
+    role: Pipeline artifacts, config files, logs
+    location: /tmp/heady/, audit_logs.jsonl
+    criticality: high
+
+# ─── EXTERNAL INTEGRATIONS ────────────────────────────────────────────────
+external:
+  - name: render-com
+    role: Deployment platform
+    type: paas
+    criticality: high
+  - name: github
+    role: Source code management
+    type: scm
+    criticality: critical
+  - name: algolia-hn
+    role: News ingestion source
+    type: api
+    criticality: medium
+  - name: huggingface
+    role: ML model hosting
+    type: ml-platform
+    criticality: medium
+  - name: cloudflare
+    role: CDN, DNS, security
+    type: cdn
+    criticality: high
+
+# ─── SCRIPTS & TOOLS ─────────────────────────────────────────────────────
+scripts:
+  - name: commit_and_build.ps1
+    role: Local build cycle
+    criticality: high
+  - name: nexus_deploy.ps1
+    role: Push to all remotes
+    criticality: high
+  - name: heady_sync.ps1
+    role: Multi-remote sync
+    criticality: high
+  - name: hcautobuild.ps1
+    role: Automated build pipeline
+    criticality: high
+  - name: heady_protocol.ps1
+    role: Protocol enforcement
+    criticality: high
+  - name: auto-checkpoint.ps1
+    role: Automated checkpoint saves
+    criticality: high
+  - name: hc.ps1
+    role: HC CLI tool
+    criticality: medium
+
+# ─── LIQUID NODES (v7 Omega — Absorbed Platform Features) ────────────────
+liquid-nodes:
+  # Core (existing)
+  - name: LiquidNode
+    location: src/liquid/liquid-node.js
+    role: Self-aware dynamically reconfigurable processing node (384D vector space)
+  - name: LiquidMesh
+    location: src/liquid/liquid-mesh.js
+    role: Dynamic mesh topology connecting all liquid nodes with CSL-scored routing
+  - name: LiquidTaskExecutor
+    location: src/liquid/liquid-task-executor.js
+    role: Async parallel task execution with DAG decomposition
+  - name: LiquidNodeBase
+    location: src/shared/liquid-node-base.js
+    role: Universal base class for all Heady microservices
+
+  # Orchestration (existing)
+  - name: LiquidOrchestrator
+    location: src/orchestration/liquid-orchestrator.js
+    role: Dynamic liquid architecture engine with 17 swarms
+  - name: LiquidGateway
+    location: src/orchestration/liquid-gateway.js
+    role: Multi-provider AI gateway with 7 canonical providers
+  - name: LiquidScheduler
+    location: src/orchestration/liquid-scheduler.js
+    role: Dynamic phi-weighted task scheduling
+
+  # v7 Omega — Absorbed from 18 platforms
+  - name: LiquidEventStream
+    location: src/liquid/liquid-event-stream.js
+    role: "Typed Action/Observation event stream with replay (← OpenHands)"
+    absorbs: OpenHands
+  - name: LiquidACI
+    location: src/liquid/liquid-aci.js
+    role: "Agent-Computer Interface — linter-gated editing, viewport-bounded (← SWE-Agent)"
+    absorbs: SWE-Agent
+  - name: LiquidGraphRank
+    location: src/liquid/liquid-graph-rank.js
+    role: "PageRank repo maps via tree-sitter + φ-scaled personalization (← Aider)"
+    absorbs: Aider
+  - name: LiquidDualPass
+    location: src/liquid/liquid-dual-pass.js
+    role: "Architect/Editor model separation — 85% benchmark (← Aider)"
+    absorbs: Aider
+  - name: LiquidHooks
+    location: src/liquid/liquid-hooks.js
+    role: "Pre/post action scripts with deny-override (← Claude Code)"
+    absorbs: Claude Code
+  - name: LiquidSandbox
+    location: src/liquid/liquid-sandbox.js
+    role: "4-tier execution isolation: Firecracker/Docker/WASM/native (← E2B/IronClaw)"
+    absorbs: E2B, IronClaw
+  - name: LiquidCRDT
+    location: src/liquid/liquid-crdt.js
+    role: "Multiplayer AI collaboration with CRDT conflict resolution (← Yjs/Automerge)"
+    absorbs: Yjs, Automerge
+  - name: LiquidKnowledge
+    location: src/liquid/liquid-knowledge.js
+    role: "Self-evolving knowledge graph with Merkle indexing (← Cursor)"
+    absorbs: Cursor
+  - name: LiquidDurable
+    location: src/liquid/liquid-durable.js
+    role: "Temporal-style crash-proof workflow replay (← Temporal.io)"
+    absorbs: Temporal.io
+  - name: LiquidSOP
+    location: src/liquid/liquid-sop.js
+    role: "Structured Output Protocol — typed artifacts between agents (← MetaGPT)"
+    absorbs: MetaGPT
+  - name: LiquidSemanticCache
+    location: src/liquid/liquid-semantic-cache.js
+    role: "Embedding-based response caching — 95% cost reduction (← LiteLLM)"
+    absorbs: LiteLLM
+  - name: LiquidSelfHeal
+    location: src/liquid/liquid-self-heal.js
+    role: "Self-healing infrastructure with learned failure rules"
+    absorbs: Temporal.io (extended)
+  - name: LiquidProtocol
+    location: src/liquid/liquid-protocol.js
+    role: "3-layer extension system: Skills + MCP + Plugins — 89 connectors (← OpenClaw + n8n)"
+    absorbs: OpenClaw, n8n, MCP ecosystem

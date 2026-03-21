@@ -1,0 +1,23 @@
+{
+  "name": "@heady/structured-logger",
+  "version": "1.0.0",
+  "description": "Structured JSON logging for Heady services",
+  "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "heady",
+    "logging",
+    "structured-logging",
+    "json",
+    "logger"
+  ],
+  "author": "Heady Systems",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HeadySystems/heady-monorepo.git",
+    "directory": "packages/structured-logger"
+  },
+  "dependencies": {
+    "@heady-ai/phi-math": "workspace:*"
+  }
+}

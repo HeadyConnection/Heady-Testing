@@ -1,0 +1,39 @@
+# Docker Desktop WSL virtual disks (3.7GB — never in git)
+DockerDesktopWSL/
+
+# Large download archives
+_downloads/
+
+# Patent archives (large ZIPs — store separately)
+docs/patents/*.ZIP
+docs/patents/*.zip
+
+# Extension archives
+extensions/*.zip
+
+# System build archives  
+in/*.zip
+
+# Node modules
+node_modules/
+
+# ═══ SECRETS — NEVER COMMIT ═══
+.env
+.env.local
+.env.production
+.env.rotated
+
+# HeadyVault encrypted files (local only)
+.heady/vault.enc
+.heady/vault.sig
+.heady/vault.meta.json
+
+# GCP service account keys (sensitive)
+.heady/gcp-*.json
+
+# Vault seed scripts (contain plaintext secrets)
+.heady/vault-seed.js
+scripts/vault-seed.mjs
+# Evidence and findings
+evidence/
+

@@ -1,0 +1,36 @@
+@startuml Heady_CSL_Engine_Code
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Heady™ Platform — Level 4: CSL Engine Code Structure
+footer Eric Haywood | HeadySystems Inc. | 51 Provisional Patents | Continuous Semantic Logic
+
+Container_Boundary(csl, "CSL Engine (shared/csl-engine-v2.js)") {
+  Component(csl_and, "cslAND", "Function", "cos(θ) = (a·b) / (‖a‖·‖b‖)\nSemantic alignment measure")
+  Component(csl_or, "cslOR", "Function", "normalize(a + b)\nSuperposition / soft union")
+  Component(csl_not, "cslNOT", "Function", "a - proj_b(a)\nOrthogonal projection / semantic negation")
+  Component(csl_imply, "cslIMPLY", "Function", "proj_b(a) = (a·b/‖b‖²)·b\nComponent in direction of b")
+  Component(csl_xor, "cslXOR", "Function", "normalize(a+b) - proj_mutual\nExclusive semantic components")
+  Component(csl_gate, "cslGATE", "Function", "value × σ((cos - τ) / temp)\nSoft sigmoid gating")
+  Component(csl_consensus, "cslCONSENSUS", "Function", "Σ(wᵢ·vᵢ) / ‖Σ(wᵢ·vᵢ)‖\nWeighted centroid")
+  Component(csl_blend, "cslBLEND", "Function", "Smooth weight interpolation\nbetween high/low weights")
+}
+
+Container_Boundary(phi, "φ-Math Foundation (shared/phi-math-v2.js)") {
+  Component(phi_const, "Constants", "Data", "φ=1.618, ψ=0.618, ψ²=0.382\nFIB=[1,1,2,3,5,8,13,21,34,55,89,144...]")
+  Component(phi_threshold, "phiThreshold", "Function", "1 - ψⁿ × spread\nLevels: 0.500, 0.691, 0.809, 0.882, 0.927")
+  Component(phi_backoff, "phiBackoff", "Function", "base × φⁿ\n1s → 1.618s → 2.618s → 4.236s")
+  Component(phi_fusion, "phiFusionWeights", "Function", "N-factor ψ-geometric weights\n2-way: [0.618, 0.382]")
+}
+
+Container_Boundary(sg, "Sacred Geometry (shared/sacred-geometry-v2.js)") {
+  Component(sg_topo, "SacredTopology", "Class", "Node placement on golden spiral\nθ = n × 2π/φ², r = √n × scale")
+  Component(sg_coherence, "coherenceScore", "Function", "Mean pairwise CSL-AND\nacross all nodes")
+}
+
+Rel(csl_gate, phi_threshold, "Uses τ from phiThreshold(level)")
+Rel(csl_gate, phi_const, "Uses ψ³ as default temperature")
+Rel(csl_consensus, phi_fusion, "Uses φ-weighted factors")
+Rel(csl_and, sg_coherence, "Called by coherence scoring")
+Rel(sg_topo, phi_const, "Golden angle: 2π/φ²")
+
+@enduml

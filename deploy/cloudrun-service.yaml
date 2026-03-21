@@ -1,0 +1,40 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: heady-manager
+  labels:
+    app: heady
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: '1'
+        autoscaling.knative.dev/maxScale: '10'
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+        - image: gcr.io/heady-prod/heady-manager:latest
+          ports:
+            - containerPort: 3301
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: '3301'
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: '2'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3301
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 3301
+            initialDelaySeconds: 5
+            periodSeconds: 10

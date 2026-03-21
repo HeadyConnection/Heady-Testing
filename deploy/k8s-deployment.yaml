@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heady-manager
+  labels:
+    app: heady
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: heady
+  template:
+    metadata:
+      labels:
+        app: heady
+    spec:
+      containers:
+        - name: heady-manager
+          image: heady:latest
+          ports:
+            - containerPort: 3301
+          envFrom:
+            - secretRef:
+                name: heady-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3301
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 3301
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: '2'
+              memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: heady-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: heady-manager
+spec:
+  selector:
+    app: heady
+  ports:
+    - port: 80
+      targetPort: 3301
+  type: ClusterIP

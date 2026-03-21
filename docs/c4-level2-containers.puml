@@ -1,0 +1,72 @@
+@startuml Heady_Containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Heady™ Platform — Level 2: Container Diagram
+footer Eric Haywood | HeadySystems Inc. | 50 Services on ports 3310–3396
+
+Person(user, "User")
+Person(developer, "Developer")
+
+System_Boundary(heady, "Heady™ Platform") {
+  ' -- Gateway Layer --
+  Container(api_gw, "API Gateway", "Node.js", "Routes external requests, rate limiting, auth validation")
+  Container(domain_router, "Domain Router", "Node.js", "Routes requests to correct service by domain")
+
+  ' -- Inference Domain --
+  Container(brain, "heady-brain", "Node.js", "Primary inference engine with CSL-gated model selection")
+  Container(brains, "heady-brains", "Node.js", "Multi-model concurrent inference (council mode)")
+  Container(ai_router, "ai-router", "Node.js", "φ-weighted LLM provider routing with circuit breakers")
+  Container(model_gw, "model-gateway", "Node.js", "Model lifecycle management and version routing")
+
+  ' -- Memory Domain --
+  Container(embed, "heady-embed", "Node.js", "Embedding pipeline: text → 384-dim vectors via Nomic/Jina/Voyage")
+  Container(memory, "heady-memory", "Node.js", "Vector search: HNSW queries with BM25 hybrid fusion")
+  Container(vector, "heady-vector", "Node.js", "Vector operations: CSL gates, projections, similarity")
+  Container(projection, "heady-projection", "Node.js", "Dimensionality reduction and MRL truncation")
+
+  ' -- Agent Domain --
+  Container(bee_factory, "heady-bee-factory", "Node.js", "Dynamic agent spawning with φ-TTL lifecycle")
+  Container(hive, "heady-hive", "Node.js", "Swarm coordination and consensus")
+  Container(federation, "heady-federation", "Node.js", "Cross-hive agent federation")
+
+  ' -- Security Domain --
+  Container(guard, "heady-guard", "Node.js", "Zero-trust request validation, mTLS, CSP")
+  Container(auth_server, "auth-session-server", "Node.js", "__Host- cookie sessions, Firebase ID token validation")
+  Container(secret_gw, "secret-gateway", "Node.js", "Secret Manager integration with φ-rotation")
+
+  ' -- Orchestration Domain --
+  Container(conductor, "heady-conductor", "Node.js", "Task routing and pipeline dispatch")
+  Container(hcfp, "hcfullpipeline-executor", "Node.js", "12-stage pipeline orchestration")
+
+  ' -- Monitoring Domain --
+  Container(health, "heady-health", "Node.js", "Health probes for all 50 services")
+  Container(eval_svc, "heady-eval", "Node.js", "Quality evaluation and drift detection")
+
+  ' -- Data Layer --
+  ContainerDb(pgvector, "PostgreSQL + pgvector", "Cloud SQL", "384-dim HNSW indexes, ACID transactions")
+  ContainerDb(nats, "NATS JetStream", "Message Broker", "Async inter-service communication with DLQ")
+  ContainerDb(kv, "Cloudflare KV", "Edge Store", "Sub-10ms reads for config, flags, cache")
+}
+
+System_Ext(firebase, "Firebase Auth")
+System_Ext(llm, "LLM Providers")
+
+Rel(user, api_gw, "HTTPS / WSS")
+Rel(developer, api_gw, "REST / gRPC / MCP")
+Rel(api_gw, domain_router, "Routes by domain")
+Rel(domain_router, brain, "Inference requests")
+Rel(domain_router, memory, "Memory queries")
+Rel(domain_router, bee_factory, "Agent operations")
+Rel(brain, embed, "Embed context")
+Rel(brain, memory, "Retrieve context")
+Rel(brain, ai_router, "Route to LLM")
+Rel(ai_router, llm, "φ-weighted selection")
+Rel(embed, pgvector, "Store embeddings")
+Rel(memory, pgvector, "HNSW search")
+Rel(auth_server, firebase, "Validate ID tokens")
+Rel(conductor, hcfp, "Execute pipelines")
+Rel_R(bee_factory, hive, "Coordinate swarm")
+Rel(health, brain, "Health probe")
+Rel(health, memory, "Health probe")
+
+@enduml

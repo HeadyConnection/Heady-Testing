@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a1a">
+    <title>HeadyOS Mobile</title>
+    <link rel="stylesheet" href="/sacred-geometry.css">
+    <style>
+        /* Mobile App Container */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--heady-void) 0%, var(--heady-deep-space) 50%, var(--heady-nebula) 100%);
+            color: var(--heady-white);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        /* Status Bar - Top 44px */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 44px;
+            padding: 0 16px;
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-logo {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--heady-gold), var(--heady-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .status-center {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--heady-gray);
+        }
+
+        .time-display {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--heady-white);
+            min-width: 35px;
+            text-align: right;
+        }
+
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00FF00;
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .connection-dot.offline {
+            background: #FF4444;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-home-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-button);
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            color: var(--heady-gold);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-home-btn:active {
+            background: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Main Content Area */
+        .content-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 60px;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Home Tab */
+        #homeTab {
+            padding: 16px 12px;
+        }
+
+        .greeting {
+            margin-bottom: 24px;
+            padding: 0 4px;
+        }
+
+        .greeting-time {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--heady-gold), var(--heady-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .greeting-subtext {
+            font-size: 14px;
+            color: var(--heady-gray);
+        }
+
+        /* Health Status Card */
+        .health-card {
+            background: rgba(26, 26, 62, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .health-status-icon {
+            font-size: 28px;
+        }
+
+        .health-status-text {
+            flex: 1;
+        }
+
+        .health-status-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--heady-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .health-status-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--heady-white);
+            margin-top: 2px;
+        }
+
+        /* Quick Action Pills */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .quick-action-pill {
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--heady-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-action-pill span:first-child {
+            font-size: 20px;
+        }
+
+        .quick-action-pill:active {
+            background: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            transform: scale(0.95);
+        }
+
+        /* Workspace Cards */
+        .workspace-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--heady-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .workspace-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 4px;
+            margin: 0 -4px;
+        }
+
+        .workspace-card {
+            flex-shrink: 0;
+            width: 140px;
+            background: rgba(26, 26, 62, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            scroll-snap-align: start;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .workspace-card:active {
+            transform: scale(0.95);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+
+        .workspace-icon {
+            font-size: 32px;
+        }
+
+        .workspace-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--heady-white);
+        }
+
+        .workspace-status {
+            font-size: 10px;
+            color: var(--heady-gray);
+        }
+
+        .status-badge {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00FF00;
+            box-shadow: 0 0 4px rgba(0, 255, 0, 0.6);
+        }
+
+        /* Resource Meters */
+        .resource-meters {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .resource-meter {
+            background: rgba(26, 26, 62, 0.5);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .meter-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .meter-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--heady-gray);
+            text-transform: uppercase;
+        }
+
+        .meter-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--heady-white);
+        }
+
+        .meter-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--heady-cyan), var(--heady-magenta));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        /* Agents Tab */
+        #agentsTab {
+            padding: 16px 12px;
+        }
+
+        .agent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .agent-card {
+            background: rgba(26, 26, 62, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card:active {
+            background: rgba(26, 26, 62, 0.9);
+            border-color: rgba(0, 217, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .agent-avatar {
+            font-size: 28px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .agent-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .agent-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--heady-white);
+            margin-bottom: 2px;
+        }
+
+        .agent-desc {
+            font-size: 12px;
+            color: var(--heady-gray);
+            line-height: 1.4;
+        }
+
+        .agent-action {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 10px;
+            color: var(--heady-cyan);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .agent-action:active {
+            background: rgba(0, 217, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+        }
+
+        /* Chat Tab */
+        #chatTab {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            gap: 8px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, var(--heady-gold), var(--heady-gold-light));
+            color: var(--heady-void);
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-bubble {
+            background: rgba(0, 217, 255, 0.2);
+            color: var(--heady-white);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-bottom-left-radius: 4px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 12px 14px;
+            background: rgba(0, 217, 255, 0.2);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 12px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--heady-cyan);
+            animation: typingBounce 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+
+        .chat-suggestions {
+            padding: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .suggestion-chip {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 6px 12px;
+            font-size: 11px;
+            color: var(--heady-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-chip:active {
+            background: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(20px);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: var(--heady-white);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: rgba(0, 217, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--heady-gold), var(--heady-cyan));
+            border: none;
+            border-radius: 10px;
+            color: var(--heady-void);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* System Tab */
+        #systemTab {
+            padding: 16px 12px;
+        }
+
+        .overview-card {
+            background: rgba(26, 26, 62, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .overview-icon {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        .overview-content {
+            flex: 1;
+        }
+
+        .overview-label {
+            font-size: 11px;
+            color: var(--heady-gray);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .overview-value {
+            font-size: 13px;
+            color: var(--heady-white);
+            margin-top: 2px;
+            word-break: break-word;
+        }
+
+        .node-item {
+            background: rgba(26, 26, 62, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .node-info {
+            font-size: 12px;
+        }
+
+        .node-name {
+            font-weight: 600;
+            color: var(--heady-white);
+        }
+
+        .node-status {
+            font-size: 10px;
+            color: var(--heady-gray);
+            margin-top: 2px;
+        }
+
+        .node-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00FF00;
+            box-shadow: 0 0 6px rgba(0, 255, 0, 0.6);
+        }
+
+        /* More Tab */
+        #moreTab {
+            padding: 16px 12px;
+        }
+
+        .link-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .link-item {
+            background: rgba(26, 26, 62, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-decoration: none;
+            color: var(--heady-white);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .link-item:active {
+            background: rgba(26, 26, 62, 0.9);
+            border-color: rgba(0, 217, 255, 0.3);
+            transform: translateX(4px);
+        }
+
+        .link-icon {
+            font-size: 18px;
+        }
+
+        .narrative {
+            background: rgba(26, 26, 62, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 14px;
+            padding: 14px;
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--heady-gray);
+            line-height: 1.6;
+        }
+
+        /* Bottom Navigation - Fixed 56px */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 56px;
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 99;
+            padding-bottom: 8px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            cursor: pointer;
+            padding: 6px 0;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .nav-tab.active {
+            color: var(--heady-cyan);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Floating Heady Orb */
+        .floating-orb {
+            position: fixed;
+            bottom: 70px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--heady-cyan), var(--heady-magenta), var(--heady-gold), var(--heady-cyan));
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.4), inset 0 0 20px rgba(255,255,255,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float-gentle 4s ease-in-out infinite;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+
+        .floating-orb::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: var(--heady-void);
+            inset: 4px;
+        }
+
+        .floating-orb::after {
+            content: '⚙';
+            position: absolute;
+            font-size: 28px;
+            color: var(--heady-cyan);
+            z-index: 1;
+            animation: spin-icon 3s linear infinite;
+        }
+
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes spin-icon {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .floating-orb:active {
+            transform: scale(0.92);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.5);
+        }
+
+        /* Responsive adjustments */
+        @media (max-height: 600px) {
+            .status-bar {
+                height: 40px;
+            }
+
+            .bottom-nav {
+                height: 52px;
+            }
+
+            .greeting {
+                margin-bottom: 12px;
+            }
+
+            .greeting-time {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script src="/nav-component.js"></script>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-left">
+            <div class="status-logo">⬡ HeadyOS</div>
+        </div>
+        <div class="status-center">
+            <div class="time-display" id="timeDisplay">12:34</div>
+            <div class="connection-dot" id="connectionDot"></div>
+        </div>
+        <div class="status-right">
+            <a href="/" class="back-home-btn" title="Home">↖</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-container">
+        <!-- Home Tab -->
+        <div id="homeTab" class="tab-content active">
+            <div class="greeting">
+                <div class="greeting-time" id="greetingTime">Good Morning, E</div>
+                <div class="greeting-subtext">Welcome back to HeadyOS</div>
+            </div>
+
+            <div class="health-card">
+                <div class="health-status-icon">🟢</div>
+                <div class="health-status-text">
+                    <div class="health-status-title">System Status</div>
+                    <div class="health-status-value" id="healthStatus">Operational</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="quick-action-pill" data-action="pipeline">
+                    <span>▶</span>
+                    <span>Run Pipeline</span>
+                </div>
+                <div class="quick-action-pill" data-action="health">
+                    <span>❤</span>
+                    <span>Check Health</span>
+                </div>
+                <div class="quick-action-pill" data-action="status">
+                    <span>⚙</span>
+                    <span>System Status</span>
+                </div>
+                <div class="quick-action-pill" data-action="diagnose">
+                    <span>🔍</span>
+                    <span>Diagnose</span>
+                </div>
+            </div>
+
+            <div class="workspace-section">
+                <div class="section-title">Workspaces</div>
+                <div class="workspace-scroll">
+                    <div class="workspace-card">
+                        <div class="workspace-icon">👤</div>
+                        <div class="workspace-name">Personal</div>
+                        <div class="workspace-status">Active</div>
+                        <div class="status-badge"></div>
+                    </div>
+                    <div class="workspace-card">
+                        <div class="workspace-icon">🏢</div>
+                        <div class="workspace-name">HeadySystems</div>
+                        <div class="workspace-status">Connected</div>
+                        <div class="status-badge"></div>
+                    </div>
+                    <div class="workspace-card">
+                        <div class="workspace-icon">🌐</div>
+                        <div class="workspace-name">HeadyConnection</div>
+                        <div class="workspace-status">Online</div>
+                        <div class="status-badge"></div>
+                    </div>
+                    <div class="workspace-card">
+                        <div class="workspace-icon">🧪</div>
+                        <div class="workspace-name">Sandbox</div>
+                        <div class="workspace-status">Isolated</div>
+                        <div class="status-badge" style="background: #FFA500; box-shadow: 0 0 6px rgba(255, 165, 0, 0.6);"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resource-meters">
+                <div class="resource-meter">
+                    <div class="meter-label">
+                        <div class="meter-name">CPU</div>
+                        <div class="meter-value" id="cpuValue">42%</div>
+                    </div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="cpuFill" style="width: 42%"></div>
+                    </div>
+                </div>
+                <div class="resource-meter">
+                    <div class="meter-label">
+                        <div class="meter-name">Memory</div>
+                        <div class="meter-value" id="memValue">58%</div>
+                    </div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="memFill" style="width: 58%"></div>
+                    </div>
+                </div>
+                <div class="resource-meter">
+                    <div class="meter-label">
+                        <div class="meter-name">Disk</div>
+                        <div class="meter-value" id="diskValue">71%</div>
+                    </div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="diskFill" style="width: 71%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agents Tab -->
+        <div id="agentsTab" class="tab-content">
+            <div class="agent-list">
+                <div class="agent-card" data-agent="researcher">
+                    <div class="agent-avatar">📊</div>
+                    <div class="agent-info">
+                        <div class="agent-name">Researcher</div>
+                        <div class="agent-desc">Data analysis & insights</div>
+                    </div>
+                    <div class="agent-action">→</div>
+                </div>
+
+                <div class="agent-card" data-agent="codeassistant">
+                    <div class="agent-avatar">💻</div>
+                    <div class="agent-info">
+                        <div class="agent-name">Code Assistant</div>
+                        <div class="agent-desc">Development & debugging</div>
+                    </div>
+                    <div class="agent-action">→</div>
+                </div>
+
+                <div class="agent-card" data-agent="grant">
+                    <div class="agent-avatar">📝</div>
+                    <div class="agent-info">
+                        <div class="agent-name">Grant Writer</div>
+                        <div class="agent-desc">Funding & proposals</div>
+                    </div>
+                    <div class="agent-action">→</div>
+                </div>
+
+                <div class="agent-card" data-agent="creative">
+                    <div class="agent-avatar">🎨</div>
+                    <div class="agent-info">
+                        <div class="agent-name">Creative Director</div>
+                        <div class="agent-desc">Design & storytelling</div>
+                    </div>
+                    <div class="agent-action">→</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div id="chatTab" class="tab-content">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div id="suggestionsArea" class="chat-suggestions"></div>
+            <div class="chat-input-area">
+                <input
+                    type="text"
+                    class="chat-input"
+                    id="chatInput"
+                    placeholder="Ask me anything..."
+                    autocomplete="off"
+                >
+                <button class="send-btn" id="sendBtn">→</button>
+            </div>
+        </div>
+
+        <!-- System Tab -->
+        <div id="systemTab" class="tab-content">
+            <div class="overview-card">
+                <div class="overview-icon">🔋</div>
+                <div class="overview-content">
+                    <div class="overview-label">Pipeline Status</div>
+                    <div class="overview-value" id="pipelineStatus">Idle</div>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-icon">📊</div>
+                <div class="overview-content">
+                    <div class="overview-label">Active Layer</div>
+                    <div class="overview-value" id="layerInfo">L2 - Core Operations</div>
+                </div>
+            </div>
+
+            <div id="nodesList" style="margin-top: 12px;"></div>
+        </div>
+
+        <!-- More Tab -->
+        <div id="moreTab" class="tab-content">
+            <div class="link-list">
+                <a href="/mcp-dashboard.html" class="link-item">
+                    <span>🔌 MCP Dashboard</span>
+                    <span class="link-icon">→</span>
+                </a>
+                <a href="/docker-orchestrator.html" class="link-item">
+                    <span>🐳 Docker Orchestrator</span>
+                    <span class="link-icon">→</span>
+                </a>
+                <a href="/api-docs" class="link-item">
+                    <span>📖 API Documentation</span>
+                    <span class="link-icon">→</span>
+                </a>
+                <a href="/api/health" class="link-item">
+                    <span>🩺 System Health Check</span>
+                    <span class="link-icon">→</span>
+                </a>
+            </div>
+
+            <div class="narrative" id="systemNarrative">
+                Loading system narrative...
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Orb -->
+    <div class="floating-orb" id="floatingOrb" title="Quick Actions"></div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-tab active" data-tab="home">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Home</div>
+        </a>
+        <a href="#" class="nav-tab" data-tab="agents">
+            <div class="nav-icon">🤖</div>
+            <div class="nav-label">Agents</div>
+        </a>
+        <a href="#" class="nav-tab" data-tab="chat">
+            <div class="nav-icon">💬</div>
+            <div class="nav-label">Chat</div>
+        </a>
+        <a href="#" class="nav-tab" data-tab="system">
+            <div class="nav-icon">⚙</div>
+            <div class="nav-label">System</div>
+        </a>
+        <a href="#" class="nav-tab" data-tab="more">
+            <div class="nav-icon">•••</div>
+            <div class="nav-label">More</div>
+        </a>
+    </div>
+
+    <script>
+        /* ═══════════════════════════════════════════════════════════════════════════
+           HeadyOS Mobile - Touch-Optimized Native App Experience
+           ═══════════════════════════════════════════════════════════════════════════ */
+
+        const API_BASE = resolveApi();
+        const ENDPOINTS = {
+            health: `${API_BASE}/api/health`,
+            buddy: {
+                chat: `${API_BASE}/api/buddy/chat`,
+                suggestions: `${API_BASE}/api/buddy/suggestions`,
+                orchestrator: `${API_BASE}/api/buddy/orchestrator`,
+            },
+            system: {
+                status: `${API_BASE}/api/system/status`,
+                stories: `${API_BASE}/api/stories/summary`,
+            },
+            resources: `${API_BASE}/api/resources/health`,
+            pipeline: `${API_BASE}/api/pipeline/state`,
+            nodes: `${API_BASE}/api/nodes`,
+            layer: `${API_BASE}/api/layer`,
+        };
+
+        // State
+        const state = {
+            messages: [],
+            isLoading: false,
+            currentTab: 'home',
+            isOnline: false,
+            selectedAgent: null,
+        };
+
+        // Utility: Resolve API base
+        function resolveApi() {
+            if (typeof window !== 'undefined') {
+                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const protocol = window.location.protocol;
+                const host = window.location.hostname;
+                const port = isDev ? 3300 : (window.location.port ? `:${window.location.port}` : '');
+                return `${protocol}//${host}${port}`;
+            }
+            return 'http://localhost:3300';
+        }
+
+        // Update time display
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+
+            document.getElementById('timeDisplay').textContent =
+                `${displayHours}:${minutes}`;
+
+            // Update greeting
+            let greeting = '';
+            if (hours < 12) greeting = 'Good Morning';
+            else if (hours < 17) greeting = 'Good Afternoon';
+            else greeting = 'Good Evening';
+
+            document.getElementById('greetingTime').textContent = `${greeting}, E`;
+        }
+
+        // Tab navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabName = tab.dataset.tab;
+                switchTab(tabName);
+            });
+        });
+
+        function switchTab(tabName) {
+            state.currentTab = tabName;
+
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) tab.classList.add('active');
+            });
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // Load tab-specific data
+            if (tabName === 'chat' && state.messages.length === 0) {
+                loadChatSuggestions();
+            } else if (tabName === 'system') {
+                loadSystemData();
+            } else if (tabName === 'more') {
+                loadSystemNarrative();
+            }
+        }
+
+        // Load chat suggestions
+        async function loadChatSuggestions() {
+            try {
+                const response = await fetch(ENDPOINTS.buddy.suggestions);
+                if (response.ok) {
+                    const data = await response.json();
+                    const suggestionsArea = document.getElementById('suggestionsArea');
+                    suggestionsArea.innerHTML = '';
+
+                    if (data.suggestions && Array.isArray(data.suggestions)) {
+                        data.suggestions.slice(0, 4).forEach(suggestion => {
+                            const chip = document.createElement('div');
+                            chip.className = 'suggestion-chip';
+                            chip.textContent = suggestion;
+                            chip.addEventListener('click', () => {
+                                document.getElementById('chatInput').value = suggestion;
+                                sendMessage();
+                            });
+                            suggestionsArea.appendChild(chip);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading suggestions:', error);
+            }
+        }
+
+        // Chat functionality
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            input.value = '';
+            addMessage(message, 'user');
+
+            state.isLoading = true;
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(ENDPOINTS.buddy.chat, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message,
+                        history: state.messages.slice(0, -1),
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    removeTypingIndicator();
+                    addMessage(data.response || 'No response', 'assistant');
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('Error: Could not reach assistant', 'assistant');
+            } finally {
+                state.isLoading = false;
+            }
+        }
+
+        function addMessage(text, role) {
+            state.messages.push({ text, role });
+            const messagesArea = document.getElementById('chatMessages');
+            const message = document.createElement('div');
+            message.className = `message ${role}`;
+            message.innerHTML = `<div class="message-bubble">${escapeHtml(text)}</div>`;
+            messagesArea.appendChild(message);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const messagesArea = document.getElementById('chatMessages');
+            const indicator = document.createElement('div');
+            indicator.className = 'message assistant';
+            indicator.id = 'typingIndicator';
+            indicator.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            messagesArea.appendChild(indicator);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Quick action pills
+        document.querySelectorAll('.quick-action-pill').forEach(pill => {
+            pill.addEventListener('click', async () => {
+                const action = pill.dataset.action;
+                switchTab('chat');
+
+                const messages = {
+                    pipeline: 'Run the pipeline for me',
+                    health: 'Check system health',
+                    status: 'Show me system status',
+                    diagnose: 'Diagnose any issues',
+                };
+
+                document.getElementById('chatInput').value = messages[action];
+                await new Promise(r => setTimeout(r, 100));
+                sendMessage();
+            });
+        });
+
+        // Agent cards
+        document.querySelectorAll('.agent-card').forEach(card => {
+            card.addEventListener('click', () => {
+                state.selectedAgent = card.dataset.agent;
+                switchTab('chat');
+
+                const agentMessages = {
+                    researcher: 'Hello Researcher, I need data analysis',
+                    codeassistant: 'Hello Code Assistant, help me with development',
+                    grant: 'Hello Grant Writer, help me write a proposal',
+                    creative: 'Hello Creative Director, inspire me',
+                };
+
+                document.getElementById('chatInput').value = agentMessages[state.selectedAgent];
+                sendMessage();
+            });
+        });
+
+        // Floating orb quick actions
+        document.getElementById('floatingOrb').addEventListener('click', async () => {
+            switchTab('chat');
+            document.getElementById('chatInput').value = 'Run diagnostic report';
+            await new Promise(r => setTimeout(r, 100));
+            sendMessage();
+        });
+
+        // System data loading
+        async function loadSystemData() {
+            try {
+                const [statusRes, nodesRes, pipelineRes, layerRes] = await Promise.all([
+                    fetch(ENDPOINTS.system.status),
+                    fetch(ENDPOINTS.nodes),
+                    fetch(ENDPOINTS.pipeline),
+                    fetch(ENDPOINTS.layer),
+                ]);
+
+                if (statusRes.ok) {
+                    const status = await statusRes.json();
+                    document.getElementById('pipelineStatus').textContent =
+                        status.status || 'Unknown';
+                }
+
+                if (nodesRes.ok) {
+                    const nodes = await nodesRes.json();
+                    const nodesList = document.getElementById('nodesList');
+                    nodesList.innerHTML = '';
+
+                    if (Array.isArray(nodes)) {
+                        nodes.forEach(node => {
+                            const item = document.createElement('div');
+                            item.className = 'node-item';
+                            item.innerHTML = `
+                                <div class="node-info">
+                                    <div class="node-name">${node.name || 'Node'}</div>
+                                    <div class="node-status">${node.status || 'unknown'}</div>
+                                </div>
+                                <div class="node-badge" style="background: ${
+                                    node.status === 'healthy' ? '#00FF00' : '#FFA500'
+                                }; box-shadow: 0 0 6px ${
+                                    node.status === 'healthy' ? 'rgba(0,255,0,0.6)' : 'rgba(255,165,0,0.6)'
+                                };"></div>
+                            `;
+                            nodesList.appendChild(item);
+                        });
+                    }
+                }
+
+                if (layerRes.ok) {
+                    const layer = await layerRes.json();
+                    document.getElementById('layerInfo').textContent =
+                        layer.name || 'L2 - Core Operations';
+                }
+            } catch (error) {
+                console.error('Error loading system data:', error);
+            }
+        }
+
+        // Load system narrative
+        async function loadSystemNarrative() {
+            try {
+                const response = await fetch(ENDPOINTS.system.stories);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('systemNarrative').textContent =
+                        data.summary || 'System operating normally.';
+                }
+            } catch (error) {
+                console.error('Error loading narrative:', error);
+            }
+        }
+
+        // Load initial data
+        async function initializeApp() {
+            updateTime();
+            setInterval(updateTime, 60000);
+
+            try {
+                // Health check
+                const healthRes = await fetch(ENDPOINTS.health);
+                if (healthRes.ok) {
+                    const health = await healthRes.json();
+                    state.isOnline = true;
+                    document.getElementById('connectionDot').classList.remove('offline');
+                    document.getElementById('healthStatus').textContent =
+                        health.status || 'Operational';
+                }
+
+                // Resources
+                const resourcesRes = await fetch(ENDPOINTS.resources);
+                if (resourcesRes.ok) {
+                    const resources = await resourcesRes.json();
+
+                    const cpu = Math.round(resources.cpu || 42);
+                    const mem = Math.round(resources.memory || 58);
+                    const disk = Math.round(resources.disk || 71);
+
+                    document.getElementById('cpuValue').textContent = `${cpu}%`;
+                    document.getElementById('cpuFill').style.width = `${cpu}%`;
+
+                    document.getElementById('memValue').textContent = `${mem}%`;
+                    document.getElementById('memFill').style.width = `${mem}%`;
+
+                    document.getElementById('diskValue').textContent = `${disk}%`;
+                    document.getElementById('diskFill').style.width = `${disk}%`;
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                state.isOnline = false;
+                document.getElementById('connectionDot').classList.add('offline');
+            }
+
+            // Auto-refresh every 30s
+            setInterval(async () => {
+                if (state.currentTab === 'home') {
+                    try {
+                        const resourcesRes = await fetch(ENDPOINTS.resources);
+                        if (resourcesRes.ok) {
+                            const resources = await resourcesRes.json();
+
+                            const cpu = Math.round(resources.cpu || 42);
+                            const mem = Math.round(resources.memory || 58);
+                            const disk = Math.round(resources.disk || 71);
+
+                            document.getElementById('cpuValue').textContent = `${cpu}%`;
+                            document.getElementById('cpuFill').style.width = `${cpu}%`;
+
+                            document.getElementById('memValue').textContent = `${mem}%`;
+                            document.getElementById('memFill').style.width = `${mem}%`;
+
+                            document.getElementById('diskValue').textContent = `${disk}%`;
+                            document.getElementById('diskFill').style.width = `${disk}%`;
+                        }
+                    } catch (error) {
+                        console.error('Auto-refresh error:', error);
+                    }
+                }
+            }, 30000);
+        }
+
+        // Start app on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+        // Prevent pinch zoom on mobile
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 1) e.preventDefault();
+        }, { passive: false });
+
+        // Service worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.error('ServiceWorker registration failed:', err);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+    "mcpServers": {
+        "Heady": {
+            "command": "node",
+            "args": ["src/mcp/colab-mcp-bridge.js"],
+            "cwd": "C:\\Users\\erich\\Heady-Testing\\Heady-Testing",
+            "env": {
+                "HEADY_MCP_TRANSPORT": "stdio",
+                "HEADY_API_KEY": "${HEADY_API_KEY}",
+                "HEADY_BRAIN_URL": "https://manager.headysystems.com",
+                "HEADY_MANAGER_URL": "https://manager.headysystems.com",
+                "HEADY_DEVICE_ID": "035ae176-b513-4788-9654-95b360d4f7b9",
+                "NODE_ENV": "production"
+            }
+        }
+    }
+}

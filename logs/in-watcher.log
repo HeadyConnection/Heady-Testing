@@ -1,0 +1,76 @@
+nohup: ignoring input
+[2026-03-10T15:31:05Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-10T15:38:26Z] PROCESSING: jules_session_16449122244454081823.zip (2MB)
+[2026-03-10T15:38:26Z]   → 3 net-new files from jules_session_16449122244454081823.zip
+[2026-03-10T15:40:10Z] IN-FOLDER WATCHER STARTING (mode: --once, poll: 55s)
+[2026-03-10T15:40:10Z] PROCESSING: jules_session_11625959678638198903.zip (2MB)
+[2026-03-10T15:40:10Z]   → 21 net-new files from jules_session_11625959678638198903.zip
+[2026-03-10T16:29:14Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-10T16:29:14Z] PROCESSING: jules_session_15538589846449006457.zip (1MB)
+[2026-03-10T16:29:15Z]   → 255 net-new files from jules_session_15538589846449006457.zip
+nohup: ignoring input
+[2026-03-10T16:36:50Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-10T16:36:50Z] PROCESSING: jules_session_15420467594094585555.zip (1MB)
+[2026-03-10T16:36:50Z]   → 36 net-new files from jules_session_15420467594094585555.zip
+[2026-03-10T17:08:36Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-10T17:08:36Z] SKIP (duplicate): jules_session_15420467594094585555 (1).zip
+[2026-03-10T17:08:36Z] PROCESSING: jules_session_2030306490357698989.zip (14MB)
+[2026-03-10T17:08:39Z]   → 644 net-new files from jules_session_2030306490357698989.zip
+[2026-03-10T17:26:15Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-10T17:26:15Z] PROCESSING: jules_session_14959553503976149080.zip (1MB)
+[2026-03-10T17:26:15Z]   → 0 net-new files from jules_session_14959553503976149080.zip
+[2026-03-10T17:26:16Z] SKIP (duplicate): jules_session_15420467594094585555 (1).zip
+[2026-03-10T17:26:16Z] PROCESSING: jules_session_2386463515981511763.zip (1MB)
+[2026-03-10T17:26:16Z]   → 1 net-new files from jules_session_2386463515981511763.zip
+[2026-03-11T21:35:33Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-11T21:35:33Z] SKIP (duplicate): files (1).zip
+[2026-03-11T21:35:33Z] PROCESSING: files (2).zip (1MB)
+[2026-03-11T21:35:33Z]   → 11 net-new files from files (2).zip
+[2026-03-12T13:04:58Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-12T13:04:58Z] SKIP (duplicate): files (1).zip
+[2026-03-12T13:04:59Z] PROCESSING: files (3).zip (1MB)
+[2026-03-12T13:04:59Z]   → 2 net-new files from files (3).zip
+[2026-03-12T17:59:49Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-12T17:59:49Z] SKIP (duplicate): files (1).zip
+[2026-03-12T17:59:49Z] PROCESSING: files (4).zip (1MB)
+[2026-03-12T17:59:49Z]   → 3 net-new files from files (4).zip
+[2026-03-13T10:11:49Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-13T10:11:49Z] PROCESSING: all-model-racing-prompts.zip (1MB)
+[2026-03-13T10:11:49Z]   → 9 net-new files from all-model-racing-prompts.zip
+[2026-03-13T11:25:26Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-13T11:25:26Z] SKIP (duplicate): files (1).zip
+[2026-03-13T11:25:26Z] PROCESSING: files (5).zip (1MB)
+[2026-03-13T11:25:26Z]   → 0 net-new files from files (5).zip
+[2026-03-13T11:25:26Z] PROCESSING: files (6).zip (1MB)
+[2026-03-13T11:25:26Z]   → 0 net-new files from files (6).zip
+[2026-03-13T11:25:26Z] PROCESSING: files.zip (1MB)
+[2026-03-13T11:25:26Z]   → 0 net-new files from files.zip
+[2026-03-13T11:25:26Z] PROCESSING: heady-audit-bundle-2026-03-10.zip (1MB)
+[2026-03-13T11:25:26Z]   → 10 net-new files from heady-audit-bundle-2026-03-10.zip
+[2026-03-15T10:33:27Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-15T10:33:27Z] SKIP (duplicate): files (1).zip
+[2026-03-15T10:33:27Z] PROCESSING: heady-audit-deliverables.zip (1MB)
+[2026-03-15T10:33:27Z]   → 0 net-new files from heady-audit-deliverables.zip
+[2026-03-15T10:33:27Z] SKIP (duplicate): heady_audit_full_pack (1).zip
+[2026-03-15T10:33:28Z] PROCESSING: heady_audit_full_pack.zip (1MB)
+[2026-03-15T10:33:28Z]   → 111 net-new files from heady_audit_full_pack.zip
+[2026-03-16T02:15:17Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-16T02:15:17Z] SKIP (duplicate): files (1).zip
+[2026-03-16T02:15:17Z] SKIP (duplicate): heady_audit_full_pack (1).zip
+[2026-03-16T02:15:17Z] PROCESSING: heady-complete-deliverables-bundle.zip (1MB)
+[2026-03-16T02:15:17Z]   → 7 net-new files from heady-complete-deliverables-bundle.zip
+[2026-03-16T02:56:27Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-16T02:56:27Z] SKIP (duplicate): files (1).zip
+[2026-03-16T02:56:27Z] SKIP (duplicate): heady_audit_full_pack (1).zip
+[2026-03-16T02:56:27Z] PROCESSING: heady-complete.zip (1MB)
+[2026-03-16T02:56:28Z]   → 61 net-new files from heady-complete.zip
+[2026-03-16T14:49:33Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-16T14:49:33Z] SKIP (duplicate): files (1).zip
+[2026-03-16T14:49:33Z] SKIP (duplicate): heady_audit_full_pack (1).zip
+[2026-03-16T14:49:33Z] PROCESSING: Heady Documentation Hub.zip (1MB)
+[2026-03-16T14:49:33Z]   → 3 net-new files from Heady Documentation Hub.zip
+[2026-03-16T19:59:51Z] IN-FOLDER WATCHER STARTING (mode: daemon, poll: 55s)
+[2026-03-16T19:59:51Z] SKIP (duplicate): files (1).zip
+[2026-03-16T19:59:51Z] SKIP (duplicate): heady_audit_full_pack (1).zip
+[2026-03-16T19:59:51Z] PROCESSING: heady-full-rebuild-context.zip (1MB)
+[2026-03-16T19:59:52Z]   → 57 net-new files from heady-full-rebuild-context.zip
