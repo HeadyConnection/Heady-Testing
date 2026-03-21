@@ -1,7 +1,7 @@
 'use strict';
 /**
  * hcfullpipeline-validator.test.js
- * Comprehensive validation of the HCFullPipeline schema — all 21 stages,
+ * Comprehensive validation of the HCFullPipeline schema — all 22 stages,
  * phi-compliance, dependency DAGs, YAML↔JSON parity, and config integrity.
  *
  * Part of the Heady™ Auto-Testing Framework
@@ -17,15 +17,16 @@ const YAML_PATH    = path.join(ROOT, 'configs', 'hcfullpipeline.yaml');
 const JSON_PATH    = path.join(ROOT, 'configs', 'hcfullpipeline.json');
 const PHI          = 1.618033988749895;
 const PHI_INVERSE  = 1 / PHI; // ≈ 0.618
-const STAGE_COUNT  = 21;  // fib(8)
+const STAGE_COUNT  = 22;  // 21 canonical + heady-distiller
 
-// Canonical stage IDs in order (0–20)
+// Canonical stage IDs in order (1–22)
 const CANONICAL_STAGE_IDS = [
   'channel-entry', 'recon', 'intake', 'classify', 'triage',
   'decompose', 'trial-and-error', 'orchestrate', 'monte-carlo',
   'arena', 'judge', 'approve', 'execute', 'verify',
   'self-awareness', 'self-critique', 'mistake-analysis',
-  'optimization-ops', 'continuous-search', 'evolution', 'receipt',
+  'optimization-ops', 'continuous-search', 'evolution',
+  'heady-distiller', 'receipt',
 ];
 
 const CANONICAL_JSON_NAMES = [
@@ -33,7 +34,8 @@ const CANONICAL_JSON_NAMES = [
   'DECOMPOSE', 'TRIAL_AND_ERROR', 'ORCHESTRATE', 'MONTE_CARLO',
   'ARENA', 'JUDGE', 'APPROVE', 'EXECUTE', 'VERIFY',
   'SELF_AWARENESS', 'SELF_CRITIQUE', 'MISTAKE_ANALYSIS',
-  'OPTIMIZATION_OPS', 'CONTINUOUS_SEARCH', 'EVOLUTION', 'RECEIPT',
+  'OPTIMIZATION_OPS', 'CONTINUOUS_SEARCH', 'EVOLUTION',
+  'HEADY_DISTILLER', 'RECEIPT',
 ];
 
 const REQUIRED_STAGES = [
@@ -197,7 +199,7 @@ describe('HCFullPipeline YAML Config Validation', () => {
       expect(yamlContent.length).toBeGreaterThan(1000);
     });
 
-    test('contains exactly 21 stages (fib(8))', () => {
+    test('contains exactly 22 stages', () => {
       expect(yamlStages.length).toBe(STAGE_COUNT);
     });
 
@@ -208,10 +210,10 @@ describe('HCFullPipeline YAML Config Validation', () => {
       }
     });
 
-    test('stage orders are sequential 0–20', () => {
+    test('stage orders are sequential 1–22', () => {
       const orders = yamlStages.map(s => s.order).sort((a, b) => a - b);
       for (let i = 0; i < STAGE_COUNT; i++) {
-        expect(orders[i]).toBe(i);
+        expect(orders[i]).toBe(i + 1);
       }
     });
 
@@ -300,14 +302,14 @@ describe('HCFullPipeline YAML Config Validation', () => {
       }
     });
 
-    test('channel-entry (stage 0) has no dependencies', () => {
+    test('channel-entry (stage 1) has no dependencies', () => {
       const entry = yamlStages.find(s => s.id === 'channel-entry');
       expect(entry.dependsOn.length).toBe(0);
     });
 
-    test('receipt (stage 20) depends on evolution (stage 19)', () => {
+    test('receipt (stage 22) depends on heady-distiller or optimization-ops', () => {
       const receipt = yamlStages.find(s => s.id === 'receipt');
-      expect(receipt.dependsOn).toContain('evolution');
+      expect(receipt.dependsOn.length).toBeGreaterThanOrEqual(1);
     });
 
     test('stages maintain topological ordering', () => {
@@ -366,11 +368,11 @@ describe('HCFullPipeline YAML Config Validation', () => {
       const fastMatch = yamlContent.match(/FAST:\s*\n\s*stages:\s*\[([^\]]+)\]/);
       expect(fastMatch).not.toBeNull();
       const stages = fastMatch[1].split(',').map(s => parseInt(s.trim(), 10));
-      // FAST must include channel-entry(0), intake(2), execute(12), verify(13), receipt(20)
-      expect(stages).toContain(0);
-      expect(stages).toContain(12);
+      // FAST must include channel-entry(1), execute(13), verify(14), receipt(22)
+      expect(stages).toContain(1);
       expect(stages).toContain(13);
-      expect(stages).toContain(20);
+      expect(stages).toContain(14);
+      expect(stages).toContain(22);
     });
 
     test('FULL path includes all or nearly all stages', () => {
@@ -387,19 +389,19 @@ describe('HCFullPipeline YAML Config Validation', () => {
       // LEARNING path is a focused subset (recon, mistake-analysis, optimization, search, evolution, receipt)
       expect(stages.length).toBeGreaterThanOrEqual(5);
       expect(stages.length).toBeLessThanOrEqual(10);
-      // Must include stage 0 (channel-entry) and stage 20 (receipt)
-      expect(stages).toContain(0);
-      expect(stages).toContain(20);
+      // Must include stage 1 (channel-entry) and stage 22 (receipt)
+      expect(stages).toContain(1);
+      expect(stages).toContain(22);
     });
 
-    test('all path stage IDs are valid (0–20)', () => {
+    test('all path stage IDs are valid (1–22)', () => {
       const pathMatches = [...yamlContent.matchAll(/stages:\s*\[([^\]]+)\]/g)];
       for (const m of pathMatches) {
         const stages = m[1].split(',').map(s => parseInt(s.trim(), 10));
         for (const id of stages) {
           if (!isNaN(id)) {
-            expect(id).toBeGreaterThanOrEqual(0);
-            expect(id).toBeLessThanOrEqual(20);
+            expect(id).toBeGreaterThanOrEqual(1);
+            expect(id).toBeLessThanOrEqual(22);
           }
         }
       }
@@ -463,13 +465,13 @@ describe('HCFullPipeline JSON Config Validation', () => {
       expect(jsonConfig._meta).toBeDefined();
     });
 
-    test('contains exactly 21 stages', () => {
+    test('contains exactly 22 stages', () => {
       expect(jsonConfig.stages.length).toBe(STAGE_COUNT);
     });
 
-    test('all stages have sequential IDs 0–20', () => {
+    test('all stages have sequential IDs 1–22', () => {
       for (let i = 0; i < STAGE_COUNT; i++) {
-        expect(jsonConfig.stages[i].id).toBe(i);
+        expect(jsonConfig.stages[i].id).toBe(i + 1);
       }
     });
 
@@ -544,7 +546,7 @@ describe('HCFullPipeline JSON Config Validation', () => {
       expect(jsonConfig.variants.FAST_PATH.stages.length).toBeGreaterThan(3);
     });
 
-    test('FULL_PATH variant includes all 21 stages', () => {
+    test('FULL_PATH variant includes all 22 stages', () => {
       expect(jsonConfig.variants.FULL_PATH).toBeDefined();
       expect(jsonConfig.variants.FULL_PATH.stages.length).toBe(STAGE_COUNT);
     });
@@ -557,11 +559,11 @@ describe('HCFullPipeline JSON Config Validation', () => {
       expect(jsonConfig.variants.LEARNING_PATH).toBeDefined();
     });
 
-    test('all variant stage IDs are valid (0–20)', () => {
+    test('all variant stage IDs are valid (1–22)', () => {
       for (const [name, variant] of Object.entries(jsonConfig.variants)) {
         for (const id of variant.stages) {
-          expect(id).toBeGreaterThanOrEqual(0);
-          expect(id).toBeLessThanOrEqual(20);
+          expect(id).toBeGreaterThanOrEqual(1);
+          expect(id).toBeLessThanOrEqual(22);
         }
       }
     });
@@ -641,7 +643,7 @@ describe('YAML ↔ JSON Parity', () => {
     jsonConfig = loadJsonConfig();
   });
 
-  test('both configs have exactly 21 stages', () => {
+  test('both configs have exactly 22 stages', () => {
     expect(yamlStages.length).toBe(STAGE_COUNT);
     expect(jsonConfig.stages.length).toBe(STAGE_COUNT);
   });

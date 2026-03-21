@@ -763,13 +763,13 @@ class AutoSuccessEngine {
       value: pipelineConfig?.version || 'unknown',
     });
 
-    // 2. Pipeline stage count = fib(8) = 21
+    // 2. Pipeline stage count = 22 (21 canonical + heady-distiller)
     const stageCount = pipelineConfig?.pipeline?.stages?.length || 0;
     checks.push({
       name: 'pipeline_stage_count_fib8',
-      ok: stageCount === fib(8),
+      ok: stageCount === 22,
       value: stageCount,
-      expected: fib(8),
+      expected: 22,
     });
 
     // 3. Receipt stage depends on required stage (not optional)
