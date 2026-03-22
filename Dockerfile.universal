@@ -25,15 +25,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy package files first for caching
-COPY package.json pnpm-lock.yaml ./
-COPY packages/core/package.json packages/core/
-COPY packages/gateway/package.json packages/gateway/
-COPY packages/orchestrator/package.json packages/orchestrator/
-COPY packages/vector-memory/package.json packages/vector-memory/
-COPY packages/mcp-server/package.json packages/mcp-server/
+COPY package.json ./
+COPY pnpm-lock.yaml* ./
 
 # Install dependencies
-RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod
+RUN npm install -g pnpm && \
+    (pnpm install --no-frozen-lockfile --prod 2>/dev/null || npm install --omit=dev)
 
 # Copy application code
 COPY . .

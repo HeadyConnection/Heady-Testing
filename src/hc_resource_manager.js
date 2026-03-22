@@ -161,7 +161,7 @@ function collectGPU() {
   try {
     const out = execSync(
       "nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits",
-      { timeout: 5000, encoding: "utf-8" }
+      { timeout: 5000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] }
     );
     const parts = out.trim().split(",").map(s => parseFloat(s.trim()));
     return {

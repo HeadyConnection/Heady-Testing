@@ -1,292 +1,340 @@
-<!-- HEADY_BRAND:BEGIN
-<!-- ╔══════════════════════════════════════════════════════════════════╗
-<!-- ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
-<!-- ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
-<!-- ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
-<!-- ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
-<!-- ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
-<!-- ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
-<!-- ║                                                                  ║
-<!-- ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
-<!-- ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-<!-- ║  FILE: CLAUDE.md                                                    ║
-<!-- ║  LAYER: root                                                  ║
-<!-- ╚══════════════════════════════════════════════════════════════════╝
-<!-- HEADY_BRAND:END
--->
-<!-- ╔══════════════════════════════════════════════════════════════════╗ -->
-<!-- ║  █╗  █╗███████╗ █████╗ ██████╗ █╗   █╗                     ║ -->
-<!-- ║  █║  █║█╔════╝█╔══█╗█╔══█╗╚█╗ █╔╝                     ║ -->
-<!-- ║  ███████║█████╗  ███████║█║  █║ ╚████╔╝                      ║ -->
-<!-- ║  █╔══█║█╔══╝  █╔══█║█║  █║  ╚█╔╝                       ║ -->
-<!-- ║  █║  █║███████╗█║  █║██████╔╝   █║                        ║ -->
-<!-- ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║ -->
-<!-- ║                                                                  ║ -->
-<!-- ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║ -->
-<!-- ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║ -->
-<!-- ║  FILE: CLAUDE.md                                                  ║ -->
-<!-- ║  LAYER: root                                                      ║ -->
-<!-- ╚══════════════════════════════════════════════════════════════════╝ -->
-<!-- HEADY_BRAND:END -->
+# HEADY™ — Universal AI Agent Optimization Loop
+# © 2026 HeadySystems Inc. All Rights Reserved.
+# Compatible with: Claude Code, Codex, Gemini, Cursor, Windsurf, Copilot, any AI coding agent
 
-# HEADY SYSTEMS | CLAUDE CODE INTEGRATION PROTOCOL
+> **This is the permanent optimization loop for the Heady codebase.**
+> Any AI agent reading this file should execute these phases in order,
+> commit after each phase, and loop back to Phase 1 until zero issues remain.
+> **Goal: zero defects, sub-100ms health checks, premium UI everywhere.**
 
-## SYSTEM IDENTITY
+---
 
-You are operating inside the **HeadyMonorepo** — the canonical implementation of
-**HCFullPipeline** and the **Heady Orchestrator-Conductor** system.
+## SYSTEM CONTEXT
 
-Your goal: run as an **intelligent, parallel, dynamically distributed, optimized,
-deterministic, and secure** execution environment for Heady workloads, both local
-and remote.
+You are working on **Heady™**, a production Node.js monorepo.
+Root: the directory containing this file.
 
-## TECH STACK
-
-- **Manager:** Node.js (Express, MCP Protocol) — `heady-manager.js` on port 3300
-- **Worker:** Python (Render Worker) — `src/heady_project/heady_conductor.py`
-- **Frontend:** React with Sacred Geometry Aesthetics (Rounded, Organic, Breathing)
-- **Pipeline Engine:** `src/hc_pipeline.js` — loads YAML configs, runs stages
-- **Deployment:** Render.com Blueprint (`render.yaml`)
-- **Packages:** `packages/` — networking, hc-supervisor, hc-checkpoint, hc-brain, hc-readiness, hc-health
-
-## CRITICAL PATHS
-
+**Key files & directories:**
 | Path | Purpose |
 |------|---------|
-| `heady-manager.js` | Node.js MCP server & API gateway (port 3300) |
-| `src/hc_pipeline.js` | HCFullPipeline runtime engine |
-| `src/agents/` | Agent implementations (builder, researcher, deployer, claude-code) |
-| `configs/` | All YAML configs (pipeline, resources, services, governance, data, concepts, IP) |
-| `packages/networking/` | Direct no-proxy HTTP client for internal calls |
-| `packages/hc-supervisor/` | Multi-agent Supervisor pattern (parallel fan-out) |
-| `packages/hc-checkpoint/` | Checkpoint protocol analyzer |
-| `packages/hc-brain/` | System Brain meta-controller |
-| `packages/hc-readiness/` | Operational readiness evaluator |
-| `packages/hc-health/` | Node health checks + cron integration |
-| `public/` | Sacred Geometry React UI |
-| `frontend/` | Vite React frontend |
-| `scripts/` | PowerShell ops scripts |
-| `render.yaml` | Infrastructure as Code |
+| `heady-manager.js` | Main Express server (port 3300) — the unified API gateway |
+| `services/` | Microservices (MCP server, brain, memory, soul, conductor, etc.) |
+| `packages/` | Shared packages (core, gateway, orchestrator, vector-memory, phi-math) |
+| `src/` | Core modules (pipeline, bees, architecture, deployment) |
+| `sites/` | Public websites (headysystems.com, headyme.com, headyapi.com, etc.) |
+| `services/heady-web/sites/` | Cloudflare Pages site source |
+| `services/heady-mcp-server/src/config/phi-constants.js` | Canonical port map (source of truth) |
+| `services/heady-mcp-server/src/config/services.js` | Service registry |
+| `envoy/envoy.yaml` | Envoy proxy routing config |
+| `Dockerfile.universal` | Single container, all roles via `HEADY_ROLE` env var |
+| `docker-compose.heady-services.yml` | Full stack compose |
 
-## HCFULLPIPELINE STAGES
+**Production endpoints:**
+- Cloud Run: `heady-manager-609590223909.us-central1.run.app`
+- Region: **us-central1** (do NOT use us-east1 — it's dead)
+- GitHub: `HeadyMe` (personal), `HeadySystems` (org)
 
-The pipeline runs in strict dependency order with checkpoints at each stage:
+**Design constants:**
+- φ (phi) = 1.618033988749895 — used for port spacing, timeouts, scaling
+- All ports defined in `phi-constants.js` — never invent new ones
+
+---
+
+## THE LOOP
 
 ```
-ingest → plan → execute-major-phase → recover → finalize
+while (issues_found > 0) {
+  Phase 1: AUDIT         → find all problems
+  Phase 2: PERFORMANCE   → make everything fast
+  Phase 3: UI/UX         → make everything beautiful & correct
+  Phase 4: INTEGRATION   → make everything connected
+  Phase 5: DOCUMENTATION → make everything understandable
+  Phase 6: SECURITY      → make everything safe
+  Phase 7: DEPLOYMENT    → make everything runnable
+  commit & push
+  issues_found = run Phase 1 again
+}
 ```
 
-Each stage is defined in `configs/hcfullpipeline.yaml`. At every checkpoint,
-the system **deeply re-analyzes** state, configs, and patterns — this is the
-primary self-correction moment.
+---
 
-### Stop Rule
-> Build aggressively when healthy; repair first when not.
-> Do NOT keep building when significant errors exist in core infra, data integrity, or security.
+## PHASE 1: AUDIT & TRIAGE ← always start here
 
-## CONFIGS (Source of Truth)
+**Goal:** Find every issue. Prioritize: crashes > broken links > wrong data > cosmetics.
 
-All pipeline definitions, resource rules, and concept indexes live in `configs/`:
+**Commands to run:**
+```bash
+# 1. Check repo state
+git status && git log --oneline -5
 
-| File | Purpose |
-|------|---------|
-| `hcfullpipeline.yaml` | Master pipeline definition, stages, stop rules, checkpoint protocol |
-| `resource-policies.yaml` | Concurrency, rate limits, cost budgets, retry/backoff, circuit breakers |
-| `service-catalog.yaml` | All services, agents, tools, SLOs, external integrations |
-| `governance-policies.yaml` | Access control, data domains, cost governance, change policies, security |
-| `data-schema.yaml` | Layered data model (L0→L3), persistent/ephemeral storage schemas |
-| `concepts-index.yaml` | Implemented, planned, and public-domain pattern tracking |
-| `system-components.yaml` | Canonical registry of ALL system components |
-| `app-readiness.yaml` | Business-level health probes, readiness scoring |
-| `ip-registry.yaml` | Owned IP, licensed components, public-domain patterns in use |
-| `public-domain-patterns.md` | Registry of beneficial patterns available for integration |
+# 2. Check for test failures
+npm test 2>&1 | tail -30
 
-## ENVIRONMENT VARIABLES
+# 3. Check if main server boots
+timeout 10 node heady-manager.js &
+sleep 5 && curl -sf localhost:3300/api/health | head -c 200
+kill %1
 
-- `DATABASE_URL` — Postgres connection (from Render)
-- `HEADY_API_KEY` — Auto-generated API key
-- `ANTHROPIC_API_KEY` — Claude API key (for Claude Code agent)
-- `PORT` — Server port (default 3300)
-- `NODE_ENV` — Environment (development/production)
+# 4. Broken imports
+grep -rn "Cannot find module\|require.*ENOENT\|Module not found" --include="*.js" --include="*.ts" src/ services/ | grep -v node_modules | head -20
 
-## CLAUDE CODE AGENT ROLE
+# 5. Stale localhost references (Sacred Rule #1 violation)
+grep -rn "localhost:" --include="*.js" --include="*.ts" src/ services/ | grep -v node_modules | grep -v "test\|spec\|mock" | head -20
 
-You are registered as the `claude-code` agent in the Supervisor pattern.
-Your skills: `code-generation`, `code-analysis`, `refactoring`, `architecture`, `debugging`.
+# 6. Dead us-east1 references
+grep -rn "us-east1" --include="*.js" --include="*.ts" --include="*.yaml" src/ services/ | grep -v node_modules | head -10
 
-When invoked by the Supervisor during `execute-major-phase`:
-1. You receive a task with context (stage, configs, prior results).
-2. You execute the task using your coding capabilities.
-3. You return structured results to the Supervisor for aggregation.
+# 7. Placeholder text
+grep -rn "TODO\|FIXME\|HACK\|XXX\|lorem ipsum\|placeholder\|Coming Soon\|TBD" --include="*.js" --include="*.ts" --include="*.html" --include="*.css" src/ services/ sites/ | head -30
 
-### Direct Routing Protocol
-- All calls between Supervisor and agents use **direct routing** (no proxy).
-- Use the `@heady/networking` client with `proxy: false` for internal calls.
-- External API calls go through circuit breakers with retry + backoff.
+# 8. Dead links in HTML
+find sites/ services/heady-web/ -name "*.html" 2>/dev/null | xargs grep -ohP 'href="[^"]*"' 2>/dev/null | sort -u | head -40
 
-## CODING CONVENTIONS
+# 9. Port mismatches
+diff <(grep -oP 'port_value: \d+' envoy/envoy.yaml | sort) <(node -e "const {PORTS}=require('./services/heady-mcp-server/src/config/phi-constants');console.log(Object.values(PORTS).sort().map(p=>'port_value: '+p).join('\n'))")
+```
 
-- **Brand Header:** All source files start with `HEADY_BRAND:BEGIN` / `HEADY_BRAND:END` block
-- **Style:** Standard Node.js (CommonJS `require`), Python 3.x for workers
-- **Config:** YAML in `configs/`, JSON for registries
-- **Testing:** Jest for Node.js, pytest for Python
-- **Security:** Timing-safe API key validation, no hardcoded secrets, least-privilege access
+**Action:** Fix all critical issues (crashes, broken imports) immediately.
+**Commit:** `fix(audit): resolve [N] issues — [brief description]`
 
-## OPERATIONAL READINESS
+**Exit condition for the entire loop:** Phase 1 returns zero issues across all 9 checks.
 
-Operational Readiness Score (ORS) 0–100, computed at each checkpoint:
-- **>85:** Full parallelism, aggressive building, new optimizations allowed
-- **70–85:** Normal operation, standard parallelism
-- **50–70:** Maintenance mode, reduced load, no new large builds
-- **<50:** Recovery mode, repair only, escalate to owner
+---
 
-## CHECKPOINT PROTOCOL
+## PHASE 2: PERFORMANCE — TARGET <100ms
 
-At each checkpoint, you MUST:
-1. **Validate run state** — pipeline def + resource policies still current
-2. **Compare config hashes** — detect drift from repo state
-3. **Re-evaluate health** — bottlenecks, errors, spend vs budget
-4. **Check concept alignment** — which patterns active, suggest missing
-5. **Apply approved patterns** — gradual enablement at boundaries
-6. **Sync registry entries** — update HeadyRegistry with new versions, endpoints, statuses
-7. **Sync documentation** — update all docs that reference changed APIs/schemas/configs
-8. **Validate notebooks** — ensure Colab notebooks still parse and reference correct APIs
-9. **Check doc ownership freshness** — flag overdue reviews per `docs/DOC_OWNERS.yaml`
-10. **Report** — comprehensive status with concept usage + config hashes
+**Goal:** Every health check <100ms, every API response <500ms, every page load <2s.
 
-> Full protocol: `docs/CHECKPOINT_PROTOCOL.md`
-> Automation: `scripts/checkpoint-sync.ps1`
-> Workflow: `.windsurf/workflows/checkpoint-sync.md`
+**Checklist:**
+- [ ] Response-time logging middleware on heady-manager.js
+- [ ] Async initialization for all services (no sync file reads at startup)
+- [ ] LRU cache for `/api/health`, `/api/status`, MCP tool listings
+- [ ] Database connection pooling (min:2, max:10)
+- [ ] Redis connection reuse (not per-request)
+- [ ] HTTP keep-alive for inter-service calls
+- [ ] Compression middleware (gzip/brotli) on all Express servers
+- [ ] Lazy-load heavy modules (AI models, vector stores) — only init when first called
+- [ ] Bundle minification for all sites/ JS and CSS
+- [ ] Preload critical CSS, defer non-critical JS in HTML files
+- [ ] Image optimization: WebP format, lazy loading, srcset for responsive
 
-### Standing Rule
-Outdated documentation is treated as a defect. When a mismatch between docs
-and behavior is detected, create an incident task and prevent that class of
-drift in future.
+**Verification:**
+```bash
+# Measure startup time
+time timeout 10 node heady-manager.js &
+sleep 3
 
-## COMMANDS
+# Measure response time
+for i in {1..5}; do curl -so /dev/null -w "%{time_total}s\n" localhost:3300/api/health; done
+
+kill %1
+```
+
+**Commit:** `perf: [specific optimization description]`
+
+---
+
+## PHASE 3: UI/UX — PREMIUM, SCAFFOLDED, ZERO DEAD LINKS
+
+**Goal:** Every site feels like a $10M SaaS product. Every link works. Every user understands what Heady does within 5 seconds.
+
+### 3A. Fix Dead & Wrong Links
+
+For every HTML file in `sites/` and `services/heady-web/sites/`:
+1. Extract all `href=""` and `src=""` values
+2. Internal links → verify the target file exists
+3. External links → verify they return HTTP 200
+4. Fix or remove ALL dead links — zero tolerance
+
+Cross-site navigation (every site header must link to):
+| Link Text | URL |
+|-----------|-----|
+| Platform | headysystems.com |
+| Dashboard | headyme.com |
+| MCP Tools | headymcp.com |
+| API Docs | headyapi.com |
+| Community | headyconnection.com |
+| SDK | heady.io |
+
+### 3B. Information Architecture (apply to ALL sites)
+
+```
+EVERY PAGE must follow this scaffold:
+
+┌─────────────────────────────────────────┐
+│  HEADER: Logo + Nav + Mobile Hamburger  │
+├─────────────────────────────────────────┤
+│  HERO: Value prop + 3 benefits + CTA    │
+├─────────────────────────────────────────┤
+│  FEATURES: Icon + Title + Description   │
+│  (cards with hover lift, grid layout)   │
+├─────────────────────────────────────────┤
+│  HOW IT WORKS: 3-5 steps + visuals      │
+├─────────────────────────────────────────┤
+│  TECHNICAL: API ref / Architecture      │
+├─────────────────────────────────────────┤
+│  TRUST: Patents (51), GitHub, Security  │
+├─────────────────────────────────────────┤
+│  CTA: Final call-to-action              │
+├─────────────────────────────────────────┤
+│  FOOTER: Sitemap + Social + Legal       │
+└─────────────────────────────────────────┘
+```
+
+### 3C. Design System
+
+```css
+/* MANDATORY DESIGN TOKENS — apply to every site */
+:root {
+  /* Colors */
+  --bg-primary: #0a0a1a;
+  --bg-surface: #1a1a2e;
+  --bg-hover: #252542;
+  --text-primary: #e0e0ff;
+  --text-dim: #6b7280;
+  --accent: #7c3aed;
+  --accent-2: #06b6d4;
+  --gradient: linear-gradient(135deg, #7c3aed, #06b6d4);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* φ-scaled spacing */
+  --space-xs: 0.382rem;
+  --space-sm: 0.618rem;
+  --space-md: 1rem;
+  --space-lg: 1.618rem;
+  --space-xl: 2.618rem;
+  --space-2xl: 4.236rem;
+
+  /* Transitions */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 300ms;
+}
+
+/* MANDATORY: every interactive element gets hover effect */
+/* MANDATORY: mobile-responsive (min 320px breakpoint) */
+/* MANDATORY: dark mode by default */
+/* MANDATORY: smooth scroll */
+/* MANDATORY: loading skeletons, not spinners */
+```
+
+**Every page must have:**
+- [ ] `<title>` with descriptive text
+- [ ] `<meta name="description">` summarizing the page
+- [ ] Open Graph tags (og:title, og:description, og:image)
+- [ ] Favicon
+- [ ] Mobile viewport meta tag
+- [ ] Responsive header with hamburger menu ≤768px
+- [ ] Back-to-top button
+- [ ] Footer with copyright © 2026 HeadySystems Inc.
+
+**Commit:** `ui: premium UX overhaul — [site names]`
+
+---
+
+## PHASE 4: SERVICE HEALTH & INTEGRATION
+
+**Goal:** Every service boots, responds to health checks, and is correctly wired.
+
+**Checklist:**
+- [ ] All ports in `envoy.yaml` match `phi-constants.js`
+- [ ] All ports in `docker-compose.heady-services.yml` match `phi-constants.js`
+- [ ] All services in `services.js` registry have existing entry points
+- [ ] All Cloudflare worker origins use `us-central1` (not `us-east1`)
+- [ ] Pipeline validator passes: `node tests/hcfullpipeline-validator.test.js`
+- [ ] All 22 pipeline stages registered and working
+- [ ] No service-to-service calls use `localhost` in production code
+
+**Commit:** `fix(integration): [description]`
+
+---
+
+## PHASE 5: DOCUMENTATION
+
+**Goal:** Any developer can understand and contribute within 30 minutes.
+
+**Root README.md must have:**
+- [ ] One-line description
+- [ ] Quick start (3 commands)
+- [ ] Architecture diagram (mermaid)
+- [ ] Service map with ports
+- [ ] Environment variables reference
+
+**Each service README must have:**
+- [ ] Purpose (one sentence)
+- [ ] Port number
+- [ ] API endpoints list
+- [ ] Required env vars
+- [ ] Example curl commands
+
+**Commit:** `docs: [description]`
+
+---
+
+## PHASE 6: SECURITY
+
+**Goal:** Zero exposed secrets, rate limiting on all public endpoints, security headers everywhere.
 
 ```bash
-# Start the system
-npm start                          # Start heady-manager on port 3300
+# Scan for leaked secrets
+grep -rn "sk-\|api_key.*=.*['\"].\{20\}\|password.*=.*['\"]" --include="*.js" --include="*.ts" | grep -v node_modules | grep -v test | grep -v ".env"
 
-# Pipeline operations
-curl -X POST localhost:3300/api/pipeline/run     # Trigger pipeline run
-curl localhost:3300/api/pipeline/state            # Current run state
-curl localhost:3300/api/pipeline/config           # Pipeline config summary
-curl localhost:3300/api/pipeline/dag              # Stage dependency graph
-curl localhost:3300/api/pipeline/history          # Run history
-curl localhost:3300/api/pipeline/circuit-breakers # Circuit breaker status
-curl localhost:3300/api/pipeline/log              # Pipeline log entries
-
-# Claude Code direct access
-curl -X POST localhost:3300/api/pipeline/claude -d '{"prompt":"..."}'        # Ad-hoc Claude execution
-curl -X POST localhost:3300/api/pipeline/claude/analyze -d '{"paths":["src/"]}' # Code analysis
-curl -X POST localhost:3300/api/pipeline/claude/security                     # Security audit
-
-# Supervisor (multi-agent routing)
-curl localhost:3300/api/supervisor/status                                     # Agent status
-curl -X POST localhost:3300/api/supervisor/route -d '{"type":"build"}'       # Route task to agents
-
-# System Brain
-curl localhost:3300/api/brain/status                                         # Brain status + readiness
-curl -X POST localhost:3300/api/brain/tune -d '{"errorRate":0.05}'           # Auto-tune concurrency
-curl -X POST localhost:3300/api/brain/governance-check -d '{"action":"execute","actor":"builder","domain":"build"}'
-curl -X POST localhost:3300/api/brain/evaluate-pattern -d '{"patternId":"circuit-breaker"}'
-
-# Readiness Evaluator
-curl localhost:3300/api/readiness/evaluate                                   # Run readiness probes
-curl localhost:3300/api/readiness/history                                    # Evaluation history
-
-# Health Checks
-curl localhost:3300/api/health-checks/snapshot                               # Current health snapshot
-curl -X POST localhost:3300/api/health-checks/run                            # Run all checks now
-curl localhost:3300/api/health-checks/history                                # Check history
-
-# Checkpoint Analyzer
-curl -X POST localhost:3300/api/checkpoint/analyze -d '{"stage":"manual"}'   # Run checkpoint analysis
-curl localhost:3300/api/checkpoint/records                                    # Checkpoint records
-
-# Combined overview
-curl localhost:3300/api/subsystems                                           # All subsystem status
-curl localhost:3300/api/agents/claude-code/status                            # Claude Code agent status
-
-# Registry API
-curl localhost:3300/api/registry                             # Full registry catalog
-curl localhost:3300/api/registry/component/heady-manager      # Lookup component
-curl localhost:3300/api/registry/environments                 # List environments
-curl localhost:3300/api/registry/docs                         # List registered docs
-curl localhost:3300/api/registry/notebooks                    # List registered notebooks
-curl localhost:3300/api/registry/patterns                     # List patterns
-curl localhost:3300/api/registry/workflows                    # List workflows
-curl localhost:3300/api/registry/ai-nodes                     # List AI nodes
-
-# System status
-curl localhost:3300/api/health                    # Health check
-curl localhost:3300/api/system/status             # Full system status
-curl localhost:3300/api/nodes                     # Node status
-curl -X POST localhost:3300/api/system/production # Activate production mode
-
-# Build & Deploy
-.\commit_and_build.ps1             # Local build cycle
-.\nexus_deploy.ps1                 # Push to all remotes
-.\heady_sync.ps1                   # Multi-remote sync
-
-# Checkpoint Sync
-.\scripts\checkpoint-sync.ps1                    # Full checkpoint sync
-.\scripts\checkpoint-sync.ps1 -Mode check        # Read-only drift detection
-.\scripts\checkpoint-sync.ps1 -Mode fix          # Auto-fix issues
-.\scripts\checkpoint-sync.ps1 -Mode report       # Generate report only
-
-# Health check script
-.\scripts\ops\node-health-check.ps1              # NHC-style health check
+# Check npm vulnerabilities
+npm audit --production 2>&1 | tail -10
 ```
 
-## SCRIPTS
+**Checklist:**
+- [ ] All secrets via `process.env` — never hardcoded
+- [ ] Rate limiting active on public endpoints
+- [ ] CORS whitelist only `*.headysystems.com`, `*.headyme.com`, etc.
+- [ ] Security headers: `X-Content-Type-Options`, `X-Frame-Options`, `HSTS`
+- [ ] No `eval()` or `Function()` constructors in production code
 
-| Script | Purpose |
-|--------|---------|
-| `commit_and_build.ps1` | Local build cycle |
-| `nexus_deploy.ps1` | Push to all remotes |
-| `heady_sync.ps1` | Multi-remote git sync |
-| `hcautobuild.ps1` | Automated build pipeline |
-| `heady_protocol.ps1` | Protocol enforcement |
-| `scripts/auto-checkpoint.ps1` | Automated checkpoint saves |
-| `scripts/checkpoint-sync.ps1` | Checkpoint Protocol sync (all files) |
-| `scripts/hc.ps1` | HC CLI tool |
+**Commit:** `security: [description]`
 
-## KEY DOCUMENTATION
+---
 
-| Path | Purpose |
-|------|---------|
-| `docs/CHECKPOINT_PROTOCOL.md` | Master protocol for keeping all files in sync at every checkpoint |
-| `docs/DOC_OWNERS.yaml` | Document ownership, review dates, and freshness tracking |
-| `docs/notion-quick-start.md` | Notion Quick Start notebook template (exportable) |
-| `docs/notion-project-notebook.md` | Notion Project Notebook template (exportable) |
-| `docs/heady-services-manual.md` | Comprehensive services manual |
-| `heady-registry.json` | HeadyRegistry — central catalog of all components, workflows, environments, docs, notebooks |
-| `configs/notebook-ci.yaml` | Notebook CI validation configuration |
-| `notebooks/` | Colab notebooks (quick-start, tutorials, examples) |
+## PHASE 7: DEPLOYMENT VALIDATION
 
-## DETERMINISM RULE
+**Goal:** Docker builds, all roles work, Cloud Run deploys clean.
 
-Given the same input, `hcfullpipeline.yaml`, `resource-policies.yaml`, and
-dependency versions, the system MUST produce the same plan graph and same
-task routing decisions. Randomness is seeded and logged per run.
+```bash
+# Build
+docker build -t heady-universal:latest -f Dockerfile.universal .
 
-## SYSTEM PROMPT (Embeddable)
+# Test roles
+docker run --rm -e HEADY_ROLE=all -p 3300:3300 -p 3310:3310 heady-universal:latest &
+sleep 10
+curl -sf localhost:3300/api/health
+curl -sf localhost:3310/health
+docker stop $(docker ps -q)
 
+# Validate compose
+docker compose -f docker-compose.heady-services.yml config --quiet
 ```
-You are the HCFullPipeline Orchestrator-Conductor for the HeadyMonorepo.
-Operate as an intelligent, parallel, dynamically distributed, optimized,
-deterministic, and secure system for all Heady workloads (local and remote).
-Use the versioned pipeline definitions, resource policies, and concept indexes
-in this repository as your single source of truth.
-At each checkpoint, deeply re-analyze system state, configs, and patterns;
-update plans, tune resources, apply or recommend public-domain best practices,
-and send a comprehensive status report to the owner.
-Maintain explicit awareness of which architectural concepts and public-domain
-patterns are implemented, which are pending, and which are not applicable.
-Integrate beneficial, legally and ethically acceptable patterns where they
-improve reliability, performance, or safety, without violating Heady's data
-ownership, security, or social impact goals.
-```
+
+**Commit:** `deploy: validated build & deployment`
+
+---
+
+## LOOP EXIT CRITERIA
+
+The loop is considered **complete** when ALL of the following are true:
+
+1. ✅ Phase 1 audit returns **zero issues** across all 9 checks
+2. ✅ `curl localhost:3300/api/health` responds in **<100ms**
+3. ✅ **Zero dead links** across all sites
+4. ✅ **Zero placeholder text** in any user-facing content
+5. ✅ **Every site** has responsive header, hero, features, footer
+6. ✅ **All services** respond to health checks
+7. ✅ **All ports** match `phi-constants.js`
+8. ✅ `npm test` passes
+9. ✅ `docker build` succeeds
+10. ✅ `npm audit --production` shows zero critical/high vulnerabilities
+
+**Until all 10 criteria are met, loop back to Phase 1.**
