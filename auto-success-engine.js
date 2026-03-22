@@ -371,7 +371,7 @@ class AutoSuccessEngine {
     if (catalog && catalog.services) {
       for (const svc of catalog.services.slice(0, 5)) { // Check first 5 to stay within timeout
         try {
-          const url = `https://${svc.name}-609590223909.us-central1.run.app${svc.healthPath || '/health/ready'}`;
+          const url = `https://${svc.name}-609590223909.us-east1.run.app${svc.healthPath || '/health/ready'}`;
           const res = await httpGet(url, 2618);
           checks.push({ name: `service:${svc.name}`, ok: res.status >= 200 && res.status < 400, status: res.status });
         } catch (err) {
