@@ -105,10 +105,25 @@ case "$ROLE" in
     echo "Starting HeadyWeb..."
     exec node apps/headyweb/server.js 2>/dev/null || exec npx tsx apps/headyweb/src/index.ts
     ;;
+  all)
+    echo "Starting ALL Heady Services (unified container)..."
+    echo "  → Manager on port ${PORT:-3300}"
+    echo "  → MCP Server on port 3310"
+
+    # Start MCP server in background
+    PORT=3310 node services/heady-mcp-server/src/index.js &
+    MCP_PID=$!
+
+    # Give MCP a moment to boot
+    sleep 2
+
+    # Start manager in foreground (main process)
+    PORT=${PORT:-3300} HEADY_MCP_URL=http://localhost:3310 exec node heady-manager.js
+    ;;
   *)
     echo "Unknown role: $ROLE"
     echo "Available: manager, mcp-server, worker, probe, gateway, buddy,"
-    echo "           brain, memory, soul, coder, guard, web"
+    echo "           brain, memory, soul, coder, guard, web, all"
     exit 1
     ;;
 esac

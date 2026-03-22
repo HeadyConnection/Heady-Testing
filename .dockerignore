@@ -12,9 +12,12 @@
 .windsurf
 .gemini
 .github
+.agents
+.husky
 
 # Build artifacts
 node_modules
+**/node_modules
 coverage
 dist
 .turbo
@@ -24,15 +27,20 @@ dist
 # Archive & downloads (huge, not needed in images)
 _archive
 _downloads
+_old
+_backup
 
 # Documentation & tests (not in production images)
 tests
 notebooks
+docs
 *.test.js
 *.test.ts
 *.test.mjs
 *.spec.js
 *.spec.ts
+*.md
+!README.md
 
 # Deployment configs (not part of app)
 deployment
@@ -41,10 +49,43 @@ heady-deploy
 heady-improvements
 heady-latent-os-runtime-bundle
 heady-monorepo
-heady-native-services
-heady-projection
 heady-10-10
 drupal
+
+# Large non-runtime directories
+sacred-projections
+perplexity-build
+platform-fixes
+heady-platform-fixes
+tool_calls
+reports
+templates
+scripts
+codex-wt-*
+sites
+infra
+infrastructure
+envoy
+nginx
+DockerDesktopWSL
+HeadyAI-IDE
+AndroidSDK
+headybuddy
+headybrowser-desktop
+archive
+extensions
+distribution
+ventoy
+data
+logs
+audit
+E
+frontend
+
+# Docker files (not needed inside container)
+docker-compose*.yml
+Dockerfile*
+!Dockerfile.universal
 
 # Large binary assets
 *.mp4
@@ -52,12 +93,27 @@ drupal
 *.wav
 *.zip
 *.tar.gz
+*.tgz
 *.woff2
 *.ttf
+*.webp
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
 lfs-assets
 
 # Secrets
 .env
 .env.*
+!.env.example
 .heady/gcp-*.json
 .heady/vault-seed.js
+
+# Misc
+*.log
+Thumbs.db
+.DS_Store
+desktop.ini
