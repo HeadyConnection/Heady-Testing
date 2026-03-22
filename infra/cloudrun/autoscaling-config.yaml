@@ -1,0 +1,105 @@
+# ═══════════════════════════════════════════════════════════════
+# HEADY™ Cloud Run Autoscaling — Fibonacci Instance Floors
+# φ-scaled architecture: scaling tiers follow Fibonacci sequence
+# (1, 2, 3, 5, 8, 13, 21, 34, 55, 89)
+# ═══════════════════════════════════════════════════════════════
+
+services:
+  # ─── Primary Inference (Cloud Run :3301) ────────────────────
+  heady-ai:
+    service_name: headyme-api
+    region: us-central1
+    cpu: 2
+    memory: 2Gi
+    min_instances: 2        # φ hot floor — always warm
+    max_instances: 13       # Fibonacci tier 7
+    concurrency: 80         # max throughput: 13 × 80 = 1,040 concurrent
+    cpu_target: 60          # autoscale trigger (% utilization)
+    startup_cpu_boost: true
+    timeout: 300s
+    notes: "Primary AI inference endpoint — needs fast cold start"
+
+  # ─── API Gateway (Cloud Run :3302) ──────────────────────────
+  heady-api:
+    service_name: headyapi
+    region: us-central1
+    cpu: 1
+    memory: 1Gi
+    min_instances: 1        # Fibonacci tier 1
+    max_instances: 8        # Fibonacci tier 6
+    concurrency: 80         # max throughput: 8 × 80 = 640 concurrent
+    cpu_target: 60
+    startup_cpu_boost: true
+    timeout: 120s
+    notes: "REST + GraphQL API gateway"
+
+  # ─── MCP Tool Dispatch (Cloud Run :3303) ────────────────────
+  heady-mcp:
+    service_name: headymcp
+    region: us-central1
+    cpu: 1
+    memory: 512Mi
+    min_instances: 1        # Fibonacci tier 1
+    max_instances: 5        # Fibonacci tier 5
+    concurrency: 40         # max throughput: 5 × 40 = 200 concurrent
+    cpu_target: 60
+    startup_cpu_boost: true
+    timeout: 60s
+    notes: "31 MCP tools — lower traffic, faster timeout"
+
+  # ─── HeadyBuddy Companion (Cloud Run :3304) ─────────────────
+  heady-buddy:
+    service_name: headybuddy
+    region: us-central1
+    cpu: 1
+    memory: 1Gi
+    min_instances: 1        # Fibonacci tier 1
+    max_instances: 5        # Fibonacci tier 5
+    concurrency: 40
+    cpu_target: 60
+    startup_cpu_boost: true
+    timeout: 120s
+    notes: "Persistent AI companion — session-heavy"
+
+  # ─── HeadyBot Automation (Cloud Run :3305) ──────────────────
+  heady-bot:
+    service_name: headybot
+    region: us-central1
+    cpu: 1
+    memory: 512Mi
+    min_instances: 1        # Fibonacci tier 1
+    max_instances: 3        # Fibonacci tier 4
+    concurrency: 20         # lower concurrency for long-running automations
+    cpu_target: 70
+    startup_cpu_boost: true
+    timeout: 600s           # 10 min for complex automations
+    notes: "Business process automation — long-running tasks"
+
+# ═══════════════════════════════════════════════════════════════
+# Fibonacci Scaling Reference
+# ═══════════════════════════════════════════════════════════════
+# Tier 1:  1 instance  (idle / dev)
+# Tier 2:  2 instances (light load)
+# Tier 3:  3 instances (moderate)
+# Tier 4:  5 instances (steady)
+# Tier 5:  8 instances (busy)
+# Tier 6: 13 instances (peak)
+# Tier 7: 21 instances (burst)
+# Tier 8: 34 instances (high burst)
+#
+# Deploy min_instances at SERVICE level (not revision level)
+# to avoid needing new revision deployments when adjusting.
+#
+# gcloud run services update SERVICE --min-instances=N
+# ═══════════════════════════════════════════════════════════════
+
+# Deploy script (run per service):
+# gcloud run services update $SERVICE \
+#   --region $REGION \
+#   --min-instances $MIN \
+#   --max-instances $MAX \
+#   --concurrency $CONCURRENCY \
+#   --cpu $CPU \
+#   --memory $MEMORY \
+#   --cpu-boost \
+#   --timeout $TIMEOUT
