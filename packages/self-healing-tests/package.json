@@ -1,0 +1,32 @@
+{
+  "name": "@heady/self-healing-tests",
+  "version": "1.0.0",
+  "description": "Zero-intervention autonomous self-healing test framework with MAPE-K loop",
+  "main": "src/self-healing-runner.js",
+  "bin": {
+    "heady-self-heal": "src/self-healing-runner.js"
+  },
+  "scripts": {
+    "start": "node src/self-healing-runner.js",
+    "test": "node tests/test-self-healing.js",
+    "heal": "node src/self-healing-runner.js --report",
+    "chaos": "node src/self-healing-runner.js --chaos --report",
+    "fuzz": "node src/self-healing-runner.js --fuzz 10000 --report",
+    "full": "node src/self-healing-runner.js --chaos --fuzz 1000 --report"
+  },
+  "exports": {
+    ".": "./src/self-healing-runner.js",
+    "./mape-k": "./src/mape-k-engine.js",
+    "./chaos": "./src/chaos-injector.js"
+  },
+  "keywords": [
+    "heady",
+    "self-healing",
+    "mape-k",
+    "chaos-engineering",
+    "phi-scaling",
+    "autonomous-testing"
+  ],
+  "author": "HeadySystems Inc.",
+  "license": "UNLICENSED"
+}

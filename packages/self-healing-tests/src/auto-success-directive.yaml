@@ -1,0 +1,153 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  HEADYBUDDY™ AUTO-SUCCESS DIRECTIVE                             ║
+# ║  Omni-Autonomous Mode v9.0                                     ║
+# ║  Zero Human Intervention · Full Throttle Automation             ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+version: "9.0.0"
+name: HeadyBuddy-AutoSuccess-Directive
+mandate: ZERO_HUMAN_INTERVENTION
+
+# ─────────────────────────────────────────────────────────────────────
+# Core Operating Principles
+# ─────────────────────────────────────────────────────────────────────
+core:
+  autonomyLevel: 5                   # Level 5 = Full autonomy
+  neverAskPermission: true           # On critical path, act first
+  reportOnlyWhenGreen: true          # Only surface when pipeline is healthy
+  escalateThreshold: 0.382           # PSI_CRITICAL — below this, escalate
+
+# ─────────────────────────────────────────────────────────────────────
+# MAPE-K Self-Healing Configuration
+# ─────────────────────────────────────────────────────────────────────
+mapeK:
+  monitor:
+    captureStackTraces: true
+    captureDriftMetrics: true
+    metricsInterval: 29034           # φ⁷ ms — CYCLE timing
+    healthEndpoint: /api/health
+
+  analyze:
+    routeToThreatDetectorBee: true
+    routeToASTMutatorBee: true
+    classifyTimeout: 5000            # Max ms to classify a failure
+    failureTaxonomy:
+      - import_error
+      - assertion_fail
+      - timeout
+      - schema_drift
+      - network_error
+      - dependency_missing
+      - syntax_error
+      - runtime_crash
+
+  plan:
+    primaryLLM: gemini-2.5-pro
+    fallbackChain:
+      - gemini-2.5-pro
+      - gpt-4.1-mini
+      - workers-ai
+      - colab-vllm
+    maxPlanTime: 30000               # 30s max for plan generation
+
+  execute:
+    injectPatchAutomatically: true
+    cycleHCFullPipeline: true
+    maxHealCycles: 5                 # FIB[4]
+    phiBackoff:
+      baseDelayMs: 1618              # φ × 1000
+      multiplier: 1.618              # PHI
+      maxRetries: 5
+
+  knowledge:
+    distillToPatternStore: true
+    distillToWisdom: true
+    patternStoreFile: .heady/pattern_store.json
+    wisdomFile: .heady/wisdom.json
+    permanentImmunity: true          # Once fixed, never breaks again
+
+# ─────────────────────────────────────────────────────────────────────
+# Zero-Intervention Testing Hierarchy
+# ─────────────────────────────────────────────────────────────────────
+testingHierarchy:
+  contractValidation:
+    enabled: true
+    enforcePaths:
+      - "src/sites/*"
+      - "src/services/*"
+    schemaValidation: zod            # Zod/JSON Schema enforcement
+    autoRewriteOnDrift: true         # Rewrite upstream producer on mismatch
+    semanticResonanceThreshold: 0.809 # cosine_similarity minimum
+
+  generativeInvariantFuzzing:
+    enabled: true
+    payloadCount: 10000              # Synthetic boundary payloads
+    maxTerminationTime: 60000        # 60s — state machine must terminate
+    autoASTPatch: true               # Edge-case → immediate AST patch
+
+  phiSteppedChaosInjection:
+    enabled: true
+    scenarios:
+      - name: database_kill
+        fibIndex: 2                  # t = FIB[2] × φ × base
+        verify: hyperdrive_reconnect
+      - name: llm_primary_kill
+        fibIndex: 3                  # t = FIB[3] × φ × base
+        verify: fallback_chain
+      - name: redis_kill
+        fibIndex: 4
+        verify: cache_reconnect
+      - name: deploy_regression
+        fibIndex: 5
+        verify: auto_rollback
+        canaryInterval: 0.25         # 25% canary limit
+      - name: cascade_failure
+        fibIndex: 6
+        verify: full_system_recovery
+    recoveryWindowMs: 5000
+
+# ─────────────────────────────────────────────────────────────────────
+# Pipeline Enforcement
+# ─────────────────────────────────────────────────────────────────────
+pipelineEnforcement:
+  allChangesViaHCFullPipeline: true
+  interceptManualProcesses: true
+
+  commitRule:
+    autoCommit: true
+    messagePrefix: "HCFP-AUTO"
+    includeHash: true
+
+  deployRule:
+    engine: liquid-deploy.js
+    platform: cloud-run
+    hangTimeout: 120000              # Kill and cycle if deploy hangs > 2min
+    gracefulRestart: true
+
+  reportingRule:
+    surfaceLogsOnly: below_psi_critical  # Only when φ_health < 0.382
+    requireRepeatedMapeKFailure: true    # Only after repeated recovery failure
+
+# ─────────────────────────────────────────────────────────────────────
+# Phi-Scaled Timing Constants
+# ─────────────────────────────────────────────────────────────────────
+phiTiming:
+  TICK:    1000                      # 1s
+  PULSE:   1618                      # φ × 1000
+  BEAT:    2618                      # PULSE + TICK
+  BREATH:  4236                      # BEAT + φ × BEAT
+  WAVE:    6854
+  SURGE:   11090
+  FLOW:    17944
+  CYCLE:   29034                     # Auto-Success heartbeat period
+
+# ─────────────────────────────────────────────────────────────────────
+# CSL Gate Thresholds
+# ─────────────────────────────────────────────────────────────────────
+cslGates:
+  include: 0.382                     # Minimum relevance
+  boost: 0.618                       # Confident routing
+  inject: 0.718                      # Very high confidence
+  resonance: 0.809                   # Semantic resonance boundary gate
