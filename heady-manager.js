@@ -111,6 +111,42 @@ if (fs.existsSync(frontendBuildPath)) {
 }
 app.use(express.static("public"));
 
+// ─── Onboarding Orchestrator (5-stage flow: auth → permissions → email → config → buddy) ──
+try {
+  const { registerOnboardingOrchestratorRoutes } = require("./src/services/onboarding-orchestrator");
+  registerOnboardingOrchestratorRoutes(app);
+  console.log("  ∞ OnboardingOrchestrator: LOADED (5-stage flow + @headyme.com email + buddy setup)");
+} catch (err) {
+  console.warn(`  ⚠ OnboardingOrchestrator not loaded: ${err.message}`);
+}
+
+// ─── HeadyMe Onboarding Routes (templates, plan, activate, status) ──
+try {
+  const headymeOnboardingRouter = require("./src/routes/headyme-onboarding");
+  app.use("/api/headyme-onboarding", headymeOnboardingRouter);
+  console.log("  ∞ HeadyMe Onboarding: LOADED → /api/headyme-onboarding/*");
+} catch (err) {
+  console.warn(`  ⚠ HeadyMe Onboarding not loaded: ${err.message}`);
+}
+
+// ─── Pilot Onboarding (Founder's Pilot Program 4-step flow) ──
+try {
+  const pilotOnboardingRouter = require("./heady-enterprise/pilot/onboarding/automated-onboarding");
+  app.use("/api/pilot", pilotOnboardingRouter);
+  console.log("  ∞ Pilot Onboarding: LOADED → /api/pilot/*");
+} catch (err) {
+  console.warn(`  ⚠ Pilot Onboarding not loaded: ${err.message}`);
+}
+
+// ─── Pilot Onboarding Checklist ──
+try {
+  const pilotChecklistRouter = require("./heady-enterprise/pilot/onboarding/checklist");
+  app.use("/api/pilot/checklist", pilotChecklistRouter);
+  console.log("  ∞ Pilot Checklist: LOADED → /api/pilot/checklist/*");
+} catch (err) {
+  console.warn(`  ⚠ Pilot Checklist not loaded: ${err.message}`);
+}
+
 // ─── Utility ────────────────────────────────────────────────────────
 function readJsonSafe(filePath) {
   try { return JSON.parse(fs.readFileSync(filePath, "utf8")); }

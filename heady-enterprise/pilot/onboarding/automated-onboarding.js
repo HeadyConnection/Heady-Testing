@@ -215,7 +215,7 @@ const createAgentFromTemplate = async (userId, workspaceId, template, name) => {
       model: 'gpt-4o',
       tools: ['web-search', 'read-document', 'vector-recall', 'write-document'],
       systemPrompt: 'Synthesize research from multiple sources. Identify consensus, disagreements, and knowledge gaps.',
-      maxTokens: FIB[12] * FIB[3], // 144*3=432
+      maxTokens: FIB[11] * FIB[3], // 144*3=432
       cslLevel: 'MODERATE',
     },
     'code-reviewer': {
