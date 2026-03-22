@@ -1,63 +1,378 @@
-# Deployment Guide
+# Heady™Stack Deployment Guide
 
-## Local Development
+**Version:** 3.0.1 "Aether"
+
+---
+
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Environment Setup](#environment-setup)
+3. [Database Migrations](#database-migrations)
+4. [Docker Compose (Local/Staging)](#docker-compose)
+5. [Google Cloud Run](#google-cloud-run)
+6. [Cloudflare Workers (Edge)](#cloudflare-workers)
+7. [Azure DevOps](#azure-devops)
+8. [Kubernetes (Helm)](#kubernetes)
+9. [Monitoring & Observability](#monitoring)
+10. [Secrets Management](#secrets-management)
+11. [Rollback Procedures](#rollback-procedures)
+
+---
+
+## Prerequisites
+
+- Node.js ≥ 20.0.0
+- Docker ≥ 24.0 and Docker Compose ≥ 2.20
+- PostgreSQL 16 with pgvector extension
+- Redis 7
+- (For Cloud Run) Google Cloud SDK, project with billing enabled
+- (For CI/CD) GitHub Actions secrets configured
+
+---
+
+## Environment Setup
 
 ```bash
-git clone https://github.com/HeadyMe/Heady-8f71ffc8.git ~/Heady
-cd ~/Heady
-cp .env.example .env    # fill in API keys
-npm install
-npm run dev             # hot-reload on port 3301
+# Copy example env file
+cp .env.example .env
+
+# Required minimum for production:
+NODE_ENV=production
+DATABASE_URL=postgresql://heady:STRONG_PASS@db-host:5432/headydb
+REDIS_URL=redis://redis-host:6379
+JWT_SECRET=$(openssl rand -hex 32)
+JWT_REFRESH_SECRET=$(openssl rand -hex 32)
+HEADY_API_KEY=$(openssl rand -hex 32)
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
 ```
 
-## Container (Podman/Docker)
+Validation runs at boot (Phase 0). Missing required vars abort startup in production mode.
+
+---
+
+## Database Migrations
 
 ```bash
-podman build -t heady:latest .
-podman run -d \
-  -p 3301:3301 \
-  -v heady-data:/app/data \
-  --env-file .env \
-  heady:latest
+# Run all pending migrations
+npm run migrate
+
+# Manually:
+node scripts/migrate.js
+
+# Using psql directly:
+psql $DATABASE_URL -f migrations/001_initial_schema.sql
 ```
 
-## Cloudflare Pages (Frontend)
+Migrations are idempotent — safe to re-run. The migration runner tracks applied migrations in the `schema_migrations` table.
 
-Automated via GitHub Actions on push to `main`.
-Manual deploy:
+---
+
+## Docker Compose
+
+### Start Full Stack
 
 ```bash
-cd frontend && npm run build
-npx wrangler pages deploy dist --project-name=heady-dashboard
+# Build images and start all services
+docker compose up -d
+
+# Tail logs
+docker compose logs -f heady-manager
+
+# Check status
+docker compose ps
+
+# Stop
+docker compose down
+
+# Stop and remove volumes (destructive!)
+docker compose down -v
 ```
 
-## Google Cloud Run (Backend)
+### Services
 
-Automated via GitHub Actions. Manual deploy:
+| Service | Port | Notes |
+|---------|------|-------|
+| heady-manager | 8080 | Main application |
+| postgres | 5432 | pgvector PostgreSQL 16 |
+| redis | 6379 | Redis 7 with 256MB limit |
+| pgbouncer | 5433 | Connection pooler |
+| otel-collector | 4317, 4318 | Telemetry receiver |
+
+### Resource Limits (Production)
+
+Configured in `docker-compose.yml`:
+- heady-manager: 2 CPU, 2GB RAM
+- postgres: 1 CPU, 1GB RAM
+- redis: 0.5 CPU, 512MB RAM
+
+---
+
+## Google Cloud Run
+
+### One-Time Setup
 
 ```bash
-gcloud run deploy heady-manager \
-  --source . \
+# Authenticate
+gcloud auth login
+gcloud config set project YOUR_GCP_PROJECT_ID
+
+# Enable required APIs
+gcloud services enable \
+  run.googleapis.com \
+  containerregistry.googleapis.com \
+  secretmanager.googleapis.com
+
+# Create service account for Cloud Run
+gcloud iam service-accounts create headystack-runner \
+  --display-name="HeadyStack Cloud Run SA"
+
+# Grant permissions
+gcloud projects add-iam-policy-binding YOUR_GCP_PROJECT_ID \
+  --member="serviceAccount:headystack-runner@YOUR_GCP_PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+```
+
+### Store Secrets in Secret Manager
+
+```bash
+# Store each secret
+echo -n "$DATABASE_URL" | gcloud secrets create heady-database-url --data-file=-
+echo -n "$REDIS_URL" | gcloud secrets create heady-redis-url --data-file=-
+echo -n "$JWT_SECRET" | gcloud secrets create heady-jwt-secret --data-file=-
+echo -n "$JWT_REFRESH_SECRET" | gcloud secrets create heady-jwt-refresh-secret --data-file=-
+echo -n "$HEADY_API_KEY" | gcloud secrets create heady-api-key --data-file=-
+echo -n "$ANTHROPIC_API_KEY" | gcloud secrets create heady-anthropic-key --data-file=-
+echo -n "$OPENAI_API_KEY" | gcloud secrets create heady-openai-key --data-file=-
+
+# Update a secret
+echo -n "new-value" | gcloud secrets versions add heady-database-url --data-file=-
+```
+
+### Build and Deploy
+
+```bash
+# Build Docker image
+docker build -t gcr.io/YOUR_PROJECT/headystack:3.0.1 .
+
+# Push to Container Registry
+docker push gcr.io/YOUR_PROJECT/headystack:3.0.1
+
+# Deploy to Cloud Run
+gcloud run deploy headystack \
+  --image gcr.io/YOUR_PROJECT/headystack:3.0.1 \
   --region us-central1 \
-  --port 3301 \
-  --allow-unauthenticated
+  --platform managed \
+  --allow-unauthenticated \
+  --min-instances 1 \
+  --max-instances 20 \
+  --concurrency 80 \
+  --cpu 2 \
+  --memory 2Gi \
+  --timeout 300 \
+  --service-account headystack-runner@YOUR_PROJECT.iam.gserviceaccount.com \
+  --set-env-vars NODE_ENV=production,PORT=8080 \
+  --set-secrets \
+    DATABASE_URL=heady-database-url:latest,\
+    REDIS_URL=heady-redis-url:latest,\
+    JWT_SECRET=heady-jwt-secret:latest,\
+    JWT_REFRESH_SECRET=heady-jwt-refresh-secret:latest,\
+    HEADY_API_KEY=heady-api-key:latest,\
+    ANTHROPIC_API_KEY=heady-anthropic-key:latest,\
+    OPENAI_API_KEY=heady-openai-key:latest
+
+# Get the service URL
+gcloud run services describe headystack \
+  --region us-central1 \
+  --format "value(status.url)"
 ```
 
-## Cloudflare Workers (Edge Proxy)
+### Custom Domain
 
 ```bash
-cd workers/heady-edge
-npx wrangler deploy
+# Map custom domain
+gcloud run domain-mappings create \
+  --service headystack \
+  --domain api.headysystems.com \
+  --region us-central1
+
+# Add DNS records as instructed by the output
 ```
 
-## Environment Variables
+### Traffic Management (Canary)
 
-See `.env.example` for the complete list. Critical variables:
+```bash
+# Deploy new revision without traffic
+gcloud run deploy headystack \
+  --image gcr.io/YOUR_PROJECT/headystack:3.0.2 \
+  --no-traffic
 
-| Variable | Required | Description |
-|---|---|---|
-| ANTHROPIC_API_KEY | Yes | Claude API key |
-| OPENAI_API_KEY | Yes | GPT/Codex API key |
-| MCP_BEARER_TOKEN | Yes | MCP auth token |
-| CF_API_TOKEN | For deploy | Cloudflare API token |
-| GCP_PROJECT_ID | For deploy | Google Cloud project |
+# Split traffic 10% canary
+gcloud run services update-traffic headystack \
+  --to-revisions LATEST=10,STABLE=90
+
+# Promote to 100%
+gcloud run services update-traffic headystack \
+  --to-latest
+```
+
+---
+
+## Cloudflare Workers
+
+HeadyStack can deploy a lightweight edge proxy via Cloudflare Workers for geo-routing, caching, and DDoS protection in front of the Cloud Run origin.
+
+```bash
+# Install Wrangler CLI
+npm install -g wrangler
+
+# Authenticate
+wrangler login
+
+# Deploy edge proxy worker
+wrangler deploy --config configs/cloudflare/wrangler.toml
+
+# Set secrets
+wrangler secret put ORIGIN_URL
+wrangler secret put HEADY_API_KEY
+```
+
+The worker routes requests to the nearest Cloud Run region and applies edge-level rate limiting.
+
+---
+
+## Azure DevOps
+
+HeadyStack uses Azure DevOps as a secondary remote for CI/CD and staging deployments.
+
+### Setup
+
+1. Create an Azure DevOps project under the HeadyMe organization
+2. Add the Azure Repos remote: `git remote add azure https://dev.azure.com/HeadyMe/HeadyStack/_git/HeadyStack`
+3. Push branches: `git push azure main staging testing`
+4. Configure Azure Pipelines for staging deployments
+
+---
+
+## Kubernetes
+
+```bash
+# Apply manifests
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
+
+# Check rollout
+kubectl rollout status deployment/headystack -n headystack
+
+# Rollback
+kubectl rollout undo deployment/headystack -n headystack
+```
+
+Helm chart coming in v3.1.0.
+
+---
+
+## Monitoring
+
+### Health Endpoints
+
+```bash
+# Liveness
+curl https://your-deployment/health
+
+# Readiness
+curl https://your-deployment/ready
+
+# Deep system pulse
+curl -H "Authorization: Bearer $TOKEN" https://your-deployment/pulse
+
+# Prometheus metrics
+curl https://your-deployment/metrics
+```
+
+### OpenTelemetry
+
+Configure `OTEL_EXPORTER_ENDPOINT` to point to your OTEL collector or a cloud backend:
+- **Google Cloud Trace:** `https://cloudtrace.googleapis.com`
+- **Grafana Cloud:** `https://otlp-gateway-prod-xxx.grafana.net/otlp`
+- **Honeycomb:** `https://api.honeycomb.io`
+- **Self-hosted:** `http://otel-collector:4318/v1/traces`
+
+### Logs (Cloud Run)
+
+```bash
+# Stream logs
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=headystack" \
+  --limit 100 \
+  --format "value(textPayload)"
+
+# Or via the Logs Explorer in GCP console
+```
+
+---
+
+## Secrets Management
+
+### Local Development
+
+Use `.env` file (never commit to git).
+
+### Cloud Run / GCP
+
+Use Google Cloud Secret Manager — all secrets injected as env vars at container startup.
+
+### Rotation
+
+```bash
+# Rotate JWT secret (triggers forced re-login for all users)
+NEW_SECRET=$(openssl rand -hex 32)
+echo -n "$NEW_SECRET" | gcloud secrets versions add heady-jwt-secret --data-file=-
+
+# Deploy with new secret version
+gcloud run deploy headystack --update-secrets JWT_SECRET=heady-jwt-secret:latest
+```
+
+---
+
+## Rollback Procedures
+
+### Cloud Run Rollback
+
+```bash
+# List revisions
+gcloud run revisions list --service headystack --region us-central1
+
+# Rollback to previous revision
+gcloud run services update-traffic headystack \
+  --to-revisions headystack-00042-abc=100 \
+  --region us-central1
+```
+
+### Docker Compose Rollback
+
+```bash
+# Pull previous image
+docker pull gcr.io/YOUR_PROJECT/headystack:3.0.0
+
+# Update compose override
+IMAGE_TAG=3.0.0 docker compose up -d heady-manager
+```
+
+### Database Rollback
+
+Migrations are forward-only. For rollback, restore from backup:
+
+```bash
+# List Cloud SQL backups (if using Cloud SQL)
+gcloud sql backups list --instance heady-postgres
+
+# Restore
+gcloud sql backups restore BACKUP_ID \
+  --restore-instance heady-postgres \
+  --backup-instance heady-postgres
+```

@@ -1,28 +1,24 @@
-## Summary
-<!-- Brief description of changes -->
+## Description
 
-## Type
-- [ ] `feat` — New feature
-- [ ] `fix` — Bug fix
-- [ ] `docs` — Documentation
-- [ ] `chore` — Maintenance
-- [ ] `security` — Security patch
+Brief description of the change.
 
-## Domains Affected
-<!-- Which Heady domains are impacted? -->
+## Type of Change
+
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+- [ ] Security fix
 
 ## Checklist
-- [ ] No `TODO`/`FIXME`/placeholder comments
-- [ ] No `localhost` references
-- [ ] No hardcoded secrets
-- [ ] ESLint passes
-- [ ] Core modules load without errors
-- [ ] JSON content files are valid
-- [ ] Tested on target domain(s)
-- [ ] Commit messages follow Conventional Commits
 
-## Screenshots
-<!-- Before/after if visual changes -->
+- [ ] Code follows existing patterns
+- [ ] Tests pass (`npm test`)
+- [ ] No competitor names in user-facing views
+- [ ] Copyright header on new files
+- [ ] No hardcoded secrets or localhost references
+- [ ] Documentation updated (if applicable)
 
-## Deployment Notes
-<!-- Any special deployment considerations -->
+## Related Issues
+
+Closes #
