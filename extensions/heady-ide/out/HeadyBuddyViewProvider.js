@@ -1,3 +1,29 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HeadyBuddyViewProvider = void 0;
 /**
  * HeadyBuddy Sidebar — Webview View Provider
  *
@@ -9,93 +35,80 @@
  *
  * © 2026 HeadySystems Inc.
  */
-import * as vscode from 'vscode';
-
-export class HeadyBuddyViewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'heady.buddyChat';
-  private _view?: vscode.WebviewView;
-
-  constructor(private readonly _extensionUri: vscode.Uri) {}
-
-  resolveWebviewView(
-    webviewView: vscode.WebviewView,
-    _context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken
-  ) {
-    this._view = webviewView;
-
-    webviewView.webview.options = {
-      enableScripts: true,
-      localResourceRoots: [this._extensionUri],
-    };
-
-    webviewView.webview.html = this._getHtml();
-    webviewView.webview.onDidReceiveMessage(async (message) => {
-      switch (message.command) {
-        case 'chat':
-          await this._handleChat(message.text, message.model);
-          break;
-        case 'getContext':
-          this._sendEditorContext();
-          break;
-      }
-    });
-  }
-
-  private async _handleChat(text: string, model: string = 'heady-brain') {
-    const apiUrl = vscode.workspace.getConfiguration('heady.ai').get('apiUrl', 'https://heady-manager-609590223909.us-central1.run.app');
-    const apiKey = vscode.workspace.getConfiguration('heady.ai').get('apiKey', '');
-
-    // Get editor context
-    const editor = vscode.window.activeTextEditor;
-    const context = {
-      message: text,
-      model,
-      language: editor?.document.languageId,
-      file: editor?.document.uri.fsPath,
-      selection: editor?.selection ? editor.document.getText(editor.selection) : undefined,
-      workspace: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
-    };
-
-    try {
-      const res = await fetch(`${apiUrl}/api/ai/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: text }],
-          model,
-          systemPrompt: 'You are HeadyBuddy, a helpful AI companion by HeadySystems. Be concise, friendly, and proactive.',
-          context,
-        }),
-      });
-
-      if (res.ok) {
-        const data: any = await res.json();
-        const reply = data.reply || data.content || data.message || 'I received your message.';
-        this._view?.webview.postMessage({ command: 'response', text: reply, model });
-      } else {
-        this._view?.webview.postMessage({ command: 'response', text: `API error: ${res.status}`, model });
-      }
-    } catch (err: any) {
-      this._view?.webview.postMessage({ command: 'response', text: `Connection error: ${err.message}`, model });
+const vscode = __importStar(require("vscode"));
+class HeadyBuddyViewProvider {
+    constructor(_extensionUri) {
+        this._extensionUri = _extensionUri;
     }
-  }
-
-  private _sendEditorContext() {
-    const editor = vscode.window.activeTextEditor;
-    this._view?.webview.postMessage({
-      command: 'context',
-      language: editor?.document.languageId || 'none',
-      file: editor?.document.fileName || 'none',
-      hasSelection: editor ? !editor.selection.isEmpty : false,
-    });
-  }
-
-  private _getHtml(): string {
-    return `<!DOCTYPE html>
+    resolveWebviewView(webviewView, _context, _token) {
+        this._view = webviewView;
+        webviewView.webview.options = {
+            enableScripts: true,
+            localResourceRoots: [this._extensionUri],
+        };
+        webviewView.webview.html = this._getHtml();
+        webviewView.webview.onDidReceiveMessage(async (message) => {
+            switch (message.command) {
+                case 'chat':
+                    await this._handleChat(message.text, message.model);
+                    break;
+                case 'getContext':
+                    this._sendEditorContext();
+                    break;
+            }
+        });
+    }
+    async _handleChat(text, model = 'heady-brain') {
+        const apiUrl = vscode.workspace.getConfiguration('heady.ai').get('apiUrl', 'https://heady-manager-609590223909.us-central1.run.app');
+        const apiKey = vscode.workspace.getConfiguration('heady.ai').get('apiKey', '');
+        // Get editor context
+        const editor = vscode.window.activeTextEditor;
+        const context = {
+            message: text,
+            model,
+            language: editor?.document.languageId,
+            file: editor?.document.uri.fsPath,
+            selection: editor?.selection ? editor.document.getText(editor.selection) : undefined,
+            workspace: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+        };
+        try {
+            const res = await fetch(`${apiUrl}/api/ai/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+                },
+                body: JSON.stringify({
+                    messages: [{ role: 'user', content: text }],
+                    model,
+                    systemPrompt: 'You are HeadyBuddy, a helpful AI companion by HeadySystems. Be concise, friendly, and proactive.',
+                    context,
+                }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const reply = data.reply || data.content || data.message || 'I received your message.';
+                this._view?.webview.postMessage({ command: 'response', text: reply, model });
+            }
+            else {
+                this._view?.webview.postMessage({ command: 'response', text: `API error: ${res.status}`, model });
+            }
+        }
+        catch (err) {
+            this._view?.webview.postMessage({ command: 'response', text: `Connection error: ${err.message}`, model });
+        }
+    }
+    _sendEditorContext() {
+        const editor = vscode.window.activeTextEditor;
+        this._view?.webview.postMessage({
+            command: 'context',
+            language: editor?.document.languageId || 'none',
+            file: editor?.document.fileName || 'none',
+            hasSelection: editor ? !editor.selection.isEmpty : false,
+        });
+    }
+    _getHtml() {
+        return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -358,5 +371,8 @@ export class HeadyBuddyViewProvider implements vscode.WebviewViewProvider {
 </script>
 </body>
 </html>`;
-  }
+    }
 }
+exports.HeadyBuddyViewProvider = HeadyBuddyViewProvider;
+HeadyBuddyViewProvider.viewType = 'heady.buddyChat';
+//# sourceMappingURL=HeadyBuddyViewProvider.js.map
