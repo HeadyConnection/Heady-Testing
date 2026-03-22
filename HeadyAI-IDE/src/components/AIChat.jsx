@@ -17,6 +17,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, X, Sparkles, Brain, User } from 'lucide-react';
+import cloudService from '../services/CloudService';
 
 const AIChat = ({ model, onClose, activeFile }) => {
   const [messages, setMessages] = useState([]);
@@ -59,13 +60,16 @@ const AIChat = ({ model, onClose, activeFile }) => {
     setIsLoading(true);
 
     try {
-      // Call Heady AI service
-      const response = await window.electronAPI?.invoke('heady-ai-chat', input, {
+      // Call Heady AI service — web mode uses CloudService, Electron uses IPC
+      const context = {
         model,
         activeFile: activeFile?.content,
         fileName: activeFile?.name,
         filePath: activeFile?.path
-      });
+      };
+      const response = window.electronAPI
+        ? await window.electronAPI.invoke('heady-ai-chat', input, context)
+        : await cloudService.aiChat(input, context);
 
       const aiMessage = {
         id: (Date.now() + 1).toString(),

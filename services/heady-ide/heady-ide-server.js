@@ -11,7 +11,13 @@ import { WebSocketServer } from 'ws';
 import cors from 'cors';
 import pino from 'pino';
 import pinoHttp from 'pino-http';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { existsSync } from 'fs';
 import { bootHeadyServices, shutdownHeadyServices } from './heady-services.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const PHI = (1 + Math.sqrt(5)) / 2;
 const FIB = [0,1,1,2,3,5,8,13,21,34,55,89,144];
@@ -27,7 +33,7 @@ const PORT = parseInt(process.env.HEADY_IDE_PORT || process.env.PORT || '8080', 
 
 // CORS — all 11 Heady domains + heady-ai.com
 const ALLOWED_ORIGINS = (process.env.CORS_ALLOWED_ORIGINS || '').split(',').concat([
-  'https://heady-ai.com', 'https://headyme.com', 'https://headysystems.com',
+  'https://ide.heady-ai.com', 'https://heady-ai.com', 'https://headyme.com', 'https://headysystems.com',
   'https://headyapi.com', 'https://headymcp.com', 'https://headyio.com',
   'https://headybot.com', 'https://headybuddy.org', 'https://headyconnection.org',
   'https://headylens.com', 'https://headyfinance.com',
@@ -78,6 +84,17 @@ async function main() {
       res.status(401).json({ error: err.message, code: 'HE-1004' });
     }
   };
+
+  // ── Static file serving (web client) ───────────────────────────
+  const publicDir = join(__dirname, 'public');
+  if (process.env.SERVE_STATIC !== 'false' && existsSync(publicDir)) {
+    log.info({ publicDir }, 'Serving static web client from ./public');
+    app.use(express.static(publicDir, {
+      maxAge: '1d',
+      etag: true,
+      index: 'index.html',
+    }));
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // ROUTES
@@ -261,6 +278,20 @@ async function main() {
     }
   });
 
+  // ── SPA Fallback — serve index.html for all non-API routes ────
+  if (process.env.SERVE_STATIC !== 'false' && existsSync(publicDir)) {
+    app.get('*', (req, res, next) => {
+      // Skip API, health, and websocket upgrade paths
+      if (req.path.startsWith('/api/') || req.path === '/health') return next();
+      const indexPath = join(publicDir, 'index.html');
+      if (existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        next();
+      }
+    });
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // WebSocket Endpoints
   // ═══════════════════════════════════════════════════════════════
@@ -284,6 +315,9 @@ async function main() {
         handleSwarmWS(ws, services);
       } else if (path === '/ws/collab') {
         handleCollabWS(ws, services);
+      } else if (path === '/ws/ide') {
+        // Main IDE WebSocket — multiplexes terminal, swarm, and collab
+        handleIDEWebSocket(ws, services);
       } else {
         ws.send(JSON.stringify({ error: 'Unknown WS endpoint' }));
         ws.close();
@@ -344,6 +378,50 @@ async function main() {
           client.send(data);
         }
       });
+    });
+  }
+
+  // ── IDE Multiplexed WebSocket Handler ─────────────────────────
+  function handleIDEWebSocket(ws, svc) {
+    log.info('IDE WebSocket connected (multiplexed)');
+
+    ws.on('message', (data) => {
+      try {
+        const msg = JSON.parse(data.toString());
+        switch (msg.type) {
+          case 'terminal:input':
+            svc.heady?.autoContext?.addTerminalEntry(msg.payload?.data, '');
+            ws.send(JSON.stringify({ type: 'terminal:output', data: `$ ${msg.payload?.data}\r\n` }));
+            break;
+          case 'terminal:resize':
+            // Forward resize to pty in production
+            break;
+          case 'collab:operation':
+          case 'collab:cursor':
+            // Broadcast to other IDE WS clients
+            wss.clients.forEach((client) => {
+              if (client !== ws && client._path === '/ws/ide' && client.readyState === 1) {
+                client.send(data);
+              }
+            });
+            break;
+          default:
+            // Echo back as acknowledgement
+            ws.send(JSON.stringify({ type: 'ack', original: msg.type, timestamp: Date.now() }));
+        }
+      } catch { /* binary terminal data */ }
+    });
+
+    // Send periodic connection heartbeat (φ⁴ ≈ 6.85s)
+    const hb = setInterval(() => {
+      if (ws.readyState === 1) {
+        ws.send(JSON.stringify({ type: 'heartbeat', timestamp: Date.now() }));
+      }
+    }, Math.round(Math.pow(PHI, 4) * 1000));
+
+    ws.on('close', () => {
+      clearInterval(hb);
+      log.debug('IDE WebSocket disconnected');
     });
   }
 

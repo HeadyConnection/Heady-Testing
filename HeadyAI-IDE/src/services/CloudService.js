@@ -15,8 +15,26 @@
 // HEADY_BRAND:END
 
 const PHI = 1.618033988749895;
-const WS_URL = 'wss://manager.headysystems.com/ws/ide';
-const API_URL = 'https://manager.headysystems.com/api';
+
+// In web mode, use relative URLs (same origin) so the server proxy handles routing.
+// In Electron mode, use the full manager URL.
+const isWeb = typeof window !== 'undefined' && !window.electronAPI;
+const resolveApiUrl = () => {
+  if (isWeb) {
+    // Relative — works with same-origin server or Vite dev proxy
+    return window.location.origin + '/api';
+  }
+  return 'https://manager.headysystems.com/api';
+};
+const resolveWsUrl = () => {
+  if (isWeb) {
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${proto}//${window.location.host}/ws/ide`;
+  }
+  return 'wss://manager.headysystems.com/ws/ide';
+};
+const WS_URL = resolveWsUrl();
+const API_URL = resolveApiUrl();
 
 // Fibonacci-based reconnect delays: 1s, 1s, 2s, 3s, 5s, 8s, 13s
 const RECONNECT_DELAYS = [1000, 1000, 2000, 3000, 5000, 8000, 13000];

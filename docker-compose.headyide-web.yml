@@ -1,0 +1,54 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  HEADY™ AI-IDE — Web Access Docker Compose                      ║
+# ║  Builds frontend + serves via backend at :8080                  ║
+# ║  Usage: docker compose -f docker-compose.headyide-web.yml up -d ║
+# ║  Access: http://localhost:8080                                   ║
+# ║  © 2026 HeadySystems Inc. — Eric Haywood, Founder               ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+services:
+  # Build the web client
+  headyide-client-build:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - ./HeadyAI-IDE:/app
+      - headyide-web-node-modules:/app/node_modules
+    environment:
+      - VITE_MODE=web
+    command: sh -c "npm ci --ignore-scripts --omit=optional && npm run build:web"
+    networks:
+      - heady-net
+
+  # Serve via the backend
+  headyide-server:
+    build:
+      context: ./services/heady-ide
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - SERVE_STATIC=true
+      - CORS_ALLOWED_ORIGINS=http://localhost:8080,http://localhost:3400
+    volumes:
+      - headyide-web-build:/app/public
+    depends_on:
+      headyide-client-build:
+        condition: service_completed_successfully
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+networks:
+  heady-net:
+    driver: bridge
+
+volumes:
+  headyide-web-node-modules:
+    driver: local
+  headyide-web-build:
+    driver: local

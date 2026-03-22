@@ -170,3 +170,4 @@ core.*
 hc_pipeline.log
 package-lock.json
 >>>>>>> hc-testing/dependabot/docker/node-25-slim
+HeadyAI-IDE/build-web/

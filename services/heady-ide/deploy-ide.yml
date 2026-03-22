@@ -45,11 +45,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm ci
-      - name: Build client assets
+      - name: Build web client (Vite)
+        working-directory: HeadyAI-IDE
         run: |
-          mkdir -p dist
-          cp -r client/* dist/ 2>/dev/null || true
-          echo "Client build complete"
+          npm ci --ignore-scripts --omit=optional
+          VITE_MODE=web npm run build:web
+          mkdir -p ../dist
+          cp -r build-web/* ../dist/
       - name: Deploy to CF Pages
         uses: cloudflare/pages-action@v1
         with:
