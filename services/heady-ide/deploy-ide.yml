@@ -17,7 +17,7 @@ on:
         default: false
 
 env:
-  GCP_PROJECT: gen-lang-client-0920560496
+  GCP_PROJECT: headyme-444017
   GCP_REGION: us-central1
   SERVICE_NAME: heady-ide-server
   CF_PROJECT: heady-ai-ide
@@ -76,7 +76,11 @@ jobs:
       - id: build
         run: |
           IMAGE="gcr.io/${{ env.GCP_PROJECT }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
-          gcloud builds submit . --tag "$IMAGE" --timeout=600
+          # Build from repo root so Dockerfile can access HeadyAI-IDE/
+          gcloud builds submit . \
+            --config=services/heady-ide/cloudbuild.yaml \
+            --substitutions=_IMAGE="$IMAGE" \
+            --timeout=900
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
 
   # ── Step 4: Canary Deploy → Cloud Run ───────────────────────────

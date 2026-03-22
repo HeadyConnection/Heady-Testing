@@ -1,0 +1,16 @@
+# Cloud Build config for HeadyAI-IDE
+# Builds from repo root context so Dockerfile can access HeadyAI-IDE/
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'services/heady-ide/Dockerfile'
+      - '-t'
+      - '${_IMAGE}'
+      - '--build-arg'
+      - 'VITE_API_URL=https://headyme-site-667608982461.us-central1.run.app'
+      - '.'
+images:
+  - '${_IMAGE}'
+timeout: 900s

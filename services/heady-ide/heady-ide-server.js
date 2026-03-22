@@ -37,7 +37,8 @@ const ALLOWED_ORIGINS = (process.env.CORS_ALLOWED_ORIGINS || '').split(',').conc
   'https://headyapi.com', 'https://headymcp.com', 'https://headyio.com',
   'https://headybot.com', 'https://headybuddy.org', 'https://headyconnection.org',
   'https://headylens.com', 'https://headyfinance.com',
-  'http://localhost:3000', // dev only
+  process.env.CLOUD_RUN_URL || 'https://headyme-site-667608982461.us-central1.run.app',
+  'http://localhost:3000', 'http://localhost:3400', 'http://localhost:8080', // dev
 ]).filter(Boolean);
 
 async function main() {

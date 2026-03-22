@@ -1,4 +1,3 @@
-# HEADY_BRAND:BEGIN
 # ╔══════════════════════════════════════════════════════════════════╗
 # ║  HEADY™ AI-IDE — Web Access Docker Compose                      ║
 # ║  Builds frontend + serves via backend at :8080                  ║
@@ -6,49 +5,39 @@
 # ║  Access: http://localhost:8080                                   ║
 # ║  © 2026 HeadySystems Inc. — Eric Haywood, Founder               ║
 # ╚══════════════════════════════════════════════════════════════════╝
-# HEADY_BRAND:END
 
 services:
-  # Build the web client
-  headyide-client-build:
-    image: node:22-slim
-    working_dir: /app
-    volumes:
-      - ./HeadyAI-IDE:/app
-      - headyide-web-node-modules:/app/node_modules
-    environment:
-      - VITE_MODE=web
-    command: sh -c "npm ci --ignore-scripts --omit=optional && npm run build:web"
-    networks:
-      - heady-net
-
-  # Serve via the backend
-  headyide-server:
+  headyide:
     build:
-      context: ./services/heady-ide
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/heady-ide/Dockerfile
+      args:
+        VITE_API_URL: ${CLOUD_RUN_URL:-https://headyme-site-667608982461.us-central1.run.app}
     ports:
       - "8080:8080"
+    env_file:
+      - services/heady-ide/.env.production
     environment:
-      - NODE_ENV=production
       - PORT=8080
       - SERVE_STATIC=true
-      - CORS_ALLOWED_ORIGINS=http://localhost:8080,http://localhost:3400
-    volumes:
-      - headyide-web-build:/app/public
-    depends_on:
-      headyide-client-build:
-        condition: service_completed_successfully
+      - NODE_ENV=production
+      - CLOUD_RUN_URL=${CLOUD_RUN_URL:-https://headyme-site-667608982461.us-central1.run.app}
+      # Override secrets at runtime:
+      # - DATABASE_URL=
+      # - UPSTASH_REDIS_REST_URL=
+      # - UPSTASH_REDIS_REST_TOKEN=
+      # - FIREBASE_API_KEY=
+      # - ANTHROPIC_API_KEY=
+      # - OPENAI_API_KEY=
     networks:
       - heady-net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 networks:
   heady-net:
     driver: bridge
-
-volumes:
-  headyide-web-node-modules:
-    driver: local
-  headyide-web-build:
-    driver: local

@@ -16,22 +16,29 @@
 
 const PHI = 1.618033988749895;
 
+// Heady Cloud Run production endpoint (from HEADY_ENV_v9)
+const CLOUD_RUN_URL = 'https://headyme-site-667608982461.us-central1.run.app';
+
 // In web mode, use relative URLs (same origin) so the server proxy handles routing.
-// In Electron mode, use the full manager URL.
+// In Electron mode, use Cloud Run URL directly.
+// Vite injects VITE_API_URL at build time if provided.
 const isWeb = typeof window !== 'undefined' && !window.electronAPI;
 const resolveApiUrl = () => {
   if (isWeb) {
-    // Relative — works with same-origin server or Vite dev proxy
+    // Same-origin — works with server static serving or Vite dev proxy
     return window.location.origin + '/api';
   }
-  return 'https://manager.headysystems.com/api';
+  // Electron or SSR — use Cloud Run URL or env override
+  return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL)
+    || CLOUD_RUN_URL + '/api';
 };
 const resolveWsUrl = () => {
   if (isWeb) {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     return `${proto}//${window.location.host}/ws/ide`;
   }
-  return 'wss://manager.headysystems.com/ws/ide';
+  return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_WS_URL)
+    || CLOUD_RUN_URL.replace('https://', 'wss://') + '/ws/ide';
 };
 const WS_URL = resolveWsUrl();
 const API_URL = resolveApiUrl();

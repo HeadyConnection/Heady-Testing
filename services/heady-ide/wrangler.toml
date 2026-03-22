@@ -11,8 +11,11 @@ main = "worker/index.js"
 
 [vars]
 ENVIRONMENT = "production"
-IDE_SERVER_URL = "https://ide.heady-ai.com"
+IDE_SERVER_URL = "https://headyme-site-667608982461.us-central1.run.app"
+IDE_FALLBACK_URL = "https://ide.heady-ai.com"
 MCP_SERVER_URL = "https://headymcp.com"
+GCP_PROJECT_ID = "headyme-444017"
+CLOUDFLARE_AI_GATEWAY = "heady-gateway"
 
 # R2 bucket binding for workspace files
 [[r2_buckets]]
