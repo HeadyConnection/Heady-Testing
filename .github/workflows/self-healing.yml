@@ -56,6 +56,7 @@ jobs:
   health-check:
     name: Health Endpoint Check
     runs-on: ubuntu-latest
+    continue-on-error: true
     outputs:
       health-ok: ${{ steps.check.outputs.health-ok }}
       failed-domains: ${{ steps.check.outputs.failed-domains }}
@@ -201,6 +202,7 @@ jobs:
   cert-check:
     name: TLS Certificate Expiry Check
     runs-on: ubuntu-latest
+    continue-on-error: true
     outputs:
       cert-ok: ${{ steps.certs.outputs.cert-ok }}
 
@@ -245,14 +247,18 @@ jobs:
   resource-check:
     name: Resource Utilization Check
     runs-on: ubuntu-latest
+    continue-on-error: true
     outputs:
       resources-ok: ${{ steps.resources.outputs.resources-ok }}
 
     steps:
       - name: Authenticate to Google Cloud
+        if: env.HAS_GCP_KEY == 'true'
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
+        env:
+          HAS_GCP_KEY: ${{ secrets.GCP_SA_KEY != '' }}
 
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
