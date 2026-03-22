@@ -7,8 +7,8 @@ import { PHI, PSI, PSI2, PSI3, FIB, sha256, phiBackoff, CSL_THRESHOLDS, cslGate 
 
 const GCP_CONFIG = Object.freeze({
   project: 'gen-lang-client-0920560496',
-  region: 'us-east1',
-  registry: 'us-east1-docker.pkg.dev/gen-lang-client-0920560496/heady',
+  region: 'us-central1',
+  registry: 'us-central1-docker.pkg.dev/gen-lang-client-0920560496/heady',
 });
 
 const TRAFFIC_STEPS = Object.freeze([

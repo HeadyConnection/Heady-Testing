@@ -6,7 +6,7 @@
 import { PHI, PSI, FIB, sha256 } from '../shared/phi-math-v2.js';
 
 const CONTAINER_CONFIG = Object.freeze({
-  image: 'us-east1-docker.pkg.dev/gen-lang-client-0920560496/heady/node',
+  image: 'us-central1-docker.pkg.dev/gen-lang-client-0920560496/heady/node',
   tag: 'latest',
   basePort: 3310,
   nodeVersion: '22-alpine',

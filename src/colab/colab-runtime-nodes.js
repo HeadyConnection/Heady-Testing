@@ -66,7 +66,7 @@ const RUNTIME_SPECS = Object.freeze([
   {
     id: 'colab-us-east',
     codename: 'Cortex',
-    region: 'us-east1',
+    region: 'us-central1',
     role: 'primary_inference',
     pool: 'hot',
     cslGate: CSL_THRESHOLDS.CRITICAL,

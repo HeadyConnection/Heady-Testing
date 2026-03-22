@@ -119,7 +119,7 @@ class FederationManager {
     return selected.node;
   }
 
-  async routeTask(task, preferredRegion = 'us-east1') {
+  async routeTask(task, preferredRegion = 'us-central1') {
     const hive = this.selectHive(task, preferredRegion);
     if (hive.error) return hive;
     const result = await hive.hive.executeMission(task);
