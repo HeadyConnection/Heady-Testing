@@ -19,7 +19,7 @@ function cosineSimilarity(a, b) { let dot = 0, magA = 0, magB = 0; const len = M
 function hashSHA256(data) { return createHash('sha256').update(JSON.stringify(data)).digest('hex'); }
 
 const REGIONS = {
-  'us-east1': { lat: 33.836, lng: -81.163, tier: 'primary' },
+  'us-central1': { lat: 33.836, lng: -81.163, tier: 'primary' },
   'us-central1': { lat: 41.262, lng: -95.861, tier: 'primary' },
   'us-west1': { lat: 45.601, lng: -121.184, tier: 'secondary' },
   'europe-west1': { lat: 50.449, lng: 3.818, tier: 'secondary' },
@@ -36,7 +36,7 @@ function geoDistance(r1, r2) {
 
 class HiveNode {
   constructor(id, region, hiveCoordinator) {
-    this.id = id; this.region = region; this.regionMeta = REGIONS[region] ?? REGIONS['us-east1'];
+    this.id = id; this.region = region; this.regionMeta = REGIONS[region] ?? REGIONS['us-central1'];
     this.hive = hiveCoordinator; this.state = 'active'; this.lastHeartbeat = Date.now();
     this.missionsRouted = 0; this.missionsFailed = 0; this.coherenceScore = 1.0; this.latencyMs = FIB[5];
   }
@@ -102,7 +102,7 @@ class FederationManager {
   selectHive(task, preferredRegion) {
     const active = [...this.hiveNodes.values()].filter(n => n.state !== 'offline');
     if (active.length === 0) return { error: 'No active hives available' };
-    const preferredMeta = REGIONS[preferredRegion] ?? REGIONS['us-east1'];
+    const preferredMeta = REGIONS[preferredRegion] ?? REGIONS['us-central1'];
     const scored = active.map(node => {
       const distance = geoDistance(preferredMeta, node.regionMeta);
       const proximitySco = 1.0 - (distance / 20000);
@@ -119,7 +119,7 @@ class FederationManager {
     return selected.node;
   }
 
-  async routeTask(task, preferredRegion = 'us-east1') {
+  async routeTask(task, preferredRegion = 'us-central1') {
     const hive = this.selectHive(task, preferredRegion);
     if (hive.error) return hive;
     const result = await hive.hive.executeMission(task);

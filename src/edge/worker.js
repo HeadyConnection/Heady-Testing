@@ -54,7 +54,7 @@ const CACHE_TTL = {
 };
 
 // ─── Route Configuration ────────────────────────────────────────────────────
-const ORIGIN_BASE = 'https://heady-api-gen-lang-client-0920560496.us-east1.run.app';
+const ORIGIN_BASE = 'https://heady-api-gen-lang-client-0920560496.us-central1.run.app';
 
 const ROUTES = {
   // Health & readiness

@@ -135,7 +135,7 @@ class MetricsWindow {
 class CloudRunOptimizer {
   constructor(config = {}) {
     this.projectId = config.projectId ?? 'gen-lang-client-0920560496';
-    this.region = config.region ?? 'us-east1';
+    this.region = config.region ?? 'us-central1';
     this.services = new Map();
     this.metricsWindows = new Map();
     this.recommendations = [];

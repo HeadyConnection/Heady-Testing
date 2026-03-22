@@ -52,7 +52,7 @@ class Bootstrap {
   constructor(config = {}) {
     this.config = {
       projectId: config.projectId || 'gen-lang-client-0920560496',
-      region: config.region || 'us-east1',
+      region: config.region || 'us-central1',
       environment: config.environment || process.env.NODE_ENV || 'production',
       enableColab: config.enableColab !== false,
       enableWebsites: config.enableWebsites !== false,
@@ -343,7 +343,7 @@ class Bootstrap {
 async function main() {
   const bootstrap = new Bootstrap({
     projectId: process.env.GCP_PROJECT_ID || 'gen-lang-client-0920560496',
-    region: process.env.GCP_REGION || 'us-east1',
+    region: process.env.GCP_REGION || 'us-central1',
     environment: process.env.NODE_ENV || 'production',
     enableColab: process.env.ENABLE_COLAB !== 'false',
     enableWebsites: process.env.ENABLE_WEBSITES !== 'false'

@@ -47,11 +47,11 @@ function getServices() {
   }
   // Default built-in services (env-driven, no localhost per Sacred Rule #1)
   return [
-    { name: 'api-gateway',      url: process.env.API_GATEWAY_URL      || 'https://heady-manager-609590223909.us-east1.run.app/health', critical: true  },
-    { name: 'vector-store',     url: process.env.VECTOR_STORE_URL     || 'https://heady-vector-609590223909.us-east1.run.app/health',  critical: true  },
-    { name: 'swarm-coordinator',url: process.env.SWARM_COORDINATOR_URL|| 'https://heady-swarm-609590223909.us-east1.run.app/health',   critical: true  },
-    { name: 'task-runner',      url: process.env.TASK_RUNNER_URL      || 'https://heady-task-609590223909.us-east1.run.app/health',    critical: false },
-    { name: 'telemetry-sink',   url: process.env.TELEMETRY_SINK_URL   || 'https://heady-telemetry-609590223909.us-east1.run.app/health', critical: false },
+    { name: 'api-gateway',      url: process.env.API_GATEWAY_URL      || 'https://heady-manager-609590223909.us-central1.run.app/health', critical: true  },
+    { name: 'vector-store',     url: process.env.VECTOR_STORE_URL     || 'https://heady-vector-609590223909.us-central1.run.app/health',  critical: true  },
+    { name: 'swarm-coordinator',url: process.env.SWARM_COORDINATOR_URL|| 'https://heady-swarm-609590223909.us-central1.run.app/health',   critical: true  },
+    { name: 'task-runner',      url: process.env.TASK_RUNNER_URL      || 'https://heady-task-609590223909.us-central1.run.app/health',    critical: false },
+    { name: 'telemetry-sink',   url: process.env.TELEMETRY_SINK_URL   || 'https://heady-telemetry-609590223909.us-central1.run.app/health', critical: false },
   ];
 }
 
