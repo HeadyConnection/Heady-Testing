@@ -39,7 +39,7 @@ app.get('/pipeline/status', async () => ({
 app.post('/pipeline/maintenance', async () => {
   const maintenanceUrl = process.env.HEADY_MAINTENANCE_URL
     || process.env.HEADY_MAINTENANCE_CLOUD_RUN_URL
-    || 'https://heady-maintenance-609590223909.us-east1.run.app';
+    || 'https://heady-maintenance-609590223909.us-central1.run.app';
   try {
     const response = await fetch(`${maintenanceUrl}/maintenance/dry-run`, { method: 'POST' });
     const result = await response.json();

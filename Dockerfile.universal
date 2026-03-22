@@ -61,33 +61,54 @@ case "$ROLE" in
     echo "Starting HeadyManager..."
     exec node heady-manager.js
     ;;
-  mcp)
+  mcp|mcp-server)
     echo "Starting MCP Server..."
-    exec node heady-manager.js --mcp
+    exec node services/heady-mcp-server/src/index.js
     ;;
-  worker)
-    echo "Starting Worker Node..."
-    exec node services/heady-orchestration/monte-carlo-scheduler.js
+  worker|conductor)
+    echo "Starting Conductor/Worker..."
+    exec npx tsx services/heady-conductor/src/index.ts
     ;;
-  probe)
-    echo "Starting Health Probe..."
-    exec node services/heady-health/probe-orchestrator.js --full-sweep
+  probe|health)
+    echo "Starting Health Service..."
+    exec npx tsx services/heady-health/src/index.ts
     ;;
   gateway)
-    echo "Starting API Gateway..."
-    exec node services/api-gateway/index.js
+    echo "Starting Native API Gateway..."
+    exec node heady-native-services/src/gateway.js
     ;;
   buddy)
     echo "Starting HeadyBuddy..."
-    exec node services/heady-buddy/index.js
+    exec npx tsx services/heady-buddy/src/index.ts
+    ;;
+  brain|brains)
+    echo "Starting HeadyBrain..."
+    exec npx tsx services/heady-brains/src/index.ts
+    ;;
+  memory)
+    echo "Starting HeadyMemory..."
+    exec npx tsx services/heady-memory/src/index.ts
+    ;;
+  soul)
+    echo "Starting HeadySoul..."
+    exec npx tsx services/heady-soul/src/index.ts
+    ;;
+  coder)
+    echo "Starting HeadyCoder..."
+    exec npx tsx services/heady-coder/src/index.ts
+    ;;
+  guard)
+    echo "Starting HeadyGuard..."
+    exec npx tsx services/heady-guard/src/index.ts
     ;;
   web)
     echo "Starting HeadyWeb..."
-    exec node apps/headyweb/server.js
+    exec node apps/headyweb/server.js 2>/dev/null || exec npx tsx apps/headyweb/src/index.ts
     ;;
   *)
     echo "Unknown role: $ROLE"
-    echo "Available: manager, mcp, worker, probe, gateway, buddy, web"
+    echo "Available: manager, mcp-server, worker, probe, gateway, buddy,"
+    echo "           brain, memory, soul, coder, guard, web"
     exit 1
     ;;
 esac

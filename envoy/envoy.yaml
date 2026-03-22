@@ -313,7 +313,7 @@ static_resources:
                   address:
                     socket_address:
                       address: heady-brain
-                      port_value: 3310
+                      port_value: 3311
       health_checks:
         - timeout: 2.618s
           interval: 8s              # fib(6)
@@ -354,7 +354,7 @@ static_resources:
                   address:
                     socket_address:
                       address: heady-infer
-                      port_value: 3312
+                      port_value: 3102
       health_checks:
         - timeout: 2.618s
           interval: 8s
@@ -436,7 +436,7 @@ static_resources:
                   address:
                     socket_address:
                       address: heady-memory
-                      port_value: 3321
+                      port_value: 3312
       health_checks:
         - timeout: 2.618s
           interval: 8s
@@ -477,7 +477,7 @@ static_resources:
                   address:
                     socket_address:
                       address: search-service
-                      port_value: 3325
+                      port_value: 3319
       health_checks:
         - timeout: 2.618s
           interval: 8s
@@ -559,7 +559,7 @@ static_resources:
                   address:
                     socket_address:
                       address: hcfullpipeline-executor
-                      port_value: 3319
+                      port_value: 3330
       health_checks:
         - timeout: 4.236s           # φ³ — longer timeout for pipeline service
           interval: 21s             # fib(8)
@@ -600,7 +600,7 @@ static_resources:
                   address:
                     socket_address:
                       address: auth-session-server
-                      port_value: 3337
+                      port_value: 3314
       health_checks:
         - timeout: 2.618s
           interval: 5s
@@ -641,7 +641,7 @@ static_resources:
                   address:
                     socket_address:
                       address: mcp-server
-                      port_value: 3353
+                      port_value: 3310
       health_checks:
         - timeout: 2.618s
           interval: 8s
@@ -682,7 +682,7 @@ static_resources:
                   address:
                     socket_address:
                       address: notification-service
-                      port_value: 3344
+                      port_value: 3316
       health_checks:
         - timeout: 2.618s
           interval: 8s
@@ -850,7 +850,7 @@ static_resources:
                   address:
                     socket_address:
                       address: domain-router
-                      port_value: 3316
+                      port_value: 4301
       health_checks:
         - timeout: 2.618s
           interval: 8s
@@ -891,7 +891,7 @@ static_resources:
                   address:
                     socket_address:
                       address: heady-manager
-                      port_value: 3317
+                      port_value: 3300
       health_checks:
         - timeout: 4.236s
           interval: 13s
@@ -932,7 +932,7 @@ static_resources:
                   address:
                     socket_address:
                       address: heady-conductor
-                      port_value: 3318
+                      port_value: 3323
       health_checks:
         - timeout: 4.236s
           interval: 13s
@@ -973,7 +973,7 @@ static_resources:
                   address:
                     socket_address:
                       address: heady-embed
-                      port_value: 3320
+                      port_value: 3101
       health_checks:
         - timeout: 2.618s
           interval: 8s
@@ -1014,7 +1014,7 @@ static_resources:
                   address:
                     socket_address:
                       address: heady-vector
-                      port_value: 3322
+                      port_value: 3103
       health_checks:
         - timeout: 2.618s
           interval: 8s
@@ -1096,7 +1096,7 @@ static_resources:
                   address:
                     socket_address:
                       address: heady-cache
-                      port_value: 3324
+                      port_value: 3105
       health_checks:
         - timeout: 1.618s
           interval: 5s

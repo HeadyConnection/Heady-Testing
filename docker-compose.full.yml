@@ -227,7 +227,7 @@ services:
     image: dpage/pgadmin4:latest
     container_name: heady-pgadmin
     ports:
-      - "8080:80"
+      - "8082:80"
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@heady.internal
       - PGADMIN_DEFAULT_PASSWORD=heady_admin

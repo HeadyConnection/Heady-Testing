@@ -301,8 +301,8 @@ class AutoImport {
 class AutoHealth {
   constructor(opts = {}) {
     this.endpoints = opts.endpoints || [
-      { name: "heady-manager", url: process.env.HEADY_MANAGER_URL || "https://heady-manager-609590223909.us-east1.run.app/api/health" },
-      { name: "heady-brain", url: process.env.HEADY_BRAIN_URL || "https://heady-manager-609590223909.us-east1.run.app/api/brain/health" },
+      { name: "heady-manager", url: process.env.HEADY_MANAGER_URL || "https://heady-manager-609590223909.us-central1.run.app/api/health" },
+      { name: "heady-brain", url: process.env.HEADY_BRAIN_URL || "https://heady-manager-609590223909.us-central1.run.app/api/brain/health" },
       { name: "headyme.com", url: "https://headyme.com/health", external: true },
       { name: "headysystems.com", url: "https://headysystems.com/health", external: true },
       { name: "headyconnection.com", url: "https://headyconnection.com/health", external: true },

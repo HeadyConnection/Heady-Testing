@@ -1,0 +1,814 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ Comprehensive Services — Docker Compose
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ALL Heady services in a single compose file.
+# Combines: Core Manager, HeadyMCP, Native AI Services, Infrastructure,
+#           Workers, Monitoring, and Admin Tools.
+#
+# Usage:
+#   docker compose -f docker-compose.heady-services.yml up -d
+#   docker compose -f docker-compose.heady-services.yml ps
+#   docker compose -f docker-compose.heady-services.yml logs -f heady-manager
+#   docker compose -f docker-compose.heady-services.yml down
+#
+# Profiles:
+#   default                     — Core + MCP + Infra (lean startup)
+#   --profile native-ai         — Add native AI services (embed, infer, etc.)
+#   --profile monitoring        — Add Grafana + Prometheus
+#   --profile admin             — Add pgAdmin + Redis Commander
+#   --profile local-llm         — Add local Ollama instance
+#   --profile full              — Everything
+#
+# Ports Map (φ-derived):
+#   3300  — heady-manager (core brain)
+#   3310  — heady-mcp-server (MCP gateway)
+#   3311  — heady-brain         3318  — analytics
+#   3312  — heady-memory        3319  — search
+#   3313  — heady-manager-alt   3320  — scheduler
+#   3314  — auth-session        3321  — heady-soul
+#   3315  — api-gateway         3322  — heady-vinci
+#   3316  — notification        3323  — heady-conductor
+#   3317  — billing             3324  — heady-coder
+#   3325  — heady-battle        3329  — heady-guard
+#   3326  — heady-buddy         3330  — hcfp
+#   3327  — heady-lens          3331  — edge-ai
+#   3328  — heady-maid
+#
+# Native AI Services (heady-native-services):
+#   3100  — heady-gateway       3105  — heady-cache
+#   3101  — heady-embed         3106  — heady-guard-native
+#   3102  — heady-infer         3107  — heady-eval
+#   3103  — heady-vector
+#   3104  — heady-chain
+#
+# Infrastructure:
+#   5432  — PostgreSQL (pgvector)
+#   6379  — Redis
+#   4316  — OpenTelemetry Collector
+#
+# © 2026 HeadySystems Inc. — Eric Haywood, Founder
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  #  INFRASTRUCTURE LAYER
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: heady-postgres
+    environment:
+      POSTGRES_DB: heady
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - heady-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d heady"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: heady-redis
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - heady-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.120.0
+    container_name: heady-otel
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./infra/otel/collector.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4316:4316"
+      - "9464:9464"
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  #  CORE: HEADY MANAGER (port 3300)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  heady-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: heady-manager
+    environment:
+      NODE_ENV: production
+      HEADY_ENV: production
+      PORT: 3300
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      OBSERVABILITY_EXPORT_URL: http://otel-collector:4316/v1/traces
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4316
+      OTEL_SERVICE_NAME: heady-manager
+      HEADY_TARGET: Docker
+      # MCP integration
+      HEADY_MCP_URL: http://heady-mcp-server:3310
+      HEADY_SERVICE_HOST: heady-manager
+      HEADY_SERVICE_BASE_URL: http://heady-manager
+    ports:
+      - "3300:3300"
+    volumes:
+      - heady-data:/app/.heady-memory
+      - heady-logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3300/api/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  #  HEADY MCP SERVER (port 3310) — Master Control Program
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  heady-mcp-server:
+    build:
+      context: ./services/heady-mcp-server
+      dockerfile: Dockerfile
+    image: heady-mcp-server:latest
+    container_name: heady-mcp-server
+    environment:
+      NODE_ENV: production
+      HEADY_ENV: docker
+      PORT: 3310
+      HEADY_MCP_TRANSPORT: http
+      HEADY_SERVICE_HOST: heady-mcp-server
+      HEADY_SERVICE_BASE_URL: http://heady-manager
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      LOG_LEVEL: info
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_ORG_ID: ${ANTHROPIC_ORG_ID:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+    ports:
+      - "3310:3310"
+    depends_on:
+      heady-manager:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3310/health"]
+      interval: 13s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - heady-net
+    volumes:
+      - heady-mcp-logs:/app/logs
+      - heady-cache:/tmp/heady-cache
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  #  MCP-REGISTERED MICROSERVICES (ports 3311-3331)
+  #  Built via Dockerfile.service — each is a separate TypeScript service
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # ─── Core Intelligence ──────────────────────────────────────────────────
+
+  heady-brain:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/heady-brains"
+    container_name: heady-brain
+    command: ["tsx", "services/heady-brains/src/index.ts"]
+    environment:
+      PORT: 3311
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3311:3311"
+    depends_on:
+      heady-mcp-server:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-memory:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/heady-memory"
+    container_name: heady-memory
+    command: ["tsx", "services/heady-memory/src/index.ts"]
+    environment:
+      PORT: 3312
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3312:3312"
+    depends_on:
+      heady-mcp-server:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-soul:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/heady-soul"
+    container_name: heady-soul
+    command: ["tsx", "services/heady-soul/src/index.ts"]
+    environment:
+      PORT: 3321
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3321:3321"
+    depends_on:
+      heady-mcp-server:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-conductor:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/heady-conductor"
+    container_name: heady-conductor
+    command: ["tsx", "services/heady-conductor/src/index.ts"]
+    environment:
+      PORT: 3323
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3323:3323"
+    depends_on:
+      heady-mcp-server:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ─── Execution Services ─────────────────────────────────────────────────
+
+  heady-coder:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/heady-coder"
+    container_name: heady-coder
+    command: ["tsx", "services/heady-coder/src/index.ts"]
+    environment:
+      PORT: 3324
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3324:3324"
+    depends_on:
+      heady-mcp-server:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-buddy:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/heady-buddy"
+    container_name: heady-buddy
+    command: ["tsx", "services/heady-buddy/src/index.ts"]
+    environment:
+      PORT: 3326
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3326:3326"
+    depends_on:
+      heady-mcp-server:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ─── Security & Ops ─────────────────────────────────────────────────────
+
+  heady-guard:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/heady-guard"
+    container_name: heady-guard
+    command: ["tsx", "services/heady-guard/src/index.ts"]
+    environment:
+      PORT: 3329
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3329:3329"
+    depends_on:
+      heady-mcp-server:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-health:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/heady-health"
+    container_name: heady-health
+    command: ["tsx", "services/heady-health/src/index.ts"]
+    environment:
+      PORT: 4305
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "4305:4305"
+    depends_on:
+      heady-mcp-server:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ─── Infrastructure Services ─────────────────────────────────────────────
+
+  domain-router:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/domain-router"
+    container_name: heady-domain-router
+    command: ["tsx", "services/domain-router/src/index.ts"]
+    environment:
+      PORT: 4301
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "4301:4301"
+    depends_on:
+      heady-manager:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  budget-tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_DIR: "services/budget-tracker"
+    container_name: heady-budget-tracker
+    command: ["tsx", "services/budget-tracker/src/index.ts"]
+    environment:
+      PORT: 4303
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      REDIS_URL: redis://redis:6379
+      HEADY_MANAGER_URL: http://heady-manager:3300
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "4303:4303"
+    depends_on:
+      heady-manager:
+        condition: service_healthy
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  #  NATIVE AI SERVICES (profile: native-ai)
+  #  Self-contained AI microservices from heady-native-services
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  heady-embed:
+    build:
+      context: ./heady-native-services
+      dockerfile: src/services/heady-embed/Dockerfile
+    container_name: heady-embed
+    profiles: ["native-ai", "full"]
+    environment:
+      HEADY_EMBED_PORT: 3101
+      HEADY_EMBED_MODEL: Xenova/all-MiniLM-L6-v2
+      HEADY_EMBED_BATCH_SIZE: 32
+      HEADY_EMBED_CACHE_SIZE: 10000
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3101:3101"
+    volumes:
+      - embed-models:/app/models
+      - embed-cache:/app/cache
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3101/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-infer:
+    build:
+      context: ./heady-native-services
+      dockerfile: src/services/heady-infer/Dockerfile
+    container_name: heady-infer
+    profiles: ["native-ai", "full"]
+    environment:
+      HEADY_INFER_PORT: 3102
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      OLLAMA_BASE_URL: http://ollama:11434
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3102:3102"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3102/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-vector:
+    build:
+      context: ./heady-native-services
+      dockerfile: src/services/heady-vector/Dockerfile
+    container_name: heady-vector
+    profiles: ["native-ai", "full"]
+    environment:
+      HEADY_VECTOR_PORT: 3103
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/heady
+      PG_POOL_SIZE: 20
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3103:3103"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3103/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-chain:
+    build:
+      context: ./heady-native-services
+      dockerfile: src/services/heady-chain/Dockerfile
+    container_name: heady-chain
+    profiles: ["native-ai", "full"]
+    environment:
+      HEADY_CHAIN_PORT: 3104
+      HEADY_INFER_URL: http://heady-infer:3102
+      HEADY_VECTOR_URL: http://heady-vector:3103
+      HEADY_EMBED_URL: http://heady-embed:3101
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3104:3104"
+    depends_on:
+      - heady-infer
+      - heady-vector
+      - heady-embed
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3104/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-cache-service:
+    build:
+      context: ./heady-native-services
+      dockerfile: src/services/heady-cache/Dockerfile
+    container_name: heady-cache-service
+    profiles: ["native-ai", "full"]
+    environment:
+      HEADY_CACHE_PORT: 3105
+      HEADY_CACHE_BACKEND: memory
+      HEADY_CACHE_MAX_SIZE: 50000
+      HEADY_CACHE_SIMILARITY_THRESHOLD: 0.95
+      HEADY_EMBED_URL: http://heady-embed:3101
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3105:3105"
+    depends_on:
+      - heady-embed
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3105/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-guard-native:
+    build:
+      context: ./heady-native-services
+      dockerfile: src/services/heady-guard/Dockerfile
+    container_name: heady-guard-native
+    profiles: ["native-ai", "full"]
+    environment:
+      HEADY_GUARD_PORT: 3106
+      HEADY_GUARD_BLOCK_THRESHOLD: 80
+      HEADY_GUARD_FLAG_THRESHOLD: 50
+      HEADY_GUARD_PII_MODE: redact
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3106:3106"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3106/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-eval:
+    build:
+      context: ./heady-native-services
+      dockerfile: src/services/heady-eval/Dockerfile
+    container_name: heady-eval
+    profiles: ["native-ai", "full"]
+    environment:
+      HEADY_EVAL_PORT: 3107
+      HEADY_EVAL_JUDGE_MODEL: claude-3.5-sonnet
+      HEADY_EVAL_CONCURRENCY: 5
+      HEADY_INFER_URL: http://heady-infer:3102
+      HEADY_EMBED_URL: http://heady-embed:3101
+      HEADY_GUARD_URL: http://heady-guard-native:3106
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3107:3107"
+    depends_on:
+      - heady-infer
+      - heady-embed
+      - heady-guard-native
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3107/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  heady-native-gateway:
+    build:
+      context: ./heady-native-services
+      dockerfile: Dockerfile
+    container_name: heady-native-gateway
+    profiles: ["native-ai", "full"]
+    environment:
+      HEADY_GATEWAY_PORT: 3100
+      NODE_ENV: production
+      MCP_SERVER: http://heady-mcp-server:3310
+    ports:
+      - "3100:3100"
+    depends_on:
+      - heady-embed
+      - heady-infer
+      - heady-vector
+      - heady-chain
+      - heady-cache-service
+      - heady-guard-native
+      - heady-eval
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  #  LOCAL LLM (profile: local-llm)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: heady-ollama
+    profiles: ["local-llm", "full"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    environment:
+      OLLAMA_HOST: "0.0.0.0"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 34s
+      timeout: 13s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  #  MONITORING (profile: monitoring)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: heady-grafana
+    profiles: ["monitoring", "full"]
+    ports:
+      - "3002:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-heady_grafana}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - heady-grafana:/var/lib/grafana
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: heady-prometheus
+    profiles: ["monitoring", "full"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - heady-prometheus:/prometheus
+    command:
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=89d'
+      - '--web.enable-lifecycle'
+    networks:
+      - heady-net
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  #  ADMIN TOOLS (profile: admin)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: heady-pgadmin
+    profiles: ["admin", "full"]
+    ports:
+      - "8082:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@headysystems.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-heady_admin}
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - heady-pgadmin:/var/lib/pgadmin
+    networks:
+      - heady-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: heady-redis-commander
+    profiles: ["admin", "full"]
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: "local:redis:6379"
+    networks:
+      - heady-net
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  VOLUMES
+# ═══════════════════════════════════════════════════════════════════════════
+
+volumes:
+  heady-postgres:
+    driver: local
+  heady-redis:
+    driver: local
+  heady-data:
+    driver: local
+  heady-logs:
+    driver: local
+  heady-mcp-logs:
+    driver: local
+  heady-cache:
+    driver: local
+  heady-pgadmin:
+    driver: local
+  heady-grafana:
+    driver: local
+  heady-prometheus:
+    driver: local
+  embed-models:
+    driver: local
+  embed-cache:
+    driver: local
+  ollama-models:
+    driver: local
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  NETWORK
+# ═══════════════════════════════════════════════════════════════════════════
+
+networks:
+  heady-net:
+    driver: bridge
+    name: heady-services-net

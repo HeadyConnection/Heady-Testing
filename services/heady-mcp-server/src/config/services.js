@@ -6,7 +6,7 @@
 
 const { PORTS } = require('./phi-constants');
 
-const BASE_HOST = process.env.HEADY_SERVICE_HOST || 'heady-manager-609590223909.us-east1.run.app';
+const BASE_HOST = process.env.HEADY_SERVICE_HOST || 'heady-manager-609590223909.us-central1.run.app';
 const BASE_URL = process.env.HEADY_SERVICE_BASE_URL || `https://${BASE_HOST}`;
 
 /**

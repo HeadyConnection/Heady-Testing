@@ -17,8 +17,8 @@
     "use strict";
 
     const BUDDY_VERSION = "2.0.0";
-    const API_BASE = "https://heady-onboarding-609590223909.us-east1.run.app";
-    const EDGE_BASE = "https://heady-onboarding-609590223909.us-east1.run.app";
+    const API_BASE = "https://heady-onboarding-609590223909.us-central1.run.app";
+    const EDGE_BASE = "https://heady-onboarding-609590223909.us-central1.run.app";
 
     // ─── State ───────────────────────────────────────────────────
     const state = {
