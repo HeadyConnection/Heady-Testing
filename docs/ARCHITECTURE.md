@@ -1,17 +1,61 @@
-# Architecture
+# Heady System Architecture
 
-The recommended topology is edge-first: Cloudflare Workers handle MCP ingress, provider routing, and lightweight companion streaming, while Cloud Run runs the heavier orchestration and memory-adjacent services. This split matches Cloudflare’s guidance that remote MCP servers should use Streamable HTTP and Durable Objects when per-session state is needed ([Cloudflare Agents docs](https://developers.cloudflare.com/agents/guides/remote-mcp-server/)).
+## Overview
 
-The memory plane is hybrid. PostgreSQL with pgvector is the source of truth for 384-dimensional embeddings and Graph RAG state, while Cloudflare Vectorize acts as the hot edge retrieval layer for globally distributed reads. Cloudflare states that Vectorize supports up to 5 million vectors per index and up to 1536 dimensions, which makes it a practical edge complement rather than a replacement for origin persistence ([Cloudflare Vectorize](https://blog.cloudflare.com/building-vectorize-a-distributed-vector-database-on-cloudflare-developer-platform/)).
+Heady is a personal AI platform functioning as a fully automated digital company.
+It orchestrates 20+ specialized AI services across reasoning, building, validation,
+creation, and operations.
 
-HeadyMCP publicly describes an edge-native MCP server with JSON-RPC and SSE plus 30+ tools for VS Code, Cursor, and Windsurf, which supports treating the `heady-mcp-worker` as the IDE-facing control plane ([HeadyMCP](https://headymcp.com)).
+## Core Principles
 
-HeadyAPI publicly describes a liquid gateway that races 4+ providers and performs auto-failover, which aligns with the `liquid-gateway-worker` and the budget-aware provider policy in this bundle ([HeadyAPI](https://www.headyapi.com)).
+1. **Fractal Self-Similarity** — Same values at every scale (code → service → org)
+2. **Sacred Geometry** — Fibonacci spacing, golden ratio rhythms (φ = 1.618...)
+3. **Liquid Architecture** — Dynamic allocation, always-on critical paths
+4. **Self-Healing** — 6-signal drift detection, Monte Carlo validation
+5. **Learning from Failure** — Errors are data, not disasters
 
-## Layers
+## Data Flow
 
-1. Edge ingress: `heady-mcp-worker`, `liquid-gateway-worker`, `heady-buddy-worker`, `edge-auth-worker`
-2. Control plane: `heady-conductor`, `heady-governance`, `domain-router`, `observability-kernel`
-3. Execution plane: `hcfullpipeline-executor`, `auto-success-engine`, `heady-bee-factory`, `heady-brains`, `heady-soul`, `heady-vinci`
-4. Memory plane: `heady-memory`, pgvector, Graph RAG schema, Vectorize sync boundary
-5. Safety and health: `heady-health`, `heady-guard`, Cloudflare Access, audit policies
+```
+User Request
+    ↓
+AI Gateway (Auth + Rate Limit)
+    ↓
+HeadyBrain (Primary Reasoning)
+    ↓
+HeadySoul (Alignment Check)
+    ↓
+HeadyBattle (Quality Gate)
+    ↓
+HeadySims (Monte Carlo Validation)
+    ↓
+Arena Mode (A/B Evaluation) [optional]
+    ↓
+HeadyVinci (Pattern Learning)
+    ↓
+Response to User
+```
+
+## Auto-Success Engine
+
+Runs 135 tasks across 9 categories every 30 seconds:
+
+| Category | Tasks |
+|---|---|
+| Health Checks | 18 |
+| Memory Consolidation | 15 |
+| Pattern Detection | 16 |
+| Dependency Audit | 14 |
+| Performance Optimization | 15 |
+| Security Scan | 12 |
+| Content Sync | 15 |
+| Model Evaluation | 16 |
+| Resource Balancing | 14 |
+
+## Infrastructure
+
+- **Edge**: Cloudflare Workers, KV, Pages, Tunnels, Access
+- **Compute**: Google Cloud Run, Vertex AI
+- **Storage**: Cloudflare KV, GCS, local file-based persistence
+- **CI/CD**: GitHub Actions
+- **Monitoring**: HeadyConductor (custom), structured logging (pino)
