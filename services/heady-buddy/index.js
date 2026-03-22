@@ -22,6 +22,32 @@ const CSL_GATES = Object.freeze({
   inject: PSI + 0.1,    // ≈ 0.718
 });
 
+// ─── Permission Tiers ─────────────────────────────────────────────────────────
+const PERMISSION_TIERS = Object.freeze({
+  observer:   { canRead: true, canWrite: false, canExecute: false, label: 'Observer',   icon: '👁️' },
+  actor:      { canRead: true, canWrite: true,  canExecute: false, label: 'Actor',      icon: '🎭' },
+  autonomous: { canRead: true, canWrite: true,  canExecute: true,  label: 'Autonomous', icon: '🤖' },
+});
+
+function permissionMiddleware(requiredCapability) {
+  return (req, res, next) => {
+    const sid = req.body?.sessionId || req.headers['x-session-id'] || 'default';
+    const session = sessions.get(sid) || { messages: [], state: {} };
+    const tierName = session.state?.permissionTier || 'observer';
+    const tier = PERMISSION_TIERS[tierName] || PERMISSION_TIERS.observer;
+
+    if (requiredCapability === 'write' && !tier.canWrite) {
+      return res.status(403).json({ error: 'Write permission required', currentTier: tierName, upgrade: 'Set permissionTier to "actor" or "autonomous" via /api/buddy/state' });
+    }
+    if (requiredCapability === 'execute' && !tier.canExecute) {
+      return res.status(403).json({ error: 'Execute permission required', currentTier: tierName, upgrade: 'Set permissionTier to "autonomous" via /api/buddy/state' });
+    }
+    req.permissionTier = tier;
+    req.tierName = tierName;
+    next();
+  };
+}
+
 // ─── Service Config ───────────────────────────────────────────────────────────
 const SERVICE_NAME = 'heady-buddy';
 const PORT = process.env.PORT || 3351;

@@ -1,0 +1,65 @@
+{
+  "name": "headyai-ide",
+  "displayName": "HeadyAI-IDE",
+  "description": "AI-powered development companion by HeadySystems — HeadyBuddy sidebar, Sacred Geometry theme, multi-model code actions",
+  "version": "1.0.0",
+  "publisher": "HeadySystems",
+  "license": "MIT",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other", "AI", "Themes"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "icon": "media/heady-icon.png",
+  "contributes": {
+    "commands": [
+      { "command": "heady.openChat", "title": "HeadyBuddy: Open Chat", "category": "Heady" },
+      { "command": "heady.explainCode", "title": "Heady: Explain Code", "category": "Heady" },
+      { "command": "heady.generateTests", "title": "Heady: Generate Tests", "category": "Heady" },
+      { "command": "heady.fixCode", "title": "Heady: Fix Code", "category": "Heady" },
+      { "command": "heady.optimizeCode", "title": "Heady: Optimize Code", "category": "Heady" },
+      { "command": "heady.reviewCode", "title": "Heady: Review Code", "category": "Heady" }
+    ],
+    "keybindings": [
+      { "command": "heady.openChat", "key": "ctrl+shift+b", "when": "!headyChatVisible" },
+      { "command": "heady.explainCode", "key": "ctrl+shift+h", "when": "editorTextFocus" },
+      { "command": "heady.generateTests", "key": "ctrl+shift+t", "when": "editorTextFocus" },
+      { "command": "heady.fixCode", "key": "ctrl+shift+f", "when": "editorTextFocus" },
+      { "command": "heady.optimizeCode", "key": "ctrl+shift+o", "when": "editorTextFocus" }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        { "id": "heady-sidebar", "title": "HeadyBuddy", "icon": "media/heady-icon.svg" }
+      ]
+    },
+    "views": {
+      "heady-sidebar": [
+        { "type": "webview", "id": "heady.buddyChat", "name": "HeadyBuddy Chat" }
+      ]
+    },
+    "configuration": {
+      "title": "HeadyAI-IDE",
+      "properties": {
+        "heady.ai.apiUrl": { "type": "string", "default": "https://heady-manager-609590223909.us-central1.run.app", "description": "Heady Manager API URL" },
+        "heady.ai.apiKey": { "type": "string", "default": "", "description": "Heady API Key" },
+        "heady.ai.model": { "type": "string", "default": "heady-brain", "enum": ["heady-brain", "heady-conductor", "heady-pattern", "heady-critique"], "description": "Default AI model" },
+        "heady.ui.breathingAnimations": { "type": "boolean", "default": true, "description": "Enable Sacred Geometry breathing animations" },
+        "heady.ui.theme": { "type": "string", "default": "sacred-geometry", "description": "UI theme" }
+      }
+    },
+    "themes": [
+      { "label": "Heady Sacred Geometry", "uiTheme": "vs-dark", "path": "./themes/sacred-geometry-theme.json" }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "package": "npx vsce package --no-dependencies",
+    "build": "npm run compile && npm run package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "20.x",
+    "typescript": "^5.3.0"
+  }
+}
