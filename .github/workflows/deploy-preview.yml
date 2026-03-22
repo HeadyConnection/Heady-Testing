@@ -26,8 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history to diff against base
+          fetch-depth: 1
 
+          lfs: false
       - name: Get changed files
         id: changed-files
         run: |

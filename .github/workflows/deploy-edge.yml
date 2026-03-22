@@ -27,6 +27,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 1
 
       # LR-005: Verify Host header deletion in edge proxy
       - name: 'LR-005: Check Host header handling'
@@ -55,11 +58,15 @@ jobs:
         working-directory: cloudflare/heady-edge-proxy
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 1
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
 
+          cache: 'npm'
       - name: Install wrangler
         run: npm install -g wrangler
 
@@ -77,9 +84,13 @@ jobs:
         working-directory: cloudflare/worker-ai-gateway
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v6
+        with:
+          lfs: false
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
       - run: npm install -g wrangler
       - name: Deploy
         run: wrangler deploy --config wrangler.toml
@@ -95,9 +106,13 @@ jobs:
         working-directory: cloudflare/worker-mcp-telemetry
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v6
+        with:
+          lfs: false
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
       - run: npm install -g wrangler
       - name: Deploy
         run: wrangler deploy --config wrangler.toml

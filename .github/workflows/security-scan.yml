@@ -31,11 +31,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 1
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: npm
+          node-version: '22'
+          cache: 'npm'
 
       - name: Install dependencies (no scripts)
         run: npm ci --ignore-scripts
@@ -75,8 +78,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history scan
+          fetch-depth: 1
 
+          lfs: false
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -94,8 +98,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
+          lfs: false
       - name: Check for .env files in working tree
         run: |
           echo "Scanning working tree for .env files..."

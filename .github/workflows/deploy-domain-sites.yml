@@ -60,6 +60,9 @@ jobs:
             service: heady-site-headydocs
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 1
       - name: Auth to GCP
         uses: google-github-actions/auth@v2
         with:
