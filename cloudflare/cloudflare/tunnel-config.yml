@@ -106,6 +106,61 @@ ingress:
       keepAliveTimeout:    90s
       httpHostHeader:      web.headysystems.com
 
+  # ── guard.headysystems.com ─ Content Safety & rate limiting ──────────
+  - hostname: guard.headysystems.com
+    service: http://heady-manager:3301
+    originRequest:
+      connectTimeout:      30s
+      tlsTimeout:          30s
+      tcpKeepAlive:        30s
+      keepAliveConnections: 100
+      keepAliveTimeout:    90s
+      httpHostHeader:      guard.headysystems.com
+
+  # ── infer.headysystems.com ─ AI Inference endpoint ───────────────────
+  - hostname: infer.headysystems.com
+    service: http://heady-manager:3301
+    originRequest:
+      connectTimeout:      60s
+      tlsTimeout:          30s
+      tcpKeepAlive:        30s
+      keepAliveConnections: 100
+      keepAliveTimeout:    120s
+      httpHostHeader:      infer.headysystems.com
+
+  # ── vector.headysystems.com ─ Vector search endpoint ─────────────────
+  - hostname: vector.headysystems.com
+    service: http://heady-manager:3301
+    originRequest:
+      connectTimeout:      30s
+      tlsTimeout:          30s
+      tcpKeepAlive:        30s
+      keepAliveConnections: 50
+      keepAliveTimeout:    90s
+      httpHostHeader:      vector.headysystems.com
+
+  # ── stream.headysystems.com ─ Streaming/SSE endpoint ─────────────────
+  - hostname: stream.headysystems.com
+    service: http://heady-manager:3301
+    originRequest:
+      connectTimeout:      60s
+      tlsTimeout:          30s
+      tcpKeepAlive:        30s
+      keepAliveConnections: 100
+      keepAliveTimeout:    300s
+      httpHostHeader:      stream.headysystems.com
+
+  # ── swarm.headysystems.com ─ Swarm coordination ──────────────────────
+  - hostname: swarm.headysystems.com
+    service: http://heady-manager:3301
+    originRequest:
+      connectTimeout:      30s
+      tlsTimeout:          30s
+      tcpKeepAlive:        30s
+      keepAliveConnections: 50
+      keepAliveTimeout:    90s
+      httpHostHeader:      swarm.headysystems.com
+
   # ── Catch-all ─────────────────────────────────────────────────────────
   # Returns 404 for any unmatched hostname. Must be last rule.
   - service: http_status:404

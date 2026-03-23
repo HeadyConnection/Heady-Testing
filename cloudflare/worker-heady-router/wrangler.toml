@@ -43,3 +43,55 @@ zone_name = "headysystems.com"
 [[routes]]
 pattern = "auth.headysystems.com/*"
 zone_name = "headysystems.com"
+
+[[routes]]
+pattern = "guard.headysystems.com/*"
+zone_name = "headysystems.com"
+
+[[routes]]
+pattern = "infer.headysystems.com/*"
+zone_name = "headysystems.com"
+
+[[routes]]
+pattern = "manager.headysystems.com/*"
+zone_name = "headysystems.com"
+
+[[routes]]
+pattern = "headybot.com/*"
+zone_name = "headybot.com"
+
+[[routes]]
+pattern = "www.headybot.com/*"
+zone_name = "headybot.com"
+
+[[routes]]
+pattern = "headyapi.com/*"
+zone_name = "headyapi.com"
+
+[[routes]]
+pattern = "www.headyapi.com/*"
+zone_name = "headyapi.com"
+
+[[routes]]
+pattern = "headybuddy.com/*"
+zone_name = "headybuddy.com"
+
+[[routes]]
+pattern = "www.headybuddy.com/*"
+zone_name = "headybuddy.com"
+
+[[routes]]
+pattern = "headyvault.com/*"
+zone_name = "headyvault.com"
+
+[[routes]]
+pattern = "www.headyvault.com/*"
+zone_name = "headyvault.com"
+
+[[routes]]
+pattern = "headyconnection.com/*"
+zone_name = "headyconnection.com"
+
+[[routes]]
+pattern = "www.headyconnection.com/*"
+zone_name = "headyconnection.com"

@@ -58,6 +58,12 @@ jobs:
           - name: headydocs
             domain: docs.headysystems.com
             service: heady-site-headydocs
+          - name: headyvault-com
+            domain: headyvault.com
+            service: heady-site-headyvault
+          - name: headyconnection-com
+            domain: headyconnection.com
+            service: heady-site-headyconnection-com
     steps:
       - uses: actions/checkout@v4
       - name: Auth to GCP

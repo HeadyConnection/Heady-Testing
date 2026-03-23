@@ -32,6 +32,8 @@ routes = [
   { pattern = "*.headyme.com/*",           zone_name = "headyme.com" },
   { pattern = "headyconnection.org/*",     zone_name = "headyconnection.org" },
   { pattern = "*.headyconnection.org/*",   zone_name = "headyconnection.org" },
+  { pattern = "headyconnection.com/*",     zone_name = "headyconnection.com" },
+  { pattern = "*.headyconnection.com/*",   zone_name = "headyconnection.com" },
   { pattern = "headyweb.com/*",            zone_name = "headyweb.com" },
   { pattern = "*.headyweb.com/*",          zone_name = "headyweb.com" },
   { pattern = "headymcp.com/*",            zone_name = "headymcp.com" },
@@ -40,10 +42,18 @@ routes = [
   { pattern = "*.headyio.com/*",           zone_name = "headyio.com" },
   { pattern = "headybuddy.com/*",          zone_name = "headybuddy.com" },
   { pattern = "*.headybuddy.com/*",        zone_name = "headybuddy.com" },
+  { pattern = "headybuddy.org/*",          zone_name = "headybuddy.org" },
+  { pattern = "*.headybuddy.org/*",        zone_name = "headybuddy.org" },
   { pattern = "headyapi.com/*",            zone_name = "headyapi.com" },
   { pattern = "*.headyapi.com/*",          zone_name = "headyapi.com" },
   { pattern = "headyos.com/*",             zone_name = "headyos.com" },
   { pattern = "*.headyos.com/*",           zone_name = "headyos.com" },
+  { pattern = "headybot.com/*",            zone_name = "headybot.com" },
+  { pattern = "*.headybot.com/*",          zone_name = "headybot.com" },
+  { pattern = "headyvault.com/*",          zone_name = "headyvault.com" },
+  { pattern = "*.headyvault.com/*",        zone_name = "headyvault.com" },
+  { pattern = "heady-ai.com/*",            zone_name = "heady-ai.com" },
+  { pattern = "*.heady-ai.com/*",          zone_name = "heady-ai.com" },
 ]
 
 # ─── Environment Variables ──────────────────────────────────────────

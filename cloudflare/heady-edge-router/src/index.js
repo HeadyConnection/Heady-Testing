@@ -32,7 +32,7 @@ const SECURITY_HEADERS = {
   'X-XSS-Protection': '1; mode=block',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.headysystems.com https://*.headyme.com https://*.headyconnection.org; frame-ancestors 'none';",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.headysystems.com https://*.headyme.com https://*.headyconnection.org https://*.headyconnection.com https://*.headybuddy.com https://*.headybuddy.org https://*.headybot.com https://*.headyapi.com https://*.headyvault.com https://*.headyio.com https://*.headymcp.com https://*.headyos.com https://*.heady-ai.com; frame-ancestors 'none';",
 };
 
 const HEADY_BRAND_HEADERS = {
@@ -82,12 +82,17 @@ function getOriginConfig(hostname) {
     'headysystems.com':     { pathPrefix: '', cacheTtl: CACHE_TTL.static },
     'headyme.com':          { pathPrefix: '', cacheTtl: CACHE_TTL.static },
     'headyconnection.org':  { pathPrefix: '', cacheTtl: CACHE_TTL.static },
+    'headyconnection.com':  { pathPrefix: '', cacheTtl: CACHE_TTL.static },
     'headyweb.com':         { pathPrefix: '', cacheTtl: CACHE_TTL.static },
     'headymcp.com':         { pathPrefix: '/mcp', cacheTtl: 0 },
     'headyio.com':          { pathPrefix: '', cacheTtl: CACHE_TTL.static },
     'headybuddy.org':       { pathPrefix: '', cacheTtl: CACHE_TTL.static },
+    'headybuddy.com':       { pathPrefix: '', cacheTtl: CACHE_TTL.static },
     'headyapi.com':         { pathPrefix: '/api', cacheTtl: CACHE_TTL.api },
     'headyos.com':          { pathPrefix: '', cacheTtl: CACHE_TTL.static },
+    'headybot.com':         { pathPrefix: '', cacheTtl: CACHE_TTL.static },
+    'headyvault.com':       { pathPrefix: '', cacheTtl: CACHE_TTL.static },
+    'heady-ai.com':         { pathPrefix: '', cacheTtl: CACHE_TTL.static },
   };
 
   return domainMap[domain] || { pathPrefix: '', cacheTtl: CACHE_TTL.static };
@@ -224,6 +229,13 @@ export default {
       return corsResult;
     }
     const corsHeaders = corsResult;
+
+    // www → apex redirect (301)
+    if (hostname.startsWith('www.')) {
+      const apexUrl = new URL(request.url);
+      apexUrl.hostname = hostname.slice(4);
+      return Response.redirect(apexUrl.toString(), 301);
+    }
 
     // Resolve origin config for this hostname
     const originConfig = getOriginConfig(hostname);
