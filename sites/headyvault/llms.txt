@@ -1,0 +1,15 @@
+# HeadyVault
+> Your Sovereign AI Data Vault — part of the Heady ecosystem
+
+HeadyVault provides enterprise-grade encrypted data storage for AI workloads.
+Zero-trust security, edge-first architecture, and phi-scaled auto-scaling.
+
+## Features
+- Edge-First: 300+ Cloudflare edge locations, sub-100ms latency
+- Zero-Trust: Every request authenticated, every connection encrypted
+- Auto-Scaling: Fibonacci-based resource allocation
+- API-First: REST and GraphQL with comprehensive SDKs
+
+## Links
+- https://headysystems.com
+- https://headyapi.com/docs/vault
