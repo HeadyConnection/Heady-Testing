@@ -4,12 +4,17 @@
   "description": "Zero-intervention autonomous self-healing test framework with MAPE-K loop",
   "main": "src/self-healing-runner.js",
   "bin": {
-    "heady-self-heal": "src/self-healing-runner.js"
+    "heady-self-heal": "src/self-healing-runner.js",
+    "heady-ecosystem": "src/ecosystem-runner.js"
   },
   "scripts": {
     "start": "node src/self-healing-runner.js",
-    "test": "node tests/test-self-healing.js",
+    "test": "node tests/test-self-healing.js && node tests/test-ecosystem.js",
+    "test:self-healing": "node tests/test-self-healing.js",
+    "test:ecosystem": "node tests/test-ecosystem.js",
     "heal": "node src/self-healing-runner.js --report",
+    "ecosystem": "node src/ecosystem-runner.js --report",
+    "ecosystem:quiet": "node src/ecosystem-runner.js --report --quiet",
     "chaos": "node src/self-healing-runner.js --chaos --report",
     "fuzz": "node src/self-healing-runner.js --fuzz 10000 --report",
     "full": "node src/self-healing-runner.js --chaos --fuzz 1000 --report"
@@ -17,7 +22,9 @@
   "exports": {
     ".": "./src/self-healing-runner.js",
     "./mape-k": "./src/mape-k-engine.js",
-    "./chaos": "./src/chaos-injector.js"
+    "./chaos": "./src/chaos-injector.js",
+    "./ecosystem": "./src/ecosystem-runner.js",
+    "./health": "./src/ecosystem-health.js"
   },
   "keywords": [
     "heady",
