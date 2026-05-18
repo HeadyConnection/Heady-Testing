@@ -28,6 +28,6 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "node": "^20.0.0"
+    "node": "^22.22.3"
   }
 }
