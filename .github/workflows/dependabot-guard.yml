@@ -1,0 +1,59 @@
+# Heady™ CI Guard — Dependabot fan-out prevention
+# Path: .github/workflows/dependabot-guard.yml
+#
+# Fails any PR that reintroduces the npm wildcard-group construct
+# (`patterns: ["*"]`) in .github/dependabot.yml, which is what caused the
+# "bump the npm_and_yarn group across N directories" mega-PR fan-out
+# (140 / 114 stacked PRs across the clone/testing repos).
+#
+# Also warns if dependabot.yml references archived/legacy trees.
+
+name: Dependabot Config Guard
+
+on:
+  pull_request:
+    paths:
+      - ".github/dependabot.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/dependabot.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reject npm wildcard group (fan-out construct)
+        shell: bash
+        run: |
+          CFG=".github/dependabot.yml"
+          if [ ! -f "$CFG" ]; then
+            echo "No $CFG present — nothing to guard."
+            exit 0
+          fi
+
+          # Detect an npm `groups` block containing `patterns:` with a bare "*".
+          # This is the construct that triggers npm-workspace fan-out.
+          if grep -Pzo '(?s)package-ecosystem:\s*"?npm"?.*?patterns:\s*\n\s*-\s*"\*"' "$CFG" >/dev/null 2>&1; then
+            echo "::error file=$CFG::Found npm group with patterns: [\"*\"]. This causes Dependabot to fan out across all npm-workspace members and stack mega-PRs. Group by update-types instead."
+            exit 1
+          fi
+
+          echo "OK: no npm wildcard-pattern group found."
+
+      - name: Warn on archive/legacy references
+        shell: bash
+        run: |
+          CFG=".github/dependabot.yml"
+          [ -f "$CFG" ] || exit 0
+          if grep -Eq '_archive|headyos-react|/dist|/build' "$CFG"; then
+            echo "::warning file=$CFG::dependabot.yml references an archive/legacy/build path. Confirm these are excluded, not targeted."
+          else
+            echo "OK: no archive/legacy paths referenced."
+          fi
