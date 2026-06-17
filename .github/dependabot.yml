@@ -1,48 +1,111 @@
-# P2-4: Dependabot configuration
+# Heady™ Dependabot — fan-out-controlled configuration
+# Drop-in replacement for .github/dependabot.yml on the noisy clone/testing repos:
+#   Heady-Main-ddb9351d, Heady-Testing-13ca6b12, Heady-Testing-83c4b580,
+#   Heady-Testing, Heady-Staging
+#
+# ROOT CAUSE (confirmed forensically 2026-06-17):
+#   These repos declared an npm `groups` block with `patterns: ["*"]` over a
+#   monorepo that uses npm workspaces. Dependabot v2 then traverses EVERY
+#   workspace member manifest (80-91 of them, including _archive/sites/headyos-react)
+#   and opens one giant "bump the npm_and_yarn group across N directories" PR per
+#   cycle. Because the discovered directory set shifts slightly each run
+#   (57 -> 59 -> 61 -> ... -> 82), it stacks a NEW PR every cycle instead of
+#   superseding the old one. Result: 140 / 114 / 20 / 12 / 11 stacked PRs.
+#
+# FIX:
+#   1. npm: keep `directory: "/"` (root manifest only) and REMOVE the wildcard
+#      `patterns: ["*"]` group. Without a workspace-spanning group, Dependabot
+#      updates the root manifest only and stops fanning out across members.
+#   2. Group only by update-type (minor/patch) so routine bumps land in ONE PR.
+#   3. Cap open PRs low.
+#   4. pip: pin to the explicit active service manifests (no recursion).
+#   5. github-actions: keep (low noise, high value for CI hygiene).
+#
+# NOTE: hybrid React is RETAINED per ADR HEA-257 / HEA-260. This config does NOT
+#       ban React; it only stops dependency automation from churning the whole
+#       monorepo (including archived React surfaces).
+
 version: 2
+
 updates:
+  # ---------------------------------------------------------------------------
+  # npm — ROOT MANIFEST ONLY. No `patterns: ["*"]` group => no workspace fan-out.
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
+    groups:
+      # Group by UPDATE TYPE only (NOT by `patterns: ["*"]`). This bundles
+      # routine minor/patch bumps of the ROOT manifest into a single PR.
+      production-patch-minor:
+        dependency-type: "production"
+        update-types: ["minor", "patch"]
+      dev-patch-minor:
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
     labels:
       - "dependencies"
       - "automated"
     commit-message:
-      prefix: "chore(deps):"
-    groups:
-      opentelemetry:
-        patterns:
-          - "@opentelemetry/*"
-      lint-format:
-        patterns:
-          - "eslint*"
-          - "prettier*"
-      ai-providers:
-        patterns:
-          - "openai"
-          - "@anthropic-ai/*"
-          - "@google/*"
+      prefix: "deps"
 
+  # ---------------------------------------------------------------------------
+  # pip — explicit active service manifests only (no recursive discovery).
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "pip"
+    directory: "/apps/ai_workflow_engine"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: "pip"
+    directory: "/oracle_service"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: "pip"
+    directory: "/midi_bridge"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+
+  # ---------------------------------------------------------------------------
+  # GitHub Actions — keep CI action versions current (low noise, high value).
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
+    open-pull-requests-limit: 3
     labels:
       - "ci"
-      - "automated"
-    commit-message:
-      prefix: "chore(ci):"
+      - "dependencies"
 
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    labels:
-      - "docker"
-      - "automated"
-    commit-message:
-      prefix: "chore(docker):"
+# =============================================================================
+# DO NOT reintroduce an npm `groups` entry with `patterns: ["*"]` on a repo that
+# uses npm workspaces. That is the exact construct that produced the
+# "bump the npm_and_yarn group across N directories" mega-PR fan-out.
+#
+# Archived / legacy / build-output trees that must stay OUT of automation:
+#   _archive/**            _archive/sites/headyos-react/**
+#   **/dist/**  **/build/**  **/node_modules/**
+# =============================================================================
