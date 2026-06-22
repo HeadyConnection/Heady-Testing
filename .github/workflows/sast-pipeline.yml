@@ -366,7 +366,7 @@ jobs:
 
       - name: Attach SBOM to release (if release event)
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: heady-sbom.cdx.json
 
