@@ -139,7 +139,7 @@ jobs:
 
       - name: Run OWASP ZAP Full Scan
         if: env.SCAN_MODE == 'full'
-        uses: zaproxy/action-full-scan@v0.10.0
+        uses: zaproxy/action-full-scan@v0.13.0
         with:
           target: ${{ needs.setup.outputs.target_url }}
           rules_file_name: zap-config/zap-rules.conf
